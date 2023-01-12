@@ -1,0 +1,3 @@
+setx PG_SERVER_BINARY_11_17 C:\X\pgsql-11\
+setx PG_SERVER_BINARY_14_5 C:\X\pgsql-14
+
