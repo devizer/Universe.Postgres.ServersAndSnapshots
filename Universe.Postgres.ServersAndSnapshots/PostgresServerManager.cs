@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace Universe.Postgres.ServersAndSnapshots
 {
@@ -17,11 +18,15 @@ namespace Universe.Postgres.ServersAndSnapshots
 
         private static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-        public static void CreateServerInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions)
+        public static ExecProcessHelper.ExecResult CreateServerInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions)
         {
             var ext = IsWindows ? ".exe" : "";
             var exe = Path.Combine(serverBinaries.ServerPath, $"bin{Path.DirectorySeparatorChar}initdb{ext}");
             var args = $"-D \"{instanceOptions.DataPath}\"";
+
+            var ret = ExecProcessHelper.HiddenExec(exe, args);
+            ret.DemandGenericSuccess($"InitDb invocation of '{exe}'");
+            return ret;
         }
 
         public static void StartInstance(this ServerBinariesRequest serverBinariesRequest, PostgresInstanceOptions instanceOptions, bool waitFor = true)
@@ -57,6 +62,8 @@ namespace Universe.Postgres.ServersAndSnapshots
         {
             return $"PostgreSQL Server Version {Version} '{ServerPath}'";
         }
+
+        public static implicit operator ServerBinariesRequest(ServerBinaries arg) => new ServerBinariesRequest() { ServerPath = arg.ServerPath };
     }
 
     public class PostgresInstanceOptions

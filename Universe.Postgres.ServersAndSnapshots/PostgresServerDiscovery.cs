@@ -142,14 +142,7 @@ namespace Universe.Postgres.ServersAndSnapshots
 
         static T TryEval<T>(Func<T> factory)
         {
-            try
-            {
-                return factory();
-            }
-            catch
-            {
-                return default(T);
-            }
+            return TryAndForget.Evaluate(factory);
         }
 
     }
