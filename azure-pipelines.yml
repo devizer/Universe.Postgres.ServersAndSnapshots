@@ -39,6 +39,7 @@ jobs:
       pushd "$(System.ARTIFACTSDIRECTORY)"
       7z a -mx=1 "Source-$(Agent.JobName).7z" "$d"
       popd
+    condition: succeededOrFailed()
     displayName: 'Prepare Artifacts'
 
   - task: PublishBuildArtifacts@1
