@@ -15,6 +15,7 @@ jobs:
   pool:
     vmImage: '$(IMAGE)'
   timeoutInMinutes: 20
+  maxParallel: 7
   strategy:
     matrix:
       'Win-Default':
