@@ -18,30 +18,29 @@ jobs:
   strategy:
     maxParallel: 10
     matrix:
-      'vDefault on Win-2022':
+      'vDefault on Win 2022':
         IMAGE: "windows-2022"
-      'vDefault on Win-2019':
+      'vDefault on Win 2019':
         IMAGE: "windows-2019"
-
-      'v9 on Win-2019':
+      'v9 on Win 2019':
         IMAGE: "windows-2019"
         PG_WINDOWS: postgresql9
-      'Win-2022-vPG10':
+      'v10 on Win 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql10
-      'Win-2022-vPG11':
+      'v11 on Win 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql11
-      'Win-2022-vPG12':
+      'v12 on Win 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql12
-      'Win-2022-vPG13':
+      'v13 on Win 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql13
-      'Win-2022-vPG14':
+      'v14 on Win 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql14
-      'Win-2022-vPG15':
+      'v15 on Win 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql15
       
@@ -49,35 +48,35 @@ jobs:
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 16
       
+      'v15 on Ubuntu 20.04':
+        IMAGE: "ubuntu-20.04"
+        PG_LINUX: 15
+      
       'v14 on Ubuntu 20.04':
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 14
+      
+      'v13 on Ubuntu 20.04':
+        IMAGE: "ubuntu-20.04"
+        PG_LINUX: 13
+      
+      'v12 on Ubuntu 20.04':
+        IMAGE: "ubuntu-20.04"
+        PG_LINUX: 12
+      
+      'v11 on Ubuntu 20.04':
+        IMAGE: "ubuntu-20.04"
+        PG_LINUX: 11
+      
+      'v10 on Ubuntu 20.04':
+        IMAGE: "ubuntu-20.04"
+        PG_LINUX: 10
       
       'vDefault on Ubuntu 22.04':
         IMAGE: "ubuntu-22.04"
       
       'vDefault on Ubuntu 20.04':
         IMAGE: "ubuntu-20.04"
-      
-      'v10 on Ubuntu 20.04':
-        IMAGE: "ubuntu-20.04"
-        PG_LINUX: 10
-      
-      'v11 on Ubuntu 20.04':
-        IMAGE: "ubuntu-20.04"
-        PG_LINUX: 11
-      
-      'v12 on Ubuntu 20.04':
-        IMAGE: "ubuntu-20.04"
-        PG_LINUX: 12
-      
-      'v13 on Ubuntu 20.04':
-        IMAGE: "ubuntu-20.04"
-        PG_LINUX: 13
-      
-      'v15 on Ubuntu 20.04':
-        IMAGE: "ubuntu-20.04"
-        PG_LINUX: 15
       
       'vDefault on Ubuntu 18.04':
         IMAGE: "ubuntu-18.04"
