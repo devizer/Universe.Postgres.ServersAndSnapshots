@@ -22,6 +22,20 @@ jobs:
         IMAGE: "windows-2022"
       'Win-2019':
         IMAGE: "windows-2019"
+
+      'Win-2019-PGv9':
+        IMAGE: "windows-2019"
+        PG_WINDOWS: postgresql9
+      'Win-2022-vPG10':
+        IMAGE: "windows-2022"
+        PG_WINDOWS: postgresql10
+      'Win-2022-vPG11':
+        IMAGE: "windows-2022"
+        PG_WINDOWS: postgresql11
+      'Win-2022-vPG12':
+        IMAGE: "windows-2022"
+        PG_WINDOWS: postgresql12
+      
       'Ubuntu-20-PGv16':
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 16
@@ -76,6 +90,12 @@ jobs:
       /usr/lib/postgresql/$PG_LINUX/bin/pg_ctl --version
     condition: ne(variables['PG_LINUX'], '')
     displayName: 'Postgres on Linux'
+
+  - script: |
+      @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+      choco install --no-progress --params '/Password:test' %PG_WINDOWS% -my
+    condition: ne(variables['PG_WINDOWS'], '')
+    displayName: 'Postgres on Windows'
 
   - bash: |
       set -eu; set -o pipefail
