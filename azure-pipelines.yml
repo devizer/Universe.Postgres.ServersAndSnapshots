@@ -1,0 +1,49 @@
+variables:
+  NUGET_VERSION: 0.1
+
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - '**'
+
+jobs:
+
+- job: PG
+  pool:
+    vmImage: '$(IMAGE)'
+  timeoutInMinutes: 20
+  strategy:
+    matrix:
+      'Win-Default':
+        IMAGE: "windows-2022"
+      'Ubuntu-22-default':
+        IMAGE: "ubuntu-22.04"
+      'Ubuntu-20-default':
+        IMAGE: "ubuntu-20.04"
+      'Ubuntu-18-default':
+        IMAGE: "ubuntu-18.04"
+
+  steps:
+  - bash: |
+      set -eu; set -o pipefail
+      dotnet restore || dotnet restore --disable-parallel
+      dotnet test
+    displayName: 'all'
+
+  - bash: |
+      set -eu; set -o pipefail
+      d=$PWD
+      pushd "$(System.ARTIFACTSDIRECTORY)"
+      7z a -mx=1 "Source-$(Agent.JobName).7z" "$d"
+      popd
+    displayName: 'Prepare Artifacts'
+
+  - task: PublishBuildArtifacts@1
+    condition: succeededOrFailed()
+    displayName: 'Publish'
+    inputs:
+      pathtoPublish: '$(System.ARTIFACTSDIRECTORY)'
+      artifactName: '$(Agent.JobName)'
