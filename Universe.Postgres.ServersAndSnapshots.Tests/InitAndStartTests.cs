@@ -58,11 +58,15 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             if (conError != null)
                 Console.WriteLine($"CONNECTION ERROR: {conError.Message}{Environment.NewLine}{conError}");
             else
-                Console.WriteLine($"SUCCESSFUL CONNECTION in {waitForDb.ElapsedMilliseconds:n0} milliseconds");
+                Console.WriteLine($"SUCCESSFUL CONNECTION in {waitForDb.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
 
 
             TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
             TryAndForget.Execute(() => Directory.Delete(options.DataPath));
+
+            Assert.IsNull(conError);
+            Assert.IsNotNull(serverVersion);
+
         }
     }
 }

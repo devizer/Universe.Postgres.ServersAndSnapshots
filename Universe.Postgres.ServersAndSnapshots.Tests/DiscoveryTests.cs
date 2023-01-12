@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Universe.NUnitTests;
@@ -9,7 +10,12 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
     public class PgServerTestCase
     {
         public ServerBinaries ServerBinaries { get; set; }
-        public static ServerBinaries[] GetServers() => PostgresServerDiscovery.GetServers();
+
+        public static ServerBinaries[] GetServers()
+        {
+            var ret = PostgresServerDiscovery.GetServers();
+            return ret.Concat(ret).ToArray();
+        }
 
         public override string ToString()
         {
