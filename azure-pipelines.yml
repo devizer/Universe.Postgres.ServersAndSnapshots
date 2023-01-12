@@ -63,8 +63,9 @@ jobs:
   - bash: |
       Say "Installing Postgres v$PG_LINUX on Linux"
       sudo rm -rf /etc/postgresql /var/lib/postgresql
-      sudo apt-get install -y -qq postgresql-common |& ( grep Setting || true; )
+      sudo apt-get install -y -qq postgresql-common gnupg |& ( grep Setting || true; )
       sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -p -v $PG_LINUX -i |& tee $SYSTEM_ARTIFACTSDIRECTORY/postgres-0-installing.txt
+      find /usr/lib/postgresql > $SYSTEM_ARTIFACTSDIRECTORY/postgres-$PG_LINUX-files.txt
     condition: ne(variables['PG_LINUX'], '')
     displayName: 'Postgres on Linux'
 
