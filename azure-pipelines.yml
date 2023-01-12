@@ -89,9 +89,12 @@ jobs:
       Say "Install DotNet"
       export DOTNET_VERSIONS="5.0 6.0 7.0"
       script=https://raw.githubusercontent.com/devizer/test-and-build/master/lab/install-DOTNET.sh; (wget -q -nv --no-check-certificate -O - $script 2>/dev/null || curl -ksSL $script) | bash; test -s /usr/share/dotnet/dotnet && sudo ln -f -s /usr/share/dotnet/dotnet /usr/local/bin/dotnet
+      Say "ENVIRONMENT"
       printenv | sort
+      Say ".NET SDKs"
       dotnet --list-sdks
-
+      Say "Locales"
+      locale -a
     condition: ne(variables['Agent.OS'], 'Windows_NT')
     displayName: 'Bootstrap on Linux'
 
