@@ -24,7 +24,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             using var passwordFile = DisposableTempFile.Create(passwordFileName, instanceOptions.SystemPassword);
             var ext = IsWindows ? ".exe" : "";
             var exe = Path.Combine(serverBinaries.ServerPath, $"bin{Path.DirectorySeparatorChar}initdb{ext}");
-            var args = $"-D \"{instanceOptions.DataPath}\" --pwfile \"{passwordFileName}\" -U \"{instanceOptions.SystemUser}\"";
+            var args = $"--locale=en_US.utf8 -D \"{instanceOptions.DataPath}\" --pwfile \"{passwordFileName}\" -U \"{instanceOptions.SystemUser}\"";
 
             var ret = ExecProcessHelper.HiddenExec(exe, args);
             ret.DemandGenericSuccess($"InitDb invocation of '{exe}'");
