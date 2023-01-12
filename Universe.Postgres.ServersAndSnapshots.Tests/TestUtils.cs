@@ -6,6 +6,8 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
 {
     internal class TestUtils
     {
+        public static int Port = 5432;
+
         public static string RootWorkFolder
         {
             get

@@ -35,21 +35,35 @@ namespace Universe.Postgres.ServersAndSnapshots
             using(FileStream fs = new FileStream(confFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
             using (StreamWriter wr = new StreamWriter(fs, Encoding.UTF8))
             {
-                wr.WriteLine(@$"{Environment.NewLine}
-port = {instanceOptions.ServerPort:f0}
-unix_socket_directories = '{socketDir}'
-");
+                wr.WriteLine(@$"{Environment.NewLine}port = {instanceOptions.ServerPort:f0}");
+                if (!IsWindows)
+                    wr.WriteLine(@$"{Environment.NewLine}unix_socket_directories = '{socketDir}'");
             }
 
             return ret;
         }
 
-        public static void StartInstance(this ServerBinariesRequest serverBinariesRequest, PostgresInstanceOptions instanceOptions, bool waitFor = true)
+        public static ExecProcessHelper.ExecResult StartInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, bool waitFor = true)
         {
+            return InvokePgCtl(serverBinaries, instanceOptions, "start");
         }
 
-        public static void StopInstance(this ServerBinariesRequest serverBinariesRequest, PostgresInstanceOptions instanceOptions, bool waitFor = true)
+        public static ExecProcessHelper.ExecResult StopInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, bool waitFor = true)
         {
+            return InvokePgCtl(serverBinaries, instanceOptions, "stop");
+        }
+
+        private static ExecProcessHelper.ExecResult InvokePgCtl(ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, string command)
+        {
+            var ext = IsWindows ? ".exe" : "";
+            var exe = Path.Combine(serverBinaries.ServerPath, $"bin{Path.DirectorySeparatorChar}pg_ctl{ext}");
+            var logFile = Path.Combine(instanceOptions.DataPath, "server.log");
+            // time sudo -u "$user" "$pgbin/pg_ctl" -w -D "$data" -l "$data/server.log" start
+            var args = $"-w -D \"{instanceOptions.DataPath}\" -l \"{logFile}\" start";
+
+            var ret = ExecProcessHelper.HiddenExec(exe, args, 15000);
+            ret.DemandGenericSuccess($"Command '{command}' for '{exe}' using data at '{instanceOptions.DataPath}'");
+            return ret;
         }
 
         public static void CreateSnapshot(this ServerBinariesRequest serverBinariesRequest, PostgresInstanceOptions instanceOptions, PostgresInstanceSnapshot snapshot)
