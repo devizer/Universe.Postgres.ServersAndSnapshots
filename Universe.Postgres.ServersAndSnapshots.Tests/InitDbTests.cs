@@ -13,7 +13,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         {
             PostgresInstanceOptions options = new PostgresInstanceOptions()
             {
-                DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-" + serverBinaries.Version + "-init"),
+                DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-" + serverBinaries.Version + "-init"),
                 ServerPort = Interlocked.Increment(ref TestUtils.Port),
             };
             var result = PostgresServerManager.CreateServerInstance(serverBinaries, options);
