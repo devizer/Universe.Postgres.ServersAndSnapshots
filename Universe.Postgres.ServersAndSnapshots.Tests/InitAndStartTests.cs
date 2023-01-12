@@ -36,12 +36,41 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             csBuilder.Timeout = 1;
             csBuilder.CommandTimeout = 1;
 
+            
+            Stopwatch waitForStart = WaitForPgsqllDb(csBuilder.ToString(), 15000, out var serverVersion, out var conError);
+
+            if (conError != null)
+                Console.WriteLine($"CONNECTION ERROR: {conError.Message}{Environment.NewLine}{conError}");
+            else
+                Console.WriteLine($"SUCCESSFUL CONNECTION in {waitForStart.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
+
+
+            TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
+            TryAndForget.Execute(() => Directory.Delete(options.DataPath));
+            
+            // STOP
+            Stopwatch waitForStopDb = WaitForPgsqllDb(csBuilder.ToString(), 2000, out var serverVersionOnStop, out var conErrorOnStop);
+            if (conErrorOnStop != null)
+                Console.WriteLine($"[ON STOP] connection error as expected: {conErrorOnStop.Message}");
+            else
+                Console.WriteLine($"[ON STOP] Warning! Unexpected successful connection in {waitForStopDb.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersionOnStop}");
+
+
+            Assert.IsNull(conError);
+            Assert.IsNotNull(serverVersion);
+
+            Assert.IsNotNull(conErrorOnStop);
+            Assert.IsNull(serverVersionOnStop);
+        }
+
+        private static Stopwatch WaitForPgsqllDb(string connectionString, int connectivityTimeout, out string serverVersion, out Exception conError)
+        {
             Stopwatch waitForDb = Stopwatch.StartNew();
-            Exception conError = null;
-            string serverVersion = null;
+            serverVersion = null;
+            conError = null;
             do
             {
-                using NpgsqlConnection con = new NpgsqlConnection(csBuilder.ConnectionString);
+                using NpgsqlConnection con = new NpgsqlConnection(connectionString);
                 try
                 {
                     serverVersion = con.QueryFirst<string>("Select Version();");
@@ -52,21 +81,11 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 {
                     conError = ex;
                 }
+
                 Thread.Sleep(2);
-            } while (waitForDb.ElapsedMilliseconds < 15000);
+            } while (waitForDb.ElapsedMilliseconds <= connectivityTimeout);
 
-            if (conError != null)
-                Console.WriteLine($"CONNECTION ERROR: {conError.Message}{Environment.NewLine}{conError}");
-            else
-                Console.WriteLine($"SUCCESSFUL CONNECTION in {waitForDb.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
-
-
-            TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
-            TryAndForget.Execute(() => Directory.Delete(options.DataPath));
-
-            Assert.IsNull(conError);
-            Assert.IsNotNull(serverVersion);
-
+            return waitForDb;
         }
     }
 }
