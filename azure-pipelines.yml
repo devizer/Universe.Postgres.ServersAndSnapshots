@@ -18,8 +18,16 @@ jobs:
   strategy:
     maxParallel: 10
     matrix:
-      'Win-Default':
+      'Win-2022':
         IMAGE: "windows-2022"
+      'Win-2019':
+        IMAGE: "windows-2019"
+      'Ubuntu-20-PGv16':
+        IMAGE: "ubuntu-20.04"
+        PG_LINUX: 16
+      'Ubuntu-20-PGv14':
+        IMAGE: "ubuntu-20.04"
+        PG_LINUX: 14
       'Ubuntu-22-default':
         IMAGE: "ubuntu-22.04"
       'Ubuntu-20-default':
@@ -36,15 +44,9 @@ jobs:
       'Ubuntu-20-PGv13':
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 13
-      'Ubuntu-20-PGv14':
-        IMAGE: "ubuntu-20.04"
-        PG_LINUX: 14
       'Ubuntu-20-PGv15':
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 15
-      'Ubuntu-20-PGv16':
-        IMAGE: "ubuntu-20.04"
-        PG_LINUX: 16
       'Ubuntu-18-default':
         IMAGE: "ubuntu-18.04"
 
