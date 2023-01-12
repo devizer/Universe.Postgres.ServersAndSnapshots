@@ -6,7 +6,7 @@ using Universe.NUnitTests;
 
 namespace Universe.Postgres.ServersAndSnapshots.Tests
 {
-    public class AllTests : NUnitTestsBase
+    public class InitDbTests : NUnitTestsBase
     {
         static int Port = 5432;
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]

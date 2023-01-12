@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using Microsoft.VisualBasic.CompilerServices;
+using System.Text;
 
 namespace Universe.Postgres.ServersAndSnapshots
 {
@@ -20,12 +20,27 @@ namespace Universe.Postgres.ServersAndSnapshots
 
         public static ExecProcessHelper.ExecResult CreateServerInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions)
         {
+            var passwordFileName = Guid.NewGuid().ToString("N");
+            using var passwordFile = DisposableTempFile.Create(passwordFileName, instanceOptions.SystemPassword);
             var ext = IsWindows ? ".exe" : "";
             var exe = Path.Combine(serverBinaries.ServerPath, $"bin{Path.DirectorySeparatorChar}initdb{ext}");
-            var args = $"-D \"{instanceOptions.DataPath}\"";
+            var args = $"-D \"{instanceOptions.DataPath}\" --pwfile \"{passwordFileName}\" -U \"{instanceOptions.SystemUser}\"";
 
             var ret = ExecProcessHelper.HiddenExec(exe, args);
             ret.DemandGenericSuccess($"InitDb invocation of '{exe}'");
+
+            var socketDir = $"{instanceOptions.DataPath}{Path.DirectorySeparatorChar}socket-dir";
+            TryAndForget.Execute(() => Directory.CreateDirectory(socketDir));
+            var confFileName = Path.Combine(instanceOptions.DataPath, "postgresql.conf");
+            using(FileStream fs = new FileStream(confFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
+            using (StreamWriter wr = new StreamWriter(fs, Encoding.UTF8))
+            {
+                wr.WriteLine(@$"{Environment.NewLine}
+port = {instanceOptions.ServerPort:f0}
+unix_socket_directories = '{socketDir}'
+");
+            }
+
             return ret;
         }
 
