@@ -10,7 +10,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
     public class InitAndStartTests : NUnitTestsBase
     {
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
-        public void TestInitDb(ServerBinaries serverBinaries)
+        public void TestStartDb(ServerBinaries serverBinaries)
         {
             PostgresInstanceOptions options = new PostgresInstanceOptions()
             {
