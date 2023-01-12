@@ -35,6 +35,15 @@ jobs:
       'Win-2022-vPG12':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql12
+      'Win-2022-vPG13':
+        IMAGE: "windows-2022"
+        PG_WINDOWS: postgresql13
+      'Win-2022-vPG14':
+        IMAGE: "windows-2022"
+        PG_WINDOWS: postgresql14
+      'Win-2022-vPG15':
+        IMAGE: "windows-2022"
+        PG_WINDOWS: postgresql15
       
       'Ubuntu-20-PGv16':
         IMAGE: "ubuntu-20.04"
