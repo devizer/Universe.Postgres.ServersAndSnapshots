@@ -10,6 +10,10 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         [Test]
         public void Test1()
         {
+
+            Version.TryParse("16.99999", out var v);
+            TestContext.Progress.WriteLine($"Version: {v}");
+
             TestContext.Progress.WriteLine(Path.GetPathRoot(Environment.SystemDirectory));
             TestContext.Progress.WriteLine(new DirectoryInfo("C:\\X").FullName);
             TestContext.Progress.WriteLine(new DirectoryInfo("C:\\X\\").FullName);

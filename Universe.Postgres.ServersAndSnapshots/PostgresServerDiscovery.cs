@@ -80,8 +80,9 @@ namespace Universe.Postgres.ServersAndSnapshots
             {
                 var wordPatched = word;
                 // 16devel?
-                if (wordPatched.EndsWith("devel", StringComparison.InvariantCultureIgnoreCase))
-                    wordPatched = word.Length > 5 ? word.Substring(0, word.Length - 5) : word;
+                if (word.EndsWith("devel", StringComparison.InvariantCultureIgnoreCase))
+                    // wordPatched = word.Length > 5 ? word.Substring(0, word.Length - 5) : word;
+                    wordPatched = word.Replace("devel", ".99999");
 
                 StringBuilder verCandidate = new StringBuilder();
                 foreach (var ch in wordPatched)
