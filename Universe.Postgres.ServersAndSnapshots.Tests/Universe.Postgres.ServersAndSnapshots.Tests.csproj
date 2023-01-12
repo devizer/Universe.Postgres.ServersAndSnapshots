@@ -2,9 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
+  <Import Project="..\Shared-Files\NUnit-Platform.props" />
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />

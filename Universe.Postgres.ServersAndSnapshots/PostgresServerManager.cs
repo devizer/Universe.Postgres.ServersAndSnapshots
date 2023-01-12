@@ -1,25 +1,27 @@
 ﻿using System;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Universe.Postgres.ServersAndSnapshots
 {
     public static class PostgresServerManager
     {
-        public static Version GetVersion(this ServerBinariesRequest serverBinariesRequest)
-        {
-            throw new NotImplementedException();
-        }
-
         // Fuzzy logic
-        public static Version FindPostgresServers(this ServerBinariesRequest serverBinariesRequest)
+        public static ServerBinaries[] FindPostgresServers(this ServerBinariesRequest serverBinariesRequest)
         {
             // Linux: /usr/lib/postgresql/14/bin/initdb
             // Windows: C:\Program Files\PostgreSQL\{}, C:\Program Files (x86)\PostgreSQL\{}
             // Any: ENV PG_SERVER_BINARY{any}
-            throw new NotImplementedException();
+            return PostgresServerDiscovery.GetServers();
         }
 
-        public static void CreateServerInstance(this ServerBinariesRequest serverBinariesRequest, PostgresInstanceOptions instanceOptions)
+        private static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+        public static void CreateServerInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions)
         {
+            var ext = IsWindows ? ".exe" : "";
+            var exe = Path.Combine(serverBinaries.ServerPath, $"bin{Path.DirectorySeparatorChar}initdb{ext}");
+            var args = $"-D \"{instanceOptions.DataPath}\"";
         }
 
         public static void StartInstance(this ServerBinariesRequest serverBinariesRequest, PostgresInstanceOptions instanceOptions, bool waitFor = true)
