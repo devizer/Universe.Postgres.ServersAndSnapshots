@@ -119,7 +119,7 @@ jobs:
   - bash: |
       set -eu; set -o pipefail
       dotnet restore || dotnet restore --disable-parallel
-      dotnet test
+      dotnet test --collect:"XPlat Code Coverage" --logger trx
     displayName: 'Test All'
 
   - bash: |
