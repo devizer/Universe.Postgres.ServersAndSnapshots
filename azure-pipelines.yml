@@ -18,12 +18,12 @@ jobs:
   strategy:
     maxParallel: 10
     matrix:
-      'Win-2022':
+      'vDefault on Win-2022':
         IMAGE: "windows-2022"
-      'Win-2019':
+      'vDefault on Win-2019':
         IMAGE: "windows-2019"
 
-      'Win-2019-PGv9':
+      'v9 on Win-2019':
         IMAGE: "windows-2019"
         PG_WINDOWS: postgresql9
       'Win-2022-vPG10':
@@ -45,32 +45,41 @@ jobs:
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql15
       
-      'Ubuntu-20-PGv16':
+      'v16 (devel) on Ubuntu 20.04':
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 16
-      'Ubuntu-20-PGv14':
+      
+      'v14 on Ubuntu 20.04':
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 14
-      'Ubuntu-22-default':
+      
+      'vDefault on Ubuntu 22.04':
         IMAGE: "ubuntu-22.04"
-      'Ubuntu-20-default':
+      
+      'vDefault on Ubuntu 20.04':
         IMAGE: "ubuntu-20.04"
-      'Ubuntu-20-PGv10':
+      
+      'v10 on Ubuntu 20.04':
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 10
-      'Ubuntu-20-PGv11':
+      
+      'v11 on Ubuntu 20.04':
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 11
-      'Ubuntu-20-PGv12':
+      
+      'v12 on Ubuntu 20.04':
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 12
-      'Ubuntu-20-PGv13':
+      
+      'v13 on Ubuntu 20.04':
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 13
-      'Ubuntu-20-PGv15':
+      
+      'v15 on Ubuntu 20.04':
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 15
-      'Ubuntu-18-default':
+      
+      'vDefault on Ubuntu 18.04':
         IMAGE: "ubuntu-18.04"
 
   steps:
