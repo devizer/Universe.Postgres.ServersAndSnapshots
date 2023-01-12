@@ -59,7 +59,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             var exe = Path.Combine(serverBinaries.ServerPath, $"bin{Path.DirectorySeparatorChar}pg_ctl{ext}");
             var logFile = Path.Combine(instanceOptions.DataPath, "server.log");
             // time sudo -u "$user" "$pgbin/pg_ctl" -w -D "$data" -l "$data/server.log" start
-            var args = $"-w -D \"{instanceOptions.DataPath}\" -l \"{logFile}\" start";
+            var args = $"-D \"{instanceOptions.DataPath}\" -l \"{logFile}\" start";
 
             var ret = ExecProcessHelper.HiddenExec(exe, args, 15000);
             ret.DemandGenericSuccess($"Command '{command}' for '{exe}' using data at '{instanceOptions.DataPath}'");
