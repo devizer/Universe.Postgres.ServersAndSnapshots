@@ -76,7 +76,9 @@ namespace Universe
             ManualResetEventSlim outputDone = new ManualResetEventSlim(false);
             ManualResetEventSlim errorDone = new ManualResetEventSlim(false);
             string outputText = null;
+            StringBuilder outputTextBuilder = new StringBuilder();
             string errorText = null;
+            StringBuilder errorTextBuilder = new StringBuilder();
             Exception outputException = null;
             Exception errorException = null;
 
@@ -101,11 +103,15 @@ namespace Universe
                     });
                 }
 
+                // void 
+
                 ThreadPool.QueueUserWorkItem(_ =>
                     {
                         try
                         {
-                            errorText = process.StandardError.ReadToEnd();
+                            ReadLineByLine(errorTextBuilder, process.StandardError);
+                            // errorText = errorTextBuilder.ToString();
+                            // errorText = process.StandardError.ReadToEnd();
                         }
                         catch (Exception ex)
                         {
@@ -122,7 +128,9 @@ namespace Universe
                     {
                         try
                         {
-                            outputText = process.StandardOutput.ReadToEnd();
+                            ReadLineByLine(outputTextBuilder, process.StandardOutput);
+                            // outputText = outputTextBuilder.ToString();
+                            // outputText = process.StandardOutput.ReadToEnd();
                         }
                         catch (Exception ex)
                         {
@@ -135,17 +143,26 @@ namespace Universe
                     }
                 );
 
+                Stopwatch startAt = Stopwatch.StartNew();
+                bool isProcessFinished = process.WaitForExit(millisecondsTimeout);
+
+                int remainingMilliseconds = millisecondsTimeout - (int)startAt.ElapsedMilliseconds;
+
+                if (args.EndsWith("start", StringComparison.InvariantCultureIgnoreCase))
+                    if (Debugger.IsAttached) Debugger.Break();
+
+                if (isProcessFinished) remainingMilliseconds = 1;
+
                 bool isSuccess1 = WaitHandle.WaitAll(
                     new[] {errorDone.WaitHandle, outputDone.WaitHandle},
-                    millisecondsTimeout);
+                    Math.Max(1, remainingMilliseconds));
 
-                bool isSuccess2 = false;
-                if (isSuccess1)
-                    isSuccess2 = process.WaitForExit(millisecondsTimeout);
-
-                bool isSuccess = isSuccess1 && isSuccess2;
+                bool isSuccess = isProcessFinished;
 
                 var exitCode = isSuccess ? process.ExitCode : -1;
+
+                errorText = errorTextBuilder.ToString();
+                outputText = outputTextBuilder.ToString();
                 errorText = errorText?.TrimEnd('\r', '\n');
                 return new ExecResult()
                 {
@@ -156,6 +173,16 @@ namespace Universe
                     OutputException = outputException,
                     ErrorException = errorException,
                 };
+            }
+        }
+
+        private static void ReadLineByLine(StringBuilder result, StreamReader source)
+        {
+            while (true)
+            {
+                var line = source.ReadLine();
+                if (line == null) break;
+                result.AppendLine(line);
             }
         }
     }
