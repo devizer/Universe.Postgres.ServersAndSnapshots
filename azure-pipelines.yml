@@ -18,29 +18,29 @@ jobs:
   strategy:
     maxParallel: 10
     matrix:
-      'vDefault on Win 2022':
+      'vDefault on Windows 2022':
         IMAGE: "windows-2022"
-      'vDefault on Win 2019':
+      'vDefault on Windows 2019':
         IMAGE: "windows-2019"
-      'v9 on Win 2019':
+      'v9 on Windows 2019':
         IMAGE: "windows-2019"
         PG_WINDOWS: postgresql9
-      'v10 on Win 2022':
+      'v10 on Windows 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql10
-      'v11 on Win 2022':
+      'v11 on Windows 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql11
-      'v12 on Win 2022':
+      'v12 on Windows 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql12
-      'v13 on Win 2022':
+      'v13 on Windows 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql13
-      'v14 on Win 2022':
+      'v14 on Windows 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql14
-      'v15 on Win 2022':
+      'v15 on Windows 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql15
       
