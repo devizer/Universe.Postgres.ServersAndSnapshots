@@ -78,8 +78,13 @@ namespace Universe.Postgres.ServersAndSnapshots
             var words = raw.Split(' ');
             foreach (var word in words)
             {
+                var wordPatched = word;
+                // 16devel?
+                if (wordPatched.EndsWith("devel", StringComparison.InvariantCultureIgnoreCase))
+                    wordPatched = word.Length > 5 ? word.Substring(0, word.Length - 5) : word;
+
                 StringBuilder verCandidate = new StringBuilder();
-                foreach (var ch in word)
+                foreach (var ch in wordPatched)
                 {
                     if (!(Char.IsDigit(ch) || ch == '.')) break;
                     verCandidate.Append(ch);
