@@ -63,6 +63,5 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             Assert.IsNotNull(conErrorOnStop);
             Assert.IsNull(serverVersionOnStop);
         }
-
     }
 }
