@@ -133,7 +133,10 @@ jobs:
       curl -kSL -o "$file" "$url"
       7z x -y -o"C:\Program Files\PostgreSQL\${PG_PORTABLE_WINDOWS}" "$file"
       popd
-      dir -laR "C:\Program Files\PostgreSQL\${PG_PORTABLE_WINDOWS}"
+      pushd "C:\Program Files\PostgreSQL\${PG_PORTABLE_WINDOWS}"
+      echo PWD: $PWD
+      dir -laR .
+      popd 
       # dir /b /s "C:\Program Files\PostgreSQL\${PG_PORTABLE_WINDOWS}"
     condition: ne(variables['PG_PORTABLE_WINDOWS'], '')
     displayName: 'Postgres Portable on Windows'
