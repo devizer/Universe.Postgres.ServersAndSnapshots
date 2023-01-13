@@ -126,7 +126,7 @@ jobs:
       else
         export PG_SERVER_LOCALES='en-US de-DE'
       fi
-      Say "Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'"
+      echo "Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'"; echo ""
       dotnet restore || dotnet restore --disable-parallel
       dotnet test --collect:"XPlat Code Coverage" --logger trx
     displayName: 'Test All'
