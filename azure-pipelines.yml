@@ -46,9 +46,15 @@ jobs:
       'v10 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 10.23-x64-tiny
+      'v10 x86 (tiny portable) on Windows 2019':
+        IMAGE: "windows-2019"
+        PG_PORTABLE_WINDOWS: 10.23-x86-tiny
       'v9 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 9.6.24-x64-tiny
+      'v9 x86 (tiny portable) on Windows 2019':
+        IMAGE: "windows-2019"
+        PG_PORTABLE_WINDOWS: 9.6.24-x86-tiny
       'v9 on Windows 2019':
         IMAGE: "windows-2019"
         PG_WINDOWS: postgresql9
