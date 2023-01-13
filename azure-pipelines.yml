@@ -131,9 +131,9 @@ jobs:
       url="https://sourceforge.net/projects/postgres-binaries/files/$file/download"
       pushd ~
       curl -kSL -o "$file" "$url"
-      7z x -y -o"C:\Program Files\PostgreSQL\${PG_PORTABLE_WINDOWS}" "$file"
+      7z x -y -o"C:\\Program Files\\PostgreSQL\\${PG_PORTABLE_WINDOWS}" "$file"
       popd
-      pushd "C:\Program Files\PostgreSQL\${PG_PORTABLE_WINDOWS}"
+      pushd "C:\\Program Files\\PostgreSQL\\${PG_PORTABLE_WINDOWS}"
       echo PWD: $PWD
       dir -laR .
       popd 
