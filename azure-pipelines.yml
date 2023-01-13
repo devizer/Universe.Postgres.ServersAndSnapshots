@@ -157,7 +157,8 @@ jobs:
   - bash: |
       set -eu; set -o pipefail
       if [[ "${AGENT_OS:-}" == Linux ]]; then
-        export PG_SERVER_LOCALES='en_US.utf8 C.UTF-8 C -'
+        printf "en_US.UTF-8 UTF-8\nde_DE.UTF8 UTF-8\n" | sudo tee /etc/locale.gen > /dev/null; sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
+        export PG_SERVER_LOCALES='en_US.utf8 de_DE.UTF8 C.UTF-8 C -'
         cpu="$(cat /proc/cpuinfo | grep -E '^(model name|Hardware)' | awk -F':' 'NR==1 {print $2}')"; cpu="$(echo -e "${cpu:-}" | sed -e 's/^[[:space:]]*//')"
         echo "CPU: ${cpu:-}, $(nproc) Cores"
         Say "[LINUX] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'";
