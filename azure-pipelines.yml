@@ -22,6 +22,9 @@ jobs:
         IMAGE: "windows-2022"
       'vDefault on Windows 2019':
         IMAGE: "windows-2019"
+      'v14 (tiny portable) on Windows 2019':
+        IMAGE: "windows-2019"
+        PG_PORTABLE_WINDOWS: 14.6-x64-tiny
       'v9 on Windows 2019':
         IMAGE: "windows-2019"
         PG_WINDOWS: postgresql9
@@ -118,6 +121,17 @@ jobs:
       choco install --no-progress --params '/Password:test' %PG_WINDOWS% -my
     condition: ne(variables['PG_WINDOWS'], '')
     displayName: 'Postgres on Windows'
+
+  - bash: |
+      file="postgres-${PG_PORTABLE_WINDOWS}-windows.7z"
+      url="https://master.dl.sourceforge.net/project/postgres-binaries/$file?viasf=1"
+      url="https://sourceforge.net/projects/postgres-binaries/files/$file/download"
+      pushd ~
+      curl -kSL -o "$file" "$url"
+      7z x -o"C:\Program Files\PostgreSQL\${PG_PORTABLE_WINDOWS}" "$file"
+      popd
+    condition: ne(variables['PG_PORTABLE_WINDOWS'], '')
+    displayName: 'Postgres Portable on Windows'
 
   - bash: |
       set -eu; set -o pipefail
