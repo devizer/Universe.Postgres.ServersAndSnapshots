@@ -46,7 +46,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             else
             {
                 Console.WriteLine($"SUCCESSFUL CONNECTION in {waitForStart.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
-                Console.WriteLine($"[LOCALE] {new NpgsqlConnection(csBuilder.ConnectionString).GetCurrentDatabaseLocale()}");
+                Console.WriteLine($"[LOCALE '{options.Locale}'] {new NpgsqlConnection(csBuilder.ConnectionString).GetCurrentDatabaseLocale()}");
             }
 
 
