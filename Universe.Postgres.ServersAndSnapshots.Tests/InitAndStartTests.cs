@@ -44,7 +44,10 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             if (conError != null)
                 Console.WriteLine($"CONNECTION ERROR: {conError.Message}{Environment.NewLine}{conError}");
             else
+            {
                 Console.WriteLine($"SUCCESSFUL CONNECTION in {waitForStart.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
+                Console.WriteLine($"[LOCALE] {new NpgsqlConnection(csBuilder.ConnectionString).GetCurrentDatabaseLocale()}");
+            }
 
 
             TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
