@@ -1,9 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
-using Dapper;
 using Npgsql;
 using NUnit.Framework;
 using Universe.NUnitTests;
@@ -22,24 +20,24 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 ServerPort = Interlocked.Increment(ref TestUtils.Port),
                 Locale = testCase.Locale,
             };
+            
             var resultInit = PostgresServerManager.CreateServerInstance(serverBinaries, options);
-            Console.WriteLine(@$"INIT DB Output:
-{resultInit.OutputText}");
+            Console.WriteLine(@$"INIT DB Output:{Environment.NewLine}{resultInit.OutputText}");
 
             var resultStart = PostgresServerManager.StartInstance(serverBinaries, options);
-            Console.WriteLine(@$"START SERVER Output:
-{resultStart.OutputText}");
+            Console.WriteLine(@$"START SERVER Output:{Environment.NewLine}{resultStart.OutputText}");
 
-            NpgsqlConnectionStringBuilder csBuilder = new NpgsqlConnectionStringBuilder();
-            csBuilder.Host = "localhost";
-            csBuilder.Port = options.ServerPort;
-            csBuilder.Username = options.SystemUser;
-            csBuilder.Password = options.SystemPassword;
-            csBuilder.Timeout = 1;
-            csBuilder.CommandTimeout = 1;
-
+            NpgsqlConnectionStringBuilder csBuilder = new NpgsqlConnectionStringBuilder()
+            {
+                Host = "localhost",
+                Port = options.ServerPort,
+                Username = options.SystemUser,
+                Password = options.SystemPassword,
+                Timeout = 1,
+                CommandTimeout = 1,
+            };
             
-            Stopwatch waitForStart = WaitForPgsqllDb(csBuilder.ToString(), 15000, out var serverVersion, out var conError);
+            Stopwatch waitForStart = NpgsqlWaitForExtensions.WaitForPgsqllDb(csBuilder.ToString(), 15000, out var serverVersion, out var conError);
 
             if (conError != null)
                 Console.WriteLine($"CONNECTION ERROR: {conError.Message}{Environment.NewLine}{conError}");
@@ -49,17 +47,15 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 Console.WriteLine($"[LOCALE '{options.Locale}'] {new NpgsqlConnection(csBuilder.ConnectionString).GetCurrentDatabaseLocale()}");
             }
 
-
             TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
             TryAndForget.Execute(() => Directory.Delete(options.DataPath));
             
             // STOP
-            Stopwatch waitForStopDb = WaitForPgsqllDb(csBuilder.ToString(), 2000, out var serverVersionOnStop, out var conErrorOnStop);
+            Stopwatch waitForStopDb = NpgsqlWaitForExtensions.WaitForPgsqllDb(csBuilder.ToString(), 2000, out var serverVersionOnStop, out var conErrorOnStop);
             if (conErrorOnStop != null)
                 Console.WriteLine($"[ON STOP] connection error as expected: {conErrorOnStop.Message}");
             else
                 Console.WriteLine($"[ON STOP] Warning! Unexpected successful connection in {waitForStopDb.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersionOnStop}");
-
 
             Assert.IsNull(conError);
             Assert.IsNotNull(serverVersion);
@@ -68,29 +64,5 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             Assert.IsNull(serverVersionOnStop);
         }
 
-        private static Stopwatch WaitForPgsqllDb(string connectionString, int connectivityTimeout, out string serverVersion, out Exception conError)
-        {
-            Stopwatch waitForDb = Stopwatch.StartNew();
-            serverVersion = null;
-            conError = null;
-            do
-            {
-                using NpgsqlConnection con = new NpgsqlConnection(connectionString);
-                try
-                {
-                    serverVersion = con.QueryFirst<string>("Select Version();");
-                    conError = null;
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    conError = ex;
-                }
-
-                Thread.Sleep(2);
-            } while (waitForDb.ElapsedMilliseconds <= connectivityTimeout);
-
-            return waitForDb;
-        }
     }
 }

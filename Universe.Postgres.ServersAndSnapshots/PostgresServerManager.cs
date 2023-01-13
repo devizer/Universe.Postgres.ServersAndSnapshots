@@ -53,6 +53,11 @@ namespace Universe.Postgres.ServersAndSnapshots
             return InvokePgCtl(serverBinaries, instanceOptions, "stop");
         }
 
+        public static ExecProcessHelper.ExecResult KillInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, bool waitFor = true)
+        {
+            return InvokePgCtl(serverBinaries, instanceOptions, "kill");
+        }
+
         private static ExecProcessHelper.ExecResult InvokePgCtl(ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, string command)
         {
             var ext = TinyCrossInfo.IsWindows ? ".exe" : "";

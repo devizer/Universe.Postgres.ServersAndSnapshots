@@ -11,20 +11,26 @@ trigger:
 
 jobs:
 
-- job: PG
+- job: PostgreSQL
   pool:
     vmImage: '$(IMAGE)'
   timeoutInMinutes: 20
   strategy:
-    maxParallel: 1
+    maxParallel: 8
     matrix:
       'vDefault on Windows 2022':
         IMAGE: "windows-2022"
-      'vDefault on Windows 2019':
-        IMAGE: "windows-2019"
+      'vDefault on Ubuntu 20.04':
+        IMAGE: "ubuntu-20.04"
       'v15 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 15.1-x64-tiny
+      'v15 on Windows 2022':
+        IMAGE: "windows-2022"
+        PG_WINDOWS: postgresql15
+      
+      'vDefault on Windows 2019':
+        IMAGE: "windows-2019"
       'v14 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 14.6-x64-tiny
@@ -61,9 +67,6 @@ jobs:
       'v14 on Windows 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql14
-      'v15 on Windows 2022':
-        IMAGE: "windows-2022"
-        PG_WINDOWS: postgresql15
       
       'v16 (devel) on Ubuntu 20.04':
         IMAGE: "ubuntu-20.04"
@@ -95,9 +98,6 @@ jobs:
       
       'vDefault on Ubuntu 22.04':
         IMAGE: "ubuntu-22.04"
-      
-      'vDefault on Ubuntu 20.04':
-        IMAGE: "ubuntu-20.04"
       
       'vDefault on Ubuntu 18.04':
         IMAGE: "ubuntu-18.04"
@@ -150,12 +150,6 @@ jobs:
       7z x -y -o"C:\\Program Files\\PostgreSQL\\${PG_PORTABLE_WINDOWS}" "$file"
       rm -f "$file"
       popd
-
-      # Debug
-      pushd "C:\\Program Files\\PostgreSQL\\${PG_PORTABLE_WINDOWS}"
-      echo PWD: $PWD
-      dir -la .
-      popd
     condition: ne(variables['PG_PORTABLE_WINDOWS'], '')
     displayName: 'Postgres Portable on Windows'
 
@@ -166,6 +160,7 @@ jobs:
         Say "[LINUX] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'";
       else
         export PG_SERVER_LOCALES='en-US de-DE fr-FR it-IT -'
+        echo 'Write-Host "CPU: $((Get-WmiObject Win32_Processor).Name), $([Environment]::ProcessorCount) Cores"' | powershell -c -
         echo "[WINDOWS] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'"; echo ""
       fi
       dotnet restore || dotnet restore --disable-parallel
