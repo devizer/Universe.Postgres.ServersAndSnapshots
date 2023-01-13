@@ -16,7 +16,7 @@ jobs:
     vmImage: '$(IMAGE)'
   timeoutInMinutes: 20
   strategy:
-    maxParallel: 7
+    maxParallel: 6
     matrix:
       'vDefault on Windows 2022':
         IMAGE: "windows-2022"
