@@ -125,7 +125,7 @@ jobs:
         export PG_SERVER_LOCALES='en_US.utf8 C.UTF-8 C'
         Say "[LINUX] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'";
       else
-        export PG_SERVER_LOCALES='en-US de-DE.utf8 de-DE.UTF8 de-DE.utf-8 de-DE.UTF-8 de-DE.utf16 de-DE.UTF16 de-DE.utf-16 de-DE.UTF-16'
+        export PG_SERVER_LOCALES='en-US de-DE fr-FR it-IT'
         echo "[WINDOWS] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'"; echo ""
       fi
       dotnet restore || dotnet restore --disable-parallel
