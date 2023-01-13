@@ -13,12 +13,14 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
     public class InitAndStartTests : NUnitTestsBase
     {
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
-        public void TestStartDb(ServerBinaries serverBinaries)
+        public void TestStartDb(PgServerTestCase testCase)
         {
+            var serverBinaries = testCase.ServerBinaries;
             PostgresInstanceOptions options = new PostgresInstanceOptions()
             {
                 DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-" + serverBinaries.Version + "-start"),
                 ServerPort = Interlocked.Increment(ref TestUtils.Port),
+                Locale = testCase.Locale,
             };
             var resultInit = PostgresServerManager.CreateServerInstance(serverBinaries, options);
             Console.WriteLine(@$"INIT DB Output:
