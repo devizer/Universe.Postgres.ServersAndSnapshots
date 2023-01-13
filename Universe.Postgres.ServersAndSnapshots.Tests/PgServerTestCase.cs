@@ -27,7 +27,11 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         {
             var raw = Environment.GetEnvironmentVariable("PG_SERVER_LOCALES");
             if (string.IsNullOrEmpty(raw)) return null;
-            return raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            return
+                raw
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x == "-" ? "" : x)
+                    .ToArray();
         }
 
         public override string ToString()
