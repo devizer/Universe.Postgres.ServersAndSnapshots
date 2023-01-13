@@ -122,11 +122,12 @@ jobs:
   - bash: |
       set -eu; set -o pipefail
       if [[ "${AGENT_OS:-}" == Linux ]]; then
-        export PG_SERVER_LOCALES='en_US.utf8 de_DE.utf8'
+        export PG_SERVER_LOCALES='en_US.utf8 C.UTF-8 C'
+        echo "[LINUX] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'";
       else
-        export PG_SERVER_LOCALES='en-US de-DE'
+        export PG_SERVER_LOCALES='en-US de-DE.65001 it-IT.1201 fr-FR.1252'
+        echo "[WINDOWS] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'"; echo ""
       fi
-      echo "Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'"; echo ""
       dotnet restore || dotnet restore --disable-parallel
       dotnet test --collect:"XPlat Code Coverage" --logger trx
     displayName: 'Test All'
