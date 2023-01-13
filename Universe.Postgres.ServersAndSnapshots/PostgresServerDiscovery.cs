@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Universe.Postgres.ServersAndSnapshots
@@ -15,21 +14,44 @@ namespace Universe.Postgres.ServersAndSnapshots
             List<ServerBinaries> ret = new List<ServerBinaries>();
 
             List<string> candidates = new List<string>();
-            if (IsWindows)
+            if (TinyCrossInfo.IsWindows)
             {
-                var pf1Postgres = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "PostgreSQL");
-                candidates.AddRange(TryPostgresSubfolders(pf1Postgres));
-                var pf2Postgres = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "PostgreSQL");
-                candidates.AddRange(TryPostgresSubfolders(pf2Postgres));
+                List<string> programFilesCandidates = new List<string>();
+                
+#if !NETCOREAPP1_1
+                programFilesCandidates.Add(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles));
+                programFilesCandidates.Add(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86));
+#endif
 
-                string[] rootList = new[] { "C:\\", TryEval(() => Path.GetPathRoot(Environment.SystemDirectory)) };
-                rootList = rootList.Distinct(StringComparer.InvariantCultureIgnoreCase).ToArray();
+                
+                foreach (var varName in new[] { "ProgramFiles(x86)", "ProgramFiles", "ProgramW6432" })
+                {
+                    var varValue = Environment.GetEnvironmentVariable(varName);
+                    if (!string.IsNullOrEmpty(varValue))
+                    {
+                        programFilesCandidates.Add(varValue);
+                    }
+                }
+
+                List<string> rootList = new List<string>() { "C:\\" };
+#if !NETCOREAPP1_1
+                TryAndForget.Execute(() => rootList.Add(Path.GetPathRoot(Environment.SystemDirectory))); 
+#endif
+                var systemDriveVar = Environment.GetEnvironmentVariable("SystemDrive");
+                if (!string.IsNullOrEmpty(systemDriveVar)) rootList.Add(systemDriveVar);
+                rootList = rootList.Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
                 var subProgramList = new[] { "Program Files", "Program Files (x86)" };
                 foreach (var root in rootList)
                 foreach (var subProgram in subProgramList)
                 {
-                    var pf3Progres = Path.Combine(root, subProgram, "PostgreSQL");
-                    candidates.AddRange(TryPostgresSubfolders(pf3Progres));
+                    var pf3 = Path.Combine(root, subProgram);
+                    programFilesCandidates.Add(pf3);
+                }
+
+                programFilesCandidates = programFilesCandidates.Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
+                foreach (var programFilesCandidate in programFilesCandidates)
+                {
+                    candidates.AddRange(TryPostgresSubfolders(Path.Combine(programFilesCandidate, "PostgreSQL")));
                 }
             }
             else
@@ -61,7 +83,7 @@ namespace Universe.Postgres.ServersAndSnapshots
 
         private static Version GetPostgresVersion(string candidate)
         {
-            string ext = IsWindows ? ".exe" : "";
+            string ext = TinyCrossInfo.IsWindows ? ".exe" : "";
             var pgCtlBin = Path.Combine(candidate, $"bin{Path.DirectorySeparatorChar}pg_ctl{ext}");
 
             var result = ExecProcessHelper.HiddenExec(pgCtlBin, "--version");
@@ -80,7 +102,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             {
                 var wordPatched = word;
                 // 16devel?
-                if (word.EndsWith("devel", StringComparison.InvariantCultureIgnoreCase))
+                if (word.EndsWith("devel", StringComparison.OrdinalIgnoreCase))
                     // wordPatched = word.Length > 5 ? word.Substring(0, word.Length - 5) : word;
                     wordPatched = word.Replace("devel", ".99999");
 
@@ -104,7 +126,7 @@ namespace Universe.Postgres.ServersAndSnapshots
         {
             if (!Directory.Exists(dir)) yield break;
 
-            var subDirList = TryEval(() => new DirectoryInfo(dir).GetDirectories()) ?? Array.Empty<DirectoryInfo>();
+            var subDirList = TryEval(() => new DirectoryInfo(dir).GetDirectories()) ?? new DirectoryInfo[0];
             foreach (var subDir in subDirList)
             {
                 if (DoesContainPostgresBinaries(subDir.FullName))
@@ -132,13 +154,11 @@ namespace Universe.Postgres.ServersAndSnapshots
         static bool DoesContainPostgresBinaries(string dir)
         {
             var subDir = dir;
-            string ext = IsWindows ? ".exe" : "";
+            string ext = TinyCrossInfo.IsWindows ? ".exe" : "";
             return
                 File.Exists(Path.Combine(subDir, $"bin{Path.DirectorySeparatorChar}initdb{ext}"))
                 && File.Exists(Path.Combine(subDir, $"bin{Path.DirectorySeparatorChar}pg_ctl{ext}"));
         }
-
-        private static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
         static T TryEval<T>(Func<T> factory)
         {

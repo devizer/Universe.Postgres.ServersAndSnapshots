@@ -15,6 +15,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         {
             List<PgServerTestCase> ret = new();
             ServerBinaries[] servers = PostgresServerDiscovery.GetServers();
+            // empty locale means no parameter
             var locales = GetEnvLocales() ?? new[] {""};
             foreach (var locale in locales)
                 foreach (var server in servers)
@@ -25,6 +26,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
 
         static string[] GetEnvLocales()
         {
+            // dash (-) locale means no parameter
             var raw = Environment.GetEnvironmentVariable("PG_SERVER_LOCALES");
             if (string.IsNullOrEmpty(raw)) return null;
             return

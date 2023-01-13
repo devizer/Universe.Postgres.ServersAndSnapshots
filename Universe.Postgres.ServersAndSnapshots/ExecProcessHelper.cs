@@ -59,14 +59,22 @@ namespace Universe
             if (standardInputText != null)
             {
                 startInfo.RedirectStandardInput = true;
+#if !NETFRAMEWORK && !NETCOREAPP2_0 && !NETCOREAPP1_1                
+                // is not used
                 startInfo.StandardInputEncoding = Encoding.UTF8;
+#endif
             }
 
-            startInfo.Environment["LANG"] = "C";
-            startInfo.Environment["LC_ALL"] = "C";
+#if NETFRAMEWORK
+            var envDictionary = startInfo.EnvironmentVariables;
+#else
+            var envDictionary = startInfo.Environment;
+#endif
+            envDictionary["LANG"] = "C";
+            envDictionary["LC_ALL"] = "C";
             if (environment != null)
                 foreach (var pair in environment)
-                    startInfo.Environment[pair.Key] = pair.Value;
+                    envDictionary[pair.Key] = pair.Value;
 
             Process process = new Process()
             {
@@ -148,7 +156,7 @@ namespace Universe
 
                 int remainingMilliseconds = millisecondsTimeout - (int)startAt.ElapsedMilliseconds;
 
-                if (args.EndsWith("start", StringComparison.InvariantCultureIgnoreCase))
+                if (args.EndsWith("start", StringComparison.CurrentCultureIgnoreCase))
                     if (Debugger.IsAttached) Debugger.Break();
 
                 if (isProcessFinished) remainingMilliseconds = 1;

@@ -16,13 +16,12 @@ namespace Universe.Postgres.ServersAndSnapshots
             return PostgresServerDiscovery.GetServers();
         }
 
-        private static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
         public static ExecProcessHelper.ExecResult CreateServerInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions)
         {
             var passwordFileName = Guid.NewGuid().ToString("N");
             using var passwordFile = DisposableTempFile.Create(passwordFileName, instanceOptions.SystemPassword);
-            var ext = IsWindows ? ".exe" : "";
+            var ext = TinyCrossInfo.IsWindows ? ".exe" : "";
             var exe = Path.Combine(serverBinaries.ServerPath, $"bin{Path.DirectorySeparatorChar}initdb{ext}");
             var localeParam = string.IsNullOrEmpty(instanceOptions.Locale) ? "" : $"--locale={instanceOptions.Locale} ";
             var args = $"{localeParam}-D \"{instanceOptions.DataPath}\" --pwfile \"{passwordFileName}\" -U \"{instanceOptions.SystemUser}\"";
@@ -37,7 +36,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             using (StreamWriter wr = new StreamWriter(fs, Encoding.UTF8))
             {
                 wr.WriteLine(@$"{Environment.NewLine}port = {instanceOptions.ServerPort:f0}");
-                if (!IsWindows)
+                if (!TinyCrossInfo.IsWindows)
                     wr.WriteLine(@$"{Environment.NewLine}unix_socket_directories = '{socketDir}'");
             }
 
@@ -56,7 +55,7 @@ namespace Universe.Postgres.ServersAndSnapshots
 
         private static ExecProcessHelper.ExecResult InvokePgCtl(ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, string command)
         {
-            var ext = IsWindows ? ".exe" : "";
+            var ext = TinyCrossInfo.IsWindows ? ".exe" : "";
             var exe = Path.Combine(serverBinaries.ServerPath, $"bin{Path.DirectorySeparatorChar}pg_ctl{ext}");
             var logFile = Path.Combine(instanceOptions.DataPath, "server.log");
             // time sudo -u "$user" "$pgbin/pg_ctl" -w -D "$data" -l "$data/server.log" start
