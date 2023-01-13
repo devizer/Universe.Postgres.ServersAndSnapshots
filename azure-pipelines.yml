@@ -123,9 +123,9 @@ jobs:
       set -eu; set -o pipefail
       if [[ "${AGENT_OS:-}" == Linux ]]; then
         export PG_SERVER_LOCALES='en_US.utf8 C.UTF-8 C'
-        echo "[LINUX] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'";
+        Say "[LINUX] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'";
       else
-        export PG_SERVER_LOCALES='en-US de-DE.65001 it-IT.1201 fr-FR.1252'
+        export PG_SERVER_LOCALES='en-US de-DE.utf8 de-DE.UTF8 de-DE.utf-8 de-DE.UTF-8 de-DE.utf16 de-DE.UTF16 de-DE.utf-16 de-DE.UTF-16'
         echo "[WINDOWS] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'"; echo ""
       fi
       dotnet restore || dotnet restore --disable-parallel
