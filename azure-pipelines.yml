@@ -146,7 +146,7 @@ jobs:
       url="https://master.dl.sourceforge.net/project/postgres-binaries/$file?viasf=1"
       url="https://sourceforge.net/projects/postgres-binaries/files/$file/download"
       pushd ~
-      curl -kSL -o "$file" "$url"
+      curl -kfSL -o "$file" "$url" || curl -kfSL -o "$file" "$url"
       7z x -y -o"C:\\Program Files\\PostgreSQL\\${PG_PORTABLE_WINDOWS}" "$file"
       rm -f "$file"
       popd
