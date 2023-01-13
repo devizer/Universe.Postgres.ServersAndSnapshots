@@ -150,6 +150,7 @@ jobs:
       7z x -y -o"C:\\Program Files\\PostgreSQL\\${PG_PORTABLE_WINDOWS}" "$file"
       rm -f "$file"
       popd
+      "C:\\Program Files\\PostgreSQL\\${PG_PORTABLE_WINDOWS}\\pg_ctl.exe" --version
     condition: ne(variables['PG_PORTABLE_WINDOWS'], '')
     displayName: 'Postgres Portable on Windows'
 
