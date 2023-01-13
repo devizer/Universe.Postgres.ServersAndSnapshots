@@ -22,9 +22,24 @@ jobs:
         IMAGE: "windows-2022"
       'vDefault on Windows 2019':
         IMAGE: "windows-2019"
+      'v15 (tiny portable) on Windows 2019':
+        IMAGE: "windows-2019"
+        PG_PORTABLE_WINDOWS: 15.1-x64-tiny
       'v14 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 14.6-x64-tiny
+      'v13 (tiny portable) on Windows 2019':
+        IMAGE: "windows-2019"
+        PG_PORTABLE_WINDOWS: 13.9-x64-tiny
+      'v12 (tiny portable) on Windows 2019':
+        IMAGE: "windows-2019"
+        PG_PORTABLE_WINDOWS: 12.13-x64-tiny
+      'v11 (tiny portable) on Windows 2019':
+        IMAGE: "windows-2019"
+        PG_PORTABLE_WINDOWS: 11.18-x64-tiny
+      'v10 (tiny portable) on Windows 2019':
+        IMAGE: "windows-2019"
+        PG_PORTABLE_WINDOWS: 10.23-x64-tiny
       'v9 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 9.6.24-x64-tiny
@@ -126,6 +141,7 @@ jobs:
     displayName: 'Postgres on Windows'
 
   - bash: |
+      rm -rf "C:\\Program Files\\PostgreSQL\\*"
       file="postgres-${PG_PORTABLE_WINDOWS}-windows.7z"
       url="https://master.dl.sourceforge.net/project/postgres-binaries/$file?viasf=1"
       url="https://sourceforge.net/projects/postgres-binaries/files/$file/download"
@@ -136,7 +152,7 @@ jobs:
       pushd "C:\\Program Files\\PostgreSQL\\${PG_PORTABLE_WINDOWS}"
       echo PWD: $PWD
       dir -laR .
-      popd 
+      popd
       # dir /b /s "C:\Program Files\PostgreSQL\${PG_PORTABLE_WINDOWS}"
     condition: ne(variables['PG_PORTABLE_WINDOWS'], '')
     displayName: 'Postgres Portable on Windows'
