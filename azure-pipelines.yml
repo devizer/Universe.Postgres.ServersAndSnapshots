@@ -146,7 +146,7 @@ jobs:
   - bash: |
        psql --version
        brew search postgres | sort
-       ls -laR /
+       ls -laR / |& tee "$(System.ARTIFACTSDIRECTORY)/File-System-MacOS.txt" >/dev/null
        true
     condition: eq(variables['Agent.OS'], 'Darwin')
     displayName: 'Postgres on MacOS'
