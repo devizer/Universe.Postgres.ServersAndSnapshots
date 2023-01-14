@@ -48,7 +48,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             return InvokePgCtl(serverBinaries, instanceOptions, "start", waitFor);
         }
 
-        public static ExecProcessHelper.ExecResult StopInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, bool waitFor = true, StopMode mode = StopMode.Smart)
+        public static ExecProcessHelper.ExecResult StopInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, bool waitFor = true, StopMode mode = StopMode.Fast)
         {
             var options = $"--mode={mode.ToString().ToLower()}";
             return InvokePgCtl(serverBinaries, instanceOptions, "stop", waitFor, options);
