@@ -155,7 +155,7 @@ jobs:
        ls -la $dir
        Say "stuff"
        brew search postgres | sort
-       ls -laR / 2>&1 | tee "$(System.ARTIFACTSDIRECTORY)/File-System-MacOS.txt" >/dev/null
+       # ls -laR / 2>&1 | tee "$(System.ARTIFACTSDIRECTORY)/File-System-MacOS.txt" >/dev/null
        true
     condition: eq(variables['Agent.OS'], 'Darwin')
     displayName: 'Postgres on MacOS'
