@@ -26,6 +26,7 @@ namespace Universe.NUnitTests
         private int OnDisposeCounter = 0;
         protected void OnDispose(string title, Action action)
         {
+            string id = $"#{TestClassCounter}.{TestCounter}";
             OnDisposeList += () =>
             {
                 try
@@ -34,7 +35,7 @@ namespace Universe.NUnitTests
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[On Dispose Error #{TestClassCounter}.{TestCounter}] {title} failed.{Environment.NewLine}{ex}");
+                    Console.WriteLine($"[On Dispose Error {id}] {title} failed.{Environment.NewLine}{ex}");
                 }
             };
         }
