@@ -16,20 +16,46 @@ namespace Universe.NUnitTests
 		protected static TextWriter OUT;
 		private Stopwatch StartAt;
 		private CpuUsage.CpuUsage? _CpuUsage_OnStart;
-		private int TestCounter = 0;
+		private int TestCounter = 0, TestClassCounter = 0;
+        private static int TestClassCounterStorage = 0;
 
-		[SetUp]
+		
+		Action OnDisposeList = () => { };
+
+        private int OnDisposeCounter = 0;
+        protected void OnDispose(string title, Action action)
+        {
+            OnDisposeList += () =>
+            {
+                try
+                {
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[On Dispose Error] {title} failed.{Environment.NewLine}{ex}");
+                }
+            };
+        }
+        
+        protected void OnDispose(Action action)
+        {
+			OnDispose($"Dispose Action #{Interlocked.Increment(ref OnDisposeCounter)}", action);
+        }
+
+
+        [SetUp]
 		public void BaseSetUp()
 		{
 			TestConsole.Setup();
 			Environment.SetEnvironmentVariable("SKIP_FLUSHING", null);
 			StartAt = Stopwatch.StartNew();
 			_CpuUsage_OnStart = GetCpuUsage();
-			Interlocked.Increment(ref TestCounter);
+			var testCounter = Interlocked.Increment(ref TestCounter);
 
 			var testClassName = TestContext.CurrentContext.Test.ClassName;
 			testClassName = testClassName.Split('.').LastOrDefault();
-			Console.WriteLine($"#{TestCounter} {{{TestContext.CurrentContext.Test.Name}}} @ {testClassName} starting...");
+			Console.WriteLine($"#{TestClassCounter}.{testCounter} {{{TestContext.CurrentContext.Test.Name}}} @ {testClassName} starting...");
 		}
 
 		private CpuUsage.CpuUsage? GetCpuUsage()
@@ -65,13 +91,16 @@ namespace Universe.NUnitTests
 			}
 
 			Console.WriteLine(
-				$"#{TestCounter} {{{TestContext.CurrentContext.Test.Name}}} >{TestContext.CurrentContext.Result.Outcome.Status.ToString().ToUpper()}< in {elapsed}{cpuUsage}{Environment.NewLine}");
-		}
+				$"#{TestClassCounter}.{TestCounter} {{{TestContext.CurrentContext.Test.Name}}} >{TestContext.CurrentContext.Result.Outcome.Status.ToString().ToUpper()}< in {elapsed}{cpuUsage}{Environment.NewLine}");
+
+            OnDisposeList();
+        }
 
 		[OneTimeSetUp]
 		public void BaseOneTimeSetUp()
-		{
-			TestConsole.Setup();
+        {
+            TestClassCounter = Interlocked.Increment(ref TestClassCounterStorage);
+            TestConsole.Setup();
 		}
 
 		[OneTimeTearDown]

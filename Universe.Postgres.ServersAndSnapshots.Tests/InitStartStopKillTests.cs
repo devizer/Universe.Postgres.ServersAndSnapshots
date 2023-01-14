@@ -8,8 +8,24 @@ using Universe.NUnitTests;
 
 namespace Universe.Postgres.ServersAndSnapshots.Tests
 {
-    public class InitAndStartTests : NUnitTestsBase
+    public class InitStartStopKillTests : NUnitTestsBase
     {
+        [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
+        public void TestInitDb(PgServerTestCase testCase)
+        {
+            var serverBinaries = testCase.ServerBinaries;
+            PostgresInstanceOptions options = new PostgresInstanceOptions()
+            {
+                DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-" + serverBinaries.Version + "-init"),
+                ServerPort = Interlocked.Increment(ref TestUtils.Port),
+                Locale = testCase.Locale,
+            };
+            var resultInit = PostgresServerManager.CreateServerInstance(serverBinaries, options);
+            Console.WriteLine(@$"INIT DB Output:{Environment.NewLine}{resultInit.OutputText}");
+
+            OnDispose(() => Directory.Delete(options.DataPath, true));
+        }
+
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
         public void TestStartDb(PgServerTestCase testCase)
         {
@@ -20,7 +36,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 ServerPort = Interlocked.Increment(ref TestUtils.Port),
                 Locale = testCase.Locale,
             };
-            
+
             var resultInit = PostgresServerManager.CreateServerInstance(serverBinaries, options);
             Console.WriteLine(@$"INIT DB Output:{Environment.NewLine}{resultInit.OutputText}");
 
@@ -36,7 +52,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 Timeout = 1,
                 CommandTimeout = 1,
             };
-            
+
             Stopwatch waitForStart = NpgsqlWaitForExtensions.WaitForPgsqllDb(csBuilder.ToString(), 15000, out var serverVersion, out var conError);
 
             if (conError != null)
@@ -47,9 +63,10 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 Console.WriteLine($"[LOCALE '{options.Locale}'] {new NpgsqlConnection(csBuilder.ConnectionString).GetCurrentDatabaseLocale()}");
             }
 
-            TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
-            TryAndForget.Execute(() => Directory.Delete(options.DataPath));
             
+            TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
+            TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
+
             // STOP
             Stopwatch waitForStopDb = NpgsqlWaitForExtensions.WaitForPgsqllDb(csBuilder.ToString(), 2000, out var serverVersionOnStop, out var conErrorOnStop);
             if (conErrorOnStop != null)
@@ -63,5 +80,6 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             Assert.IsNotNull(conErrorOnStop);
             Assert.IsNull(serverVersionOnStop);
         }
+
     }
 }
