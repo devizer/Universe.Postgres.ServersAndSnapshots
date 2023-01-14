@@ -33,7 +33,7 @@ namespace Universe.NUnitTests
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[On Dispose Error] {title} failed.{Environment.NewLine}{ex}");
+                    Console.WriteLine($"[On Dispose Error #{TestClassCounter}.{TestCounter}] {title} failed.{Environment.NewLine}{ex}");
                 }
             };
         }
