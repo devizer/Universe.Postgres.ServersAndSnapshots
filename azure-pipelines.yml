@@ -159,7 +159,7 @@ jobs:
        find /usr -name initdb
        find /usr -name pg_ctl
        Say "After"
-       brew install postgresql@12
+       time brew install postgresql@12
        time find /usr -name initdb
        time find /usr -name pg_ctl
 
