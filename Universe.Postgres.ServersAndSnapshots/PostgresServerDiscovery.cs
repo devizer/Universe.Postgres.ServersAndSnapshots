@@ -14,7 +14,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             List<ServerBinaries> ret = new List<ServerBinaries>();
 
             List<string> candidates = new List<string>();
-            Console.WriteLine($"TinyCrossInfo.IsWindows: {TinyCrossInfo.IsWindows}");
+            // Console.WriteLine($"TinyCrossInfo.IsWindows: {TinyCrossInfo.IsWindows}");
             if (TinyCrossInfo.IsWindows)
             {
                 List<string> programFilesCandidates = new List<string>();
@@ -65,7 +65,7 @@ namespace Universe.Postgres.ServersAndSnapshots
 
                 foreach (var macOsFolder in WeakMacOsSearch())
                 {
-                    Console.WriteLine($"macOsFolder: '{macOsFolder}'");
+                    // Console.WriteLine($"macOsFolder: '{macOsFolder}'");
                     candidates.AddRange(TryPostgresSubfolders(macOsFolder));
                 }
             }
@@ -98,7 +98,7 @@ namespace Universe.Postgres.ServersAndSnapshots
         static IEnumerable<string> WeakMacOsSearch()
         {
             DirectoryInfo[] dirs = TryAndForget.Evaluate(() => new DirectoryInfo("/usr/local/Cellar").GetDirectories("postgresql@*"));
-            Console.WriteLine($"/usr/local/Cellar/postgresql@* count: {dirs?.Length}");
+            // Console.WriteLine($"/usr/local/Cellar/postgresql@* count: {dirs?.Length}");
             foreach (var dir in dirs ?? new DirectoryInfo[0])
             {
                 yield return dir.FullName;
