@@ -23,7 +23,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             var resultInit = PostgresServerManager.CreateServerInstance(serverBinaries, options);
             Console.WriteLine(@$"INIT DB Output:{Environment.NewLine}{resultInit.OutputText}");
 
-            OnDispose(() => Directory.Delete(options.DataPath, true));
+            OnDisposeSilent(() => Directory.Delete(options.DataPath, true));
         }
 
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]

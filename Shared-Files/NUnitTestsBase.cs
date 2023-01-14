@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using NUnit.Framework;
 using Universe.CpuUsage;
+using Universe.Postgres.ServersAndSnapshots;
 
 namespace Universe.NUnitTests
 {
@@ -44,6 +45,12 @@ namespace Universe.NUnitTests
         {
 			OnDispose($"Dispose Action #{Interlocked.Increment(ref OnDisposeCounter)}", action);
         }
+
+        protected void OnDisposeSilent(Action action)
+        {
+            OnDispose($"Dispose Action #{Interlocked.Increment(ref OnDisposeCounter)}", () => TryAndForget.Execute(action));
+        }
+
 
 
         [SetUp]
