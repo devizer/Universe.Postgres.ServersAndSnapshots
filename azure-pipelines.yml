@@ -244,3 +244,7 @@ jobs:
       codeCoverageTool: cobertura
       failIfCoverageEmpty: false # Optional      
       summaryFileLocation: '**/coverage.cobertura.xml'
+
+  - bash: Show-System-Stat
+    condition: eq(variables['Agent.OS'], 'Linux')
+    displayName: 'Linux System Statistic'
