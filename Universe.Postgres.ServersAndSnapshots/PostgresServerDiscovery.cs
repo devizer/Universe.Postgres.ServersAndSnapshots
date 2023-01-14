@@ -60,6 +60,9 @@ namespace Universe.Postgres.ServersAndSnapshots
                 candidates.AddRange(TryPostgresSubfolders("/usr/lib/postgresql"));
                 candidates.AddRange(TryPostgresSubfolders("/usr/local/lib/postgresql"));
 
+                candidates.Add("/usr");
+                candidates.Add("/usr/local");
+
                 foreach (var macOsFolder in WeakMacOsSearch())
                 {
                     Console.WriteLine($"macOsFolder: '{macOsFolder}'");
