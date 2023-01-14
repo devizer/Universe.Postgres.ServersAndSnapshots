@@ -88,7 +88,7 @@ namespace Universe.Postgres.ServersAndSnapshots
                 }
             }
 
-            return ret.ToArray();
+            return ret.OrderBy(x => x.ServerPath, StringComparer.OrdinalIgnoreCase).ToArray();
         }
 
         /*
