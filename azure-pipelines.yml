@@ -198,6 +198,9 @@ jobs:
         cpu="$(cat /proc/cpuinfo | grep -E '^(model name|Hardware)' | awk -F':' 'NR==1 {print $2}')"; cpu="$(echo -e "${cpu:-}" | sed -e 's/^[[:space:]]*//')"
         echo "CPU: ${cpu:-}, $(nproc) Cores"
         Say "[LINUX] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'";
+      elif [[ "${AGENT_OS:-}" == Darwin ]]; then
+        export PG_SERVER_LOCALES='en_US.UTF-8 de_DE.UTF-8 C.UTF-8 C -'
+        Say "[Mac OS] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'";
       else
         export PG_SERVER_LOCALES='en-US de-DE fr-FR it-IT -'
         echo 'Write-Host "CPU: $((Get-WmiObject Win32_Processor).Name), $([Environment]::ProcessorCount) Cores"' | powershell -c -
