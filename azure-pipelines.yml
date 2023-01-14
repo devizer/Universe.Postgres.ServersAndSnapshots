@@ -156,10 +156,13 @@ jobs:
        ls -la $dir
        
        Say "Before"
-       find /usr -name initdb
-       find /usr -name pg_ctl
-       Say "After"
+       time find /usr -name initdb
+       time find /usr -name pg_ctl
+       Say "Install"
        time brew install postgresql@12
+       time brew install postgresql@13
+       time brew install postgresql@15
+       Say "After"
        time find /usr -name initdb
        time find /usr -name pg_ctl
 
