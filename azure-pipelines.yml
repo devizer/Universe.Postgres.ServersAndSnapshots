@@ -132,7 +132,7 @@ jobs:
       Say "Locales"
       locale -a
     condition: ne(variables['Agent.OS'], 'Windows')
-    displayName: 'Bootstrap on Linux'
+    displayName: 'Bootstrap on Linux/Mac'
 
   - bash: |
       Say "Installing Postgres v$PG_LINUX on Linux"
