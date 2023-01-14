@@ -33,6 +33,7 @@ namespace Universe.NUnitTests
                 try
                 {
                     action();
+                    Console.WriteLine($"[On Dispose Info {id}] {title} success");
                 }
                 catch (Exception ex)
                 {
