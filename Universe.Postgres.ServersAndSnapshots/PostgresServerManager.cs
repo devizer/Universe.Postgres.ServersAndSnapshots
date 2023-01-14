@@ -45,26 +45,39 @@ namespace Universe.Postgres.ServersAndSnapshots
 
         public static ExecProcessHelper.ExecResult StartInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, bool waitFor = true)
         {
-            return InvokePgCtl(serverBinaries, instanceOptions, "start");
+            return InvokePgCtl(serverBinaries, instanceOptions, "start", waitFor);
         }
 
-        public static ExecProcessHelper.ExecResult StopInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, bool waitFor = true)
+        public static ExecProcessHelper.ExecResult StopInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, bool waitFor = true, StopMode mode = StopMode.Smart)
         {
-            return InvokePgCtl(serverBinaries, instanceOptions, "stop");
+            var options = $"--mode={mode.ToString().ToLower()}";
+            return InvokePgCtl(serverBinaries, instanceOptions, "stop", waitFor, options);
         }
 
-        public static ExecProcessHelper.ExecResult KillInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, bool waitFor = true)
+        public enum StopMode
         {
-            return InvokePgCtl(serverBinaries, instanceOptions, "kill");
+            Smart,
+            Fast,
+            Immediate,
         }
 
-        private static ExecProcessHelper.ExecResult InvokePgCtl(ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, string command)
+        public static ExecProcessHelper.ExecResult KillInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions)
+        {
+            // "kill SIGKILL {PID}"
+            // return InvokePgCtl(serverBinaries, instanceOptions, "stop", waitFor: false);
+            return StopInstance(serverBinaries, instanceOptions, false, StopMode.Immediate);
+        }
+
+        private static ExecProcessHelper.ExecResult InvokePgCtl(ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, string command, bool waitFor, string options = null)
         {
             var ext = TinyCrossInfo.IsWindows ? ".exe" : "";
             var exe = Path.Combine(serverBinaries.ServerPath, $"bin{Path.DirectorySeparatorChar}pg_ctl{ext}");
             var logFile = Path.Combine(instanceOptions.DataPath, "server.log");
             // time sudo -u "$user" "$pgbin/pg_ctl" -w -D "$data" -l "$data/server.log" start
-            var args = $"-D \"{instanceOptions.DataPath}\" -l \"{logFile}\" {command}";
+            var waitForArgs = waitFor ? "-w " : "";
+            var optionsArg = string.IsNullOrEmpty(options) ? "" : (options.EndsWith(" ") ? options : options + " ");
+            var args = $"-D \"{instanceOptions.DataPath}\" {waitForArgs}{optionsArg}-l \"{logFile}\" {command}";
+
 
             var ret = ExecProcessHelper.HiddenExec(exe, args, 15000);
             ret.DemandGenericSuccess($"Command '{command}' for '{exe}' using data at '{instanceOptions.DataPath}'");

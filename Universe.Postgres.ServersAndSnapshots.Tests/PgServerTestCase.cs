@@ -17,8 +17,8 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             ServerBinaries[] servers = PostgresServerDiscovery.GetServers();
             // empty locale means no parameter
             var locales = GetEnvLocales() ?? new[] {""};
-            foreach (var locale in locales)
-                foreach (var server in servers)
+            foreach (var server in servers)
+                foreach (var locale in locales)
                     ret.Add(new PgServerTestCase() { Locale = locale, ServerBinaries = server});
 
             return ret.ToArray();

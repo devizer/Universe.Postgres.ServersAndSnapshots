@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Npgsql;
 using NUnit.Framework;
 using Universe.NUnitTests;
@@ -13,35 +14,86 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
         public void TestInitDb(PgServerTestCase testCase)
         {
-            var serverBinaries = testCase.ServerBinaries;
-            PostgresInstanceOptions options = new PostgresInstanceOptions()
-            {
-                DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-" + serverBinaries.Version + "-init"),
-                ServerPort = Interlocked.Increment(ref TestUtils.Port),
-                Locale = testCase.Locale,
-            };
-            var resultInit = PostgresServerManager.CreateServerInstance(serverBinaries, options);
-            Console.WriteLine(@$"INIT DB Output:{Environment.NewLine}{resultInit.OutputText}");
-
+            var (connection, options) = InitDb(testCase);
             OnDispose(() => Directory.Delete(options.DataPath, true));
         }
 
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
-        public void TestStartDb(PgServerTestCase testCase)
+        public void TestKillServer(PgServerTestCase testCase)
         {
             var serverBinaries = testCase.ServerBinaries;
+            var (connection, options) = InitDb(testCase);
+            OnDisposeSilent(() => Directory.Delete(options.DataPath, true));
+
+            Stopwatch startAt = Stopwatch.StartNew();
+            var resultStart = PostgresServerManager.StartInstance(serverBinaries, options, waitFor: true);
+            Console.WriteLine(@$"START SERVER Output (took {startAt.ElapsedMilliseconds:n0} milliseconds):{Environment.NewLine}{resultStart.OutputText}");
+
+            WaitForServer(testCase, options, connection, 15000, expectSuccess: true);
+
+            Stopwatch killAt = Stopwatch.StartNew();
+            var resultKill = PostgresServerManager.KillInstance(serverBinaries, options);
+            Console.WriteLine(@$"KILL SERVER Output (took {killAt.ElapsedMilliseconds:n0} milliseconds):{Environment.NewLine}{resultKill.OutputText}");
+
+            WaitForServer(testCase, options, connection, 3000, expectSuccess: false);
+        }
+
+
+        [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
+        public void TestStartServer(PgServerTestCase testCase)
+        {
+            var (connection, options) = InitDb(testCase); 
+            var serverBinaries = testCase.ServerBinaries;
+
+            Stopwatch startAt = Stopwatch.StartNew();
+            var resultStart = PostgresServerManager.StartInstance(serverBinaries, options, waitFor: true);
+            Console.WriteLine(@$"START SERVER Output (took {startAt.ElapsedMilliseconds:n0} milliseconds):{Environment.NewLine}{resultStart.OutputText}");
+
+            WaitForServer(testCase, options, connection, 15000, expectSuccess: true);
+            
+            TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
+            TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
+
+            WaitForServer(testCase, options, connection, 3000, expectSuccess: false);
+        }
+
+        void WaitForServer(PgServerTestCase testCase, PostgresInstanceOptions options, NpgsqlConnectionStringBuilder connection, int timeoutMilleconds, bool expectSuccess)
+        {
+            Stopwatch waitForStart = NpgsqlWaitForExtensions.WaitForPgsqllDb(connection.ToString(), timeoutMilleconds, out var serverVersion, out var error);
+
+            string prefixSuccess = expectSuccess ? "OK:" : "WARNING:";
+            string prefixFail = expectSuccess ? "WARNING:" : "OK:";
+            if (error != null)
+                Console.WriteLine($"[Wait for '{testCase.ServerBinaries.ServerPath}'] {prefixFail} CONNECTION ERROR: {error.Message}{(expectSuccess ? Environment.NewLine + error : error.Message)}");
+            else
+            {
+                Console.WriteLine($"[Wait for '{testCase.ServerBinaries.ServerPath}'] {prefixSuccess} SUCCESSFUL CONNECTION in {waitForStart.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
+                Console.WriteLine($"[LOCALE '{options.Locale}'] {new NpgsqlConnection(connection.ConnectionString).GetCurrentDatabaseLocale()}");
+            }
+
+            if (expectSuccess)
+            {
+                Assert.IsNull(error, "Successful connection is expected");
+                Assert.IsNotNull(serverVersion, "Successful server version is expected");
+            }
+            else
+            {
+                Assert.IsNotNull(error, "Missed connection is expected");
+                Assert.IsNull(serverVersion, "Missed server version is expected");
+            }
+        }
+
+        (NpgsqlConnectionStringBuilder, PostgresInstanceOptions) InitDb(PgServerTestCase testCase)
+        {
             PostgresInstanceOptions options = new PostgresInstanceOptions()
             {
-                DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-" + serverBinaries.Version + "-start"),
+                DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-" + testCase.ServerBinaries.Version + "-start"),
                 ServerPort = Interlocked.Increment(ref TestUtils.Port),
                 Locale = testCase.Locale,
             };
 
-            var resultInit = PostgresServerManager.CreateServerInstance(serverBinaries, options);
+            var resultInit = PostgresServerManager.CreateServerInstance(testCase.ServerBinaries, options);
             Console.WriteLine(@$"INIT DB Output:{Environment.NewLine}{resultInit.OutputText}");
-
-            var resultStart = PostgresServerManager.StartInstance(serverBinaries, options);
-            Console.WriteLine(@$"START SERVER Output:{Environment.NewLine}{resultStart.OutputText}");
 
             NpgsqlConnectionStringBuilder csBuilder = new NpgsqlConnectionStringBuilder()
             {
@@ -53,32 +105,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 CommandTimeout = 1,
             };
 
-            Stopwatch waitForStart = NpgsqlWaitForExtensions.WaitForPgsqllDb(csBuilder.ToString(), 15000, out var serverVersion, out var conError);
-
-            if (conError != null)
-                Console.WriteLine($"CONNECTION ERROR: {conError.Message}{Environment.NewLine}{conError}");
-            else
-            {
-                Console.WriteLine($"SUCCESSFUL CONNECTION in {waitForStart.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
-                Console.WriteLine($"[LOCALE '{options.Locale}'] {new NpgsqlConnection(csBuilder.ConnectionString).GetCurrentDatabaseLocale()}");
-            }
-
-            
-            TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
-            TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
-
-            // STOP
-            Stopwatch waitForStopDb = NpgsqlWaitForExtensions.WaitForPgsqllDb(csBuilder.ToString(), 2000, out var serverVersionOnStop, out var conErrorOnStop);
-            if (conErrorOnStop != null)
-                Console.WriteLine($"[ON STOP] connection error as expected: {conErrorOnStop.Message}");
-            else
-                Console.WriteLine($"[ON STOP] Warning! Unexpected successful connection in {waitForStopDb.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersionOnStop}");
-
-            Assert.IsNull(conError);
-            Assert.IsNotNull(serverVersion);
-
-            Assert.IsNotNull(conErrorOnStop);
-            Assert.IsNull(serverVersionOnStop);
+            return (csBuilder, options);
         }
 
     }
