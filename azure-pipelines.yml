@@ -18,6 +18,9 @@ jobs:
   strategy:
     maxParallel: 8
     matrix:
+      'vDefault on Mac OS 10.15'
+        IMAGE: 'macos-10.15'
+
       'vDefault on Windows 2022':
         IMAGE: "windows-2022"
       'vDefault on Ubuntu 20.04':
@@ -139,6 +142,13 @@ jobs:
       /usr/lib/postgresql/$PG_LINUX/bin/pg_ctl --version
     condition: ne(variables['PG_LINUX'], '')
     displayName: 'Postgres on Linux'
+
+  - bash: |
+       brew search postgres | sort
+       ls -laR /
+       true
+    condition: eq(variables['AGENT_OS'], 'Darwin')
+    displayName: 'Postgres on MacOS'
 
   - script: |
       choco --version || @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
