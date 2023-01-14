@@ -125,7 +125,7 @@ jobs:
       dotnet --list-sdks
       Say "Locales"
       locale -a
-    condition: eq(variables['Agent.OS'], 'Linux')
+    condition: ne(variables['Agent.OS'], 'Windows')
     displayName: 'Bootstrap on Linux'
 
   - bash: |
@@ -144,6 +144,7 @@ jobs:
     displayName: 'Postgres on Linux'
 
   - bash: |
+       psql --version
        brew search postgres | sort
        ls -laR /
        true
