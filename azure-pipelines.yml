@@ -154,13 +154,14 @@ jobs:
        command -v psql
        dir=$(dirname $(command -v psql))
        ls -la $dir
+       
        Say "Before"
        find /usr -name initdb
        find /usr -name pg_ctl
        Say "After"
        brew install postgresql@12
-       find /usr -name initdb
-       find /usr -name pg_ctl
+       time find /usr -name initdb
+       time find /usr -name pg_ctl
 
 
        brew search postgres | sort

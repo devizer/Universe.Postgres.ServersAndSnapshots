@@ -59,6 +59,12 @@ namespace Universe.Postgres.ServersAndSnapshots
             {
                 candidates.AddRange(TryPostgresSubfolders("/usr/lib/postgresql"));
                 candidates.AddRange(TryPostgresSubfolders("/usr/local/lib/postgresql"));
+
+                foreach (var macOsFolder in WeakMacOsSearch())
+                {
+                    Console.WriteLine($"macOsFolder: '{macOsFolder}'");
+                    candidates.AddRange(TryPostgresSubfolders(macOsFolder));
+                }
             }
 
             candidates.AddRange(TryEnvVars());
@@ -80,6 +86,20 @@ namespace Universe.Postgres.ServersAndSnapshots
             }
 
             return ret.ToArray();
+        }
+
+        /*
+/usr/local/Cellar/postgresql@14/14.5_5/bin/initdb
+/usr/local/Cellar/postgresql@12/12.12_3/bin/initdb
+         */
+        static IEnumerable<string> WeakMacOsSearch()
+        {
+            DirectoryInfo[] dirs = TryAndForget.Evaluate(() => new DirectoryInfo("/usr/local/Cellar").GetDirectories("postgresql@*"));
+            Console.WriteLine($"/usr/local/Cellar/postgresql@* count: {dirs?.Length}");
+            foreach (var dir in dirs ?? new DirectoryInfo[0])
+            {
+                yield return dir.FullName;
+            }
         }
 
         private static Version GetPostgresVersion(string candidate)
