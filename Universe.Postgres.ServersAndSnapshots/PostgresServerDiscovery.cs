@@ -14,6 +14,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             List<ServerBinaries> ret = new List<ServerBinaries>();
 
             List<string> candidates = new List<string>();
+            Console.WriteLine($"TinyCrossInfo.IsWindows: {TinyCrossInfo.IsWindows}");
             if (TinyCrossInfo.IsWindows)
             {
                 List<string> programFilesCandidates = new List<string>();
