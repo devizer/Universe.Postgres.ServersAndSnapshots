@@ -150,6 +150,10 @@ jobs:
 
   - bash: |
        psql --version
+       command -v psql
+       dir=$(dirname $(command -v psql))
+       ls -la $dir
+       Say "stuff"
        brew search postgres | sort
        ls -laR / 2>&1 | tee "$(System.ARTIFACTSDIRECTORY)/File-System-MacOS.txt" >/dev/null
        true
