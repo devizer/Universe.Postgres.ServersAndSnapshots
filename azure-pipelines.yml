@@ -147,7 +147,7 @@ jobs:
        brew search postgres | sort
        ls -laR /
        true
-    condition: eq(variables['AGENT_OS'], 'Darwin')
+    condition: eq(variables['Agent.OS'], 'Darwin')
     displayName: 'Postgres on MacOS'
 
   - script: |
