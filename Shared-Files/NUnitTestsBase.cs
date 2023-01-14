@@ -17,6 +17,7 @@ namespace Universe.NUnitTests
 		private Stopwatch StartAt;
 		private CpuUsage.CpuUsage? _CpuUsage_OnStart;
 		private int TestCounter = 0, TestClassCounter = 0;
+        private int TestCounterStorage = 0;
         private static int TestClassCounterStorage = 0;
 
 		
@@ -51,11 +52,11 @@ namespace Universe.NUnitTests
 			Environment.SetEnvironmentVariable("SKIP_FLUSHING", null);
 			StartAt = Stopwatch.StartNew();
 			_CpuUsage_OnStart = GetCpuUsage();
-			var testCounter = Interlocked.Increment(ref TestCounter);
+			TestCounter = Interlocked.Increment(ref TestCounterStorage);
 
 			var testClassName = TestContext.CurrentContext.Test.ClassName;
 			testClassName = testClassName.Split('.').LastOrDefault();
-			Console.WriteLine($"#{TestClassCounter}.{testCounter} {{{TestContext.CurrentContext.Test.Name}}} @ {testClassName} starting...");
+			Console.WriteLine($"#{TestClassCounter}.{TestCounter} {{{TestContext.CurrentContext.Test.Name}}} @ {testClassName} starting...");
 		}
 
 		private CpuUsage.CpuUsage? GetCpuUsage()
