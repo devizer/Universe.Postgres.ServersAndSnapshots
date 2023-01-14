@@ -103,7 +103,9 @@ namespace Universe.NUnitTests
 			Console.WriteLine(
 				$"#{TestClassCounter}.{TestCounter} {{{TestContext.CurrentContext.Test.Name}}} >{TestContext.CurrentContext.Result.Outcome.Status.ToString().ToUpper()}< in {elapsed}{cpuUsage}{Environment.NewLine}");
 
-            OnDisposeList();
+            var copy = OnDisposeList;
+            OnDisposeList = () => { };
+            copy();
         }
 
 		[OneTimeSetUp]
