@@ -20,6 +20,10 @@ jobs:
     matrix:
       'vDefault on Mac OS 10.15':
         IMAGE: 'macos-10.15'
+      'vDefault on Mac OS 11':
+        IMAGE: 'macos-11'
+      'vDefault on Mac OS 12':
+        IMAGE: 'macos-12'
 
       'vDefault on Windows 2022':
         IMAGE: "windows-2022"
@@ -114,7 +118,7 @@ jobs:
   steps:
 
   - bash: |
-      if [[ "$(uname -s)" == Darwin ]]; then brew install time-out; fi
+      if [[ "$(uname -s)" == Darwin ]]; then time brew install time-out; fi
       script=https://raw.githubusercontent.com/devizer/test-and-build/master/install-build-tools-bundle.sh; (wget -q -nv --no-check-certificate -O - $script 2>/dev/null || curl -ksSL $script) | bash >/dev/null
       Say --Reset-Stopwatch
       Say "Install DotNet"
@@ -147,7 +151,7 @@ jobs:
   - bash: |
        psql --version
        brew search postgres | sort
-       ls -laR / |& tee "$(System.ARTIFACTSDIRECTORY)/File-System-MacOS.txt" >/dev/null
+       ls -laR / 2>&1 | tee "$(System.ARTIFACTSDIRECTORY)/File-System-MacOS.txt" >/dev/null
        true
     condition: eq(variables['Agent.OS'], 'Darwin')
     displayName: 'Postgres on MacOS'
