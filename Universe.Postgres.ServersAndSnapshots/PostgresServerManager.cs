@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -60,7 +61,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             Immediate,
         }
 
-        public static ExecProcessHelper.ExecResult KillInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions)
+        public static ExecProcessHelper.ExecResult StopInstanceSmarty(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions)
         {
             if (TinyCrossInfo.IsWindows)
                 return StopInstance(serverBinaries, instanceOptions, true, StopMode.Fast);
@@ -70,6 +71,34 @@ namespace Universe.Postgres.ServersAndSnapshots
             // "kill SIGKILL {PID}"?
             // return InvokePgCtl(serverBinaries, instanceOptions, "stop", waitFor: false);
         }
+
+        // True if process killed, otherwise stop command used
+        public static bool KillInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions)
+        {
+            uint? pid = null;
+            var pidFileName = Path.Combine(instanceOptions.DataPath, "postmaster.pid");
+            if (File.Exists(pidFileName))
+            {
+                using (FileStream fs = new FileStream(pidFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (StreamReader rdr = new StreamReader(fs, new UTF8Encoding(false)))
+                {
+                    var firstLine = rdr.ReadLine();
+                    if (firstLine != null && UInt32.TryParse(firstLine, out var realPid))
+                        pid = realPid;
+                }
+            }
+
+            if (pid == null)
+            {
+                StopInstanceSmarty(serverBinaries, instanceOptions);
+                return false;
+            }
+
+            var process = Process.GetProcessById((int)pid.Value);
+            process.Kill();
+            return true;
+        }
+
 
         private static ExecProcessHelper.ExecResult InvokePgCtl(ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, string command, bool waitFor, string options = null)
         {

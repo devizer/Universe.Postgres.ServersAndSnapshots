@@ -32,17 +32,34 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             WaitForServer(testCase, options, connection, 15000, expectSuccess: true);
 
             Stopwatch killAt = Stopwatch.StartNew();
-            var resultKill = PostgresServerManager.KillInstance(serverBinaries, options);
+            var resultKill = PostgresServerManager.StopInstanceSmarty(serverBinaries, options);
             Console.WriteLine(@$"KILL SERVER Output (took {killAt.ElapsedMilliseconds:n0} milliseconds):{Environment.NewLine}{resultKill.OutputText}");
 
             WaitForServer(testCase, options, connection, 3000, expectSuccess: false);
         }
 
 
-        [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
-        public void TestStartServer(PgServerTestCase testCase)
+        enum StopMode
         {
-            var (connection, options) = InitDb(testCase); 
+            Kill,
+            Stop,
+        }
+
+        [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
+        public void TestStartStopServer(PgServerTestCase testCase)
+        {
+            TestStartStopServer_Implementation(testCase, StopMode.Stop);
+        }
+
+        [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
+        public void TestStartKillServer(PgServerTestCase testCase)
+        {
+            TestStartStopServer_Implementation(testCase, StopMode.Kill);
+        }
+
+        private void TestStartStopServer_Implementation(PgServerTestCase testCase, StopMode stopMode)
+        {
+            var (connection, options) = InitDb(testCase);
             var serverBinaries = testCase.ServerBinaries;
 
             Stopwatch startAt = Stopwatch.StartNew();
@@ -60,7 +77,8 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 ExecProcessHelper.ExecResult res2;
                 if (TinyCrossInfo.IsWindows)
                 {
-                    args = $"-c \"(Get-WmiObject Win32_Process -Filter \"\"\"name like '%postgres%'\"\"\") | ft Handle,Name,CommandLine > \"\"\"{options.DataPath}{Path.DirectorySeparatorChar}Processes.log\"\"\"\"";
+                    args =
+                        $"-c \"(Get-WmiObject Win32_Process -Filter \"\"\"name like '%postgres%'\"\"\") | ft Handle,Name,CommandLine > \"\"\"{options.DataPath}{Path.DirectorySeparatorChar}Processes.log\"\"\"\"";
                     cmd = "powershell";
                 }
                 else
@@ -69,15 +87,31 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                     args = $"-c \"echo; ps aux | grep postgres > '{options.DataPath}{Path.DirectorySeparatorChar}Processes.log'\"";
                     cmd = "bash";
                 }
+
                 res2 = ExecProcessHelper.HiddenExec(cmd, args);
                 ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{fullFileName}.7z\" \"{options.DataPath}\"");
                 Console.WriteLine($"DEBUG COMMAND:{Environment.NewLine}{cmd} {args}");
                 Console.WriteLine($"Invoke processlist output:{Environment.NewLine}{res2.OutputText}");
                 res2.DemandGenericSuccess($"Invoke processlist via {cmd}");
-
             }
 
-            TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
+            Stopwatch sw = Stopwatch.StartNew();
+            string mode = stopMode.ToString();
+            if (stopMode == StopMode.Stop)
+            {
+                TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
+            }
+            else
+            {
+                TryAndForget.Execute(() =>
+                {
+                    bool isKill = PostgresServerManager.KillInstance(serverBinaries, options);
+                    if (!isKill) mode = "Kill (nope, stop)";
+                });
+            }
+            Console.WriteLine($"{stopMode} server took {sw.ElapsedMilliseconds:n0} milliseconds");
+            
+
             TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
 
             WaitForServer(testCase, options, connection, 3000, expectSuccess: false);

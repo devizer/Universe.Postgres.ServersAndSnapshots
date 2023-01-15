@@ -53,8 +53,8 @@ namespace Universe.Postgres.ServersAndSnapshots.Benchmark
             if (_isRunning)
             {
                 Stopwatch sw = Stopwatch.StartNew();
-                PostgresServerManager.KillInstance(_server, _instanceOptions);
-                Console.WriteLine($"// KillInstance took {sw.ElapsedMilliseconds:n0} milliseconds");
+                PostgresServerManager.StopInstanceSmarty(_server, _instanceOptions);
+                Console.WriteLine($"// StopInstanceSmarty took {sw.ElapsedMilliseconds:n0} milliseconds");
             }
 
             _isRunning = true;
