@@ -38,9 +38,10 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
 
         public override string ToString()
         {
-            return 
+            return
                 (string.IsNullOrEmpty(Locale) ? "[Default Locale] " : $"[{Locale}] ")
-                + ServerBinaries.ToString();
+                + ServerBinaries
+                + " on " + CrossInfo.ThePlatform;
         }
     }
 }
