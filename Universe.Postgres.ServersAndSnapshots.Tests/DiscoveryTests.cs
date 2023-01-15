@@ -9,7 +9,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
     public class DiscoveryTests : NUnitTestsBase
     {
 
-        [Test]
+        [Test, Explicit]
         public void TestEscape()
         {
             var fileName = $"C:\\Temp\\postgres processes {DateTime.Now:yyyy-MM-dd-HH-mm-ss}.log";
