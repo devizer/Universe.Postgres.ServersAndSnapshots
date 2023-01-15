@@ -121,9 +121,9 @@ namespace Universe.Postgres.ServersAndSnapshots
     {
         public string SystemUser { get; set; } = "postgres";
         public string SystemPassword { get; set; } = "p@ssw0rd";
-        public string DataPath { get; set; } = "/temp/postgres-server-data";
+        public string DataPath { get; set; } = "/tmp/postgres-server-data";
         public int ServerPort { get; set; } = 5432;
-        public bool LocalhostOnly { get; set; } = false;
+        public bool LocalhostOnly { get; set; } = true;
         public string Locale { get; set; }
     }
 

@@ -27,10 +27,10 @@ jobs:
 
   steps:
   - bash: |
-       cd Universe.Postgres.ServersAndSnapshots.Benchmark 
+       cd Universe.Postgres.ServersAndSnapshots.Benchmark
        dotnet run -c Release
     condition: succeededOrFailed()
-    displayName: 'Bnechmark'
+    displayName: 'Benchmark'
 
 
 - job: PostgreSQL
