@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Universe.Postgres.ServersAndSnapshots
@@ -8,7 +7,7 @@ namespace Universe.Postgres.ServersAndSnapshots
     public static class PostgresServerManager
     {
         // Fuzzy logic
-        public static ServerBinaries[] FindPostgresServers(this ServerBinariesRequest serverBinariesRequest)
+        public static ServerBinaries[] FindPostgresServers()
         {
             // Linux: /usr/lib/postgresql/14/bin/initdb
             // Windows: C:\Program Files\PostgreSQL\{}, C:\Program Files (x86)\PostgreSQL\{}

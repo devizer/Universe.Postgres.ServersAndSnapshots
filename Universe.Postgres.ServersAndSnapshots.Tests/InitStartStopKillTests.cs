@@ -50,6 +50,13 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             Console.WriteLine(@$"START SERVER Output (took {startAt.ElapsedMilliseconds:n0} milliseconds):{Environment.NewLine}{resultStart.OutputText}");
 
             WaitForServer(testCase, options, connection, 15000, expectSuccess: true);
+
+            if (ArtifactsUtility.Can7z && ArtifactsUtility.Directory != null)
+            {
+                var fileName = $"Data [{(string.IsNullOrEmpty(testCase.Locale) ? "Default Locale" : testCase.Locale)}] {testCase.ServerBinaries.Version} (running server).7z";
+                var fullFileName = Path.Combine(ArtifactsUtility.Directory, fileName);
+                ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{options.DataPath}\" \"{fullFileName}\"");
+            }
             
             TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
             TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));

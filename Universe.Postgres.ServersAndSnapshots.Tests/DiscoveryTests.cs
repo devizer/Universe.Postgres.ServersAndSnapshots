@@ -12,6 +12,8 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         [Test]
         public void TestNothing()
         {
+            Console.WriteLine($"ArtifactsUtility.Can7z: [{ArtifactsUtility.Can7z}]");
+            Console.WriteLine($"ArtifactsUtility.Directory: [{ArtifactsUtility.Directory}]");
 
             Version.TryParse("16.99999", out var v);
             TestContext.Progress.WriteLine($"Version: {v}");
