@@ -158,9 +158,12 @@ jobs:
        Say "Before"
        time find /usr -name initdb
        time find /usr -name pg_ctl
-       Say "Install"
+       Say "Install v10...15"
+       time brew install postgresql@10
+       time brew install postgresql@11
        time brew install postgresql@12
        time brew install postgresql@13
+       time brew install postgresql@14
        time brew install postgresql@15
        Say "After"
        time find /usr -name initdb
