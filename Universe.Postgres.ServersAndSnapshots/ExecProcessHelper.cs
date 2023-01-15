@@ -31,7 +31,7 @@ namespace Universe
                 if (isFail)
                 {
                     StringBuilder reason = new StringBuilder();
-                    if (IsTimeout) reason.AppendLine($"  - Operation canceled by timeout ({MillisecondsTimeout:n0} milliseconds)");
+                    if (IsTimeout) reason.AppendLine($"  - Operation canceled by timeout ({(MillisecondsTimeout > 0 ? $"{MillisecondsTimeout:n0} milliseconds" : "infinite")})");
                     if (ExitCode != 0) reason.AppendLine($"  - Exit code is {ExitCode}");
                     if (!string.IsNullOrEmpty(ErrorText)) reason.AppendLine($"  - Std Error: {ErrorText}");
                     if (OutputException != null) reason.AppendLine($"  - Output stream exception {OutputException}");

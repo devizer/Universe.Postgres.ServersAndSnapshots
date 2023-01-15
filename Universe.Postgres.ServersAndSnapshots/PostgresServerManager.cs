@@ -63,9 +63,13 @@ namespace Universe.Postgres.ServersAndSnapshots
 
         public static ExecProcessHelper.ExecResult KillInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions)
         {
-            // "kill SIGKILL {PID}"
+            if (TinyCrossInfo.IsWindows)
+                return StopInstance(serverBinaries, instanceOptions, true, StopMode.Fast);
+            else
+                return StopInstance(serverBinaries, instanceOptions, false, StopMode.Immediate);
+
+            // "kill SIGKILL {PID}"?
             // return InvokePgCtl(serverBinaries, instanceOptions, "stop", waitFor: false);
-            return StopInstance(serverBinaries, instanceOptions, false, StopMode.Immediate);
         }
 
         private static ExecProcessHelper.ExecResult InvokePgCtl(ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, string command, bool waitFor, string options = null)
