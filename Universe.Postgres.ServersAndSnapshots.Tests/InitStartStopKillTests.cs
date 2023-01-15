@@ -51,14 +51,14 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
 
             WaitForServer(testCase, options, connection, 15000, expectSuccess: true);
 
-            if (ArtifactsUtility.Can7z && ArtifactsUtility.Directory != null && !TinyCrossInfo.IsWindows)
+            if (ArtifactsUtility.Can7z && ArtifactsUtility.Directory != null)
             {
                 var fileName = $"Data [{(string.IsNullOrEmpty(testCase.Locale) ? "Default Locale" : testCase.Locale)}] {testCase.ServerBinaries.Version} (running server)";
                 var fullFileName = Path.Combine(ArtifactsUtility.Directory, fileName);
                 var listProcessesCmd = $"-c 'echo; ps -aux | grep postgres > \"{fullFileName}.processes.log\" '";
                 ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{fullFileName}.7z\" \"{options.DataPath}\"");
                 ExecProcessHelper.HiddenExec("bash", listProcessesCmd);
-                Console.WriteLine($"DEBUG COMMAND:{Environment.NewLine}bash {listProcessesCmd}");
+                // Console.WriteLine($"DEBUG COMMAND:{Environment.NewLine}bash {listProcessesCmd}");
             }
 
             TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
