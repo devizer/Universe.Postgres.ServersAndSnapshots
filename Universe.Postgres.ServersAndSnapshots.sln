@@ -5,7 +5,9 @@ VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Universe.Postgres.ServersAndSnapshots", "Universe.Postgres.ServersAndSnapshots\Universe.Postgres.ServersAndSnapshots.csproj", "{1B84F18B-7289-497E-981D-5337C0963447}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Universe.Postgres.ServersAndSnapshots.Tests", "Universe.Postgres.ServersAndSnapshots.Tests\Universe.Postgres.ServersAndSnapshots.Tests.csproj", "{EAD7E9A0-11A8-4D3D-97B6-36D70A9796CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Universe.Postgres.ServersAndSnapshots.Tests", "Universe.Postgres.ServersAndSnapshots.Tests\Universe.Postgres.ServersAndSnapshots.Tests.csproj", "{EAD7E9A0-11A8-4D3D-97B6-36D70A9796CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Universe.Postgres.ServersAndSnapshots.Benchmark", "Universe.Postgres.ServersAndSnapshots.Benchmark\Universe.Postgres.ServersAndSnapshots.Benchmark.csproj", "{61E3B95B-75D4-491A-AFBE-9DB0CD093119}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{EAD7E9A0-11A8-4D3D-97B6-36D70A9796CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EAD7E9A0-11A8-4D3D-97B6-36D70A9796CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EAD7E9A0-11A8-4D3D-97B6-36D70A9796CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61E3B95B-75D4-491A-AFBE-9DB0CD093119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61E3B95B-75D4-491A-AFBE-9DB0CD093119}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61E3B95B-75D4-491A-AFBE-9DB0CD093119}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61E3B95B-75D4-491A-AFBE-9DB0CD093119}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

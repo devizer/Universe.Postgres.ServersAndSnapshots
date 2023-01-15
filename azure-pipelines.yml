@@ -11,6 +11,18 @@ trigger:
 
 jobs:
 
+- job: Benchmark
+  pool:
+    vmImage: 'ubuntu-20.04'
+  timeoutInMinutes: 60
+  steps:
+  - bash: |
+       cd Universe.Postgres.ServersAndSnapshots.Benchmark 
+       dotnet run -c Release
+    condition: succeededOrFailed()
+    displayName: 'On Linux'
+
+
 - job: PostgreSQL
   pool:
     vmImage: '$(IMAGE)'
@@ -150,10 +162,10 @@ jobs:
     displayName: 'Postgres on Linux'
 
   - bash: |
-       Say "Port?"
-       port --version
-       Say "Postgres on Port?"
-       port search postgres | sort
+       # Say "Port?"
+       # port --version
+       # Say "Postgres on Port?"
+       # port search postgres | sort
        psql --version
        command -v psql
        dir=$(dirname $(command -v psql))
