@@ -57,12 +57,11 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 var fullFileName = Path.Combine(ArtifactsUtility.Directory, fileName);
 
                 // linux ok, mac os <ps: No user named 'x'>
-                var listProcessesCmd = $"-c \"echo; ps aux | grep postgres > '{fullFileName}.processes.log'\"";
-                ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{fullFileName}.7z\" \"{options.DataPath}\"");
+                var listProcessesCmd = $"-c \"echo; ps aux | grep postgres > '{options.DataPath}{Path.DirectorySeparatorChar}.processes.log'\"";
                 var res2 = ExecProcessHelper.HiddenExec("bash", listProcessesCmd);
+                ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{fullFileName}.7z\" \"{options.DataPath}\"");
                 Console.WriteLine($"DEBUG COMMAND:{Environment.NewLine}bash {listProcessesCmd}");
                 Console.WriteLine($"ps aux output:{Environment.NewLine}{res2.OutputText}");
-                
                 res2.DemandGenericSuccess("Invoke ps via bash");
 
             }
