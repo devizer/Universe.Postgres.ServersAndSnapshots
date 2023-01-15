@@ -29,7 +29,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Benchmark
         {
             _server = PostgresServerDiscovery.GetServers().OrderByDescending(x => x.Version).FirstOrDefault();
             Console.WriteLine($"PostgreSQL Server: {_server}");
-            InitDbImplementation(false);
+            InitDbImplementation(true);
         }
 
         [GlobalCleanup]
