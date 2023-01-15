@@ -110,11 +110,11 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 });
             }
 
+            TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
             var msec = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
             Console.WriteLine($"{mode} server took {msec:n2} milliseconds");
             
             WaitForServer(testCase, options, connection, 3000, expectSuccess: false);
-            TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
         }
 
         void WaitForServer(PgServerTestCase testCase, PostgresInstanceOptions options, NpgsqlConnectionStringBuilder connection, int timeoutMilleconds, bool expectSuccess)
