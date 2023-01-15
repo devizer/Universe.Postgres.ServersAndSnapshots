@@ -55,7 +55,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             {
                 var fileName = $"Data [{(string.IsNullOrEmpty(testCase.Locale) ? "Default Locale" : testCase.Locale)}] {testCase.ServerBinaries.Version} (running server).7z";
                 var fullFileName = Path.Combine(ArtifactsUtility.Directory, fileName);
-                ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{options.DataPath}\" \"{fullFileName}\"");
+                ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{fullFileName}\" \"{options.DataPath}\"");
             }
             
             TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
