@@ -90,8 +90,8 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
 
                 res2 = ExecProcessHelper.HiddenExec(cmd, args);
                 ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{fullFileName}.7z\" \"{options.DataPath}\"");
-                Console.WriteLine($"DEBUG COMMAND:{Environment.NewLine}{cmd} {args}");
-                Console.WriteLine($"Invoke processlist output:{Environment.NewLine}{res2.OutputText}");
+                // Console.WriteLine($"DEBUG COMMAND:{Environment.NewLine}{cmd} {args}");
+                // Console.WriteLine($"Invoke processlist output:{Environment.NewLine}{res2.OutputText}");
                 res2.DemandGenericSuccess($"Invoke processlist via {cmd}");
             }
 
@@ -112,7 +112,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
 
             TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
             var msec = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
-            Console.WriteLine($"{mode} server took {msec:n2} milliseconds");
+            Console.WriteLine($"[{mode}] server took {msec:n2} milliseconds");
             
             WaitForServer(testCase, options, connection, 3000, expectSuccess: false);
         }
