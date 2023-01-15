@@ -159,7 +159,7 @@ jobs:
        time find /usr -name initdb
        time find /usr -name pg_ctl
        Say "Install v10...15"
-       for v in 10 11 12 13 14 15; do
+       for v in 9.5 10 11 12 13 14 15; do
          Say "Install Postgres v$v"
          time brew install postgresql@${v}
        done
