@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -50,10 +51,18 @@ namespace Universe.Postgres.ServersAndSnapshots.Benchmark
         {
             // InitDbImplementation(false);
             if (_isRunning)
+            {
+                Stopwatch sw = Stopwatch.StartNew();
                 PostgresServerManager.KillInstance(_server, _instanceOptions);
-            
+                Console.WriteLine($"// KillInstance took {sw.ElapsedMilliseconds:n0} milliseconds");
+            }
+
             _isRunning = true;
-            PostgresServerManager.StartInstance(_server, _instanceOptions);
+            {
+                Stopwatch sw = Stopwatch.StartNew();
+                PostgresServerManager.StartInstance(_server, _instanceOptions);
+                Console.WriteLine($"// StartInstance took {sw.ElapsedMilliseconds:n0} milliseconds");
+            }
         }
 
         private PostgresInstanceOptions InitDbImplementation(bool debug)
