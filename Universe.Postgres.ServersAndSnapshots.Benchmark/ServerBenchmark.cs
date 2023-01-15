@@ -54,7 +54,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Benchmark
             {
                 Stopwatch sw = Stopwatch.StartNew();
                 if (TinyCrossInfo.IsWindows)
-                    PostgresServerManager.StopInstance(_server, _instanceOptions, true, PostgresServerManager.StopMode.Immediate);
+                    PostgresServerManager.StopInstance(_server, _instanceOptions, true, PostgresServerManager.StopMode.Fast);
                 else
                     PostgresServerManager.KillInstance(_server, _instanceOptions);
 

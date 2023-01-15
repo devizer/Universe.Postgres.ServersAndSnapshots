@@ -17,6 +17,7 @@ namespace Universe
             public Exception OutputException { get; set; }
             public Exception ErrorException { get; set; }
             public bool IsTimeout { get; set; }
+            public int MillisecondsTimeout { get; set; }
 
             public void DemandGenericSuccess(string operationDescription, bool failOnStderr = false)
             {
@@ -30,7 +31,7 @@ namespace Universe
                 if (isFail)
                 {
                     StringBuilder reason = new StringBuilder();
-                    if (IsTimeout) reason.AppendLine("  - Operation canceled by timeout.");
+                    if (IsTimeout) reason.AppendLine($"  - Operation canceled by timeout ({MillisecondsTimeout:n0} milliseconds)");
                     if (ExitCode != 0) reason.AppendLine($"  - Exit code is {ExitCode}");
                     if (!string.IsNullOrEmpty(ErrorText)) reason.AppendLine($"  - Std Error: {ErrorText}");
                     if (OutputException != null) reason.AppendLine($"  - Output stream exception {OutputException}");
@@ -180,6 +181,7 @@ namespace Universe
                     ErrorText = errorText,
                     OutputException = outputException,
                     ErrorException = errorException,
+                    MillisecondsTimeout = millisecondsTimeout,
                 };
             }
         }
