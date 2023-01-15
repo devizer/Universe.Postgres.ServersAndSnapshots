@@ -56,13 +56,24 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 var fileName = $"Data [{(string.IsNullOrEmpty(testCase.Locale) ? "Default Locale" : testCase.Locale)}] {testCase.ServerBinaries.Version} (running server)";
                 var fullFileName = Path.Combine(ArtifactsUtility.Directory, fileName);
 
-                // linux ok, mac os <ps: No user named 'x'>
-                var listProcessesCmd = $"-c \"echo; ps aux | grep postgres > '{options.DataPath}{Path.DirectorySeparatorChar}.processes.log'\"";
-                var res2 = ExecProcessHelper.HiddenExec("bash", listProcessesCmd);
+                string cmd = null, args = null;
+                ExecProcessHelper.ExecResult res2;
+                if (TinyCrossInfo.IsWindows)
+                {
+                    args = $"-c \"(Get-WmiObject Win32_Process -Filter \"\"\"name like '%postgres%'\"\"\") | ft Handle,Name,CommandLine > \"\"\"{options.DataPath}{Path.DirectorySeparatorChar}Processes.log\"\"\"\"";
+                    cmd = "powershell";
+                }
+                else
+                {
+                    // linux ok, mac os ok
+                    args = $"-c \"echo; ps aux | grep postgres > '{options.DataPath}{Path.DirectorySeparatorChar}Processes.log'\"";
+                    cmd = "bash";
+                }
+                res2 = ExecProcessHelper.HiddenExec(cmd, args);
                 ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{fullFileName}.7z\" \"{options.DataPath}\"");
-                Console.WriteLine($"DEBUG COMMAND:{Environment.NewLine}bash {listProcessesCmd}");
-                Console.WriteLine($"ps aux output:{Environment.NewLine}{res2.OutputText}");
-                res2.DemandGenericSuccess("Invoke ps via bash");
+                Console.WriteLine($"DEBUG COMMAND:{Environment.NewLine}{cmd} {args}");
+                Console.WriteLine($"Invoke processlist output:{Environment.NewLine}{res2.OutputText}");
+                res2.DemandGenericSuccess($"Invoke processlist via {cmd}");
 
             }
 

@@ -10,6 +10,15 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
     {
 
         [Test]
+        public void TestEscape()
+        {
+            var fileName = $"C:\\Temp\\postgres processes {DateTime.Now:yyyy-MM-dd-HH-mm-ss}.log";
+            var args = $"-c \"(Get-WmiObject Win32_Process -Filter \"\"\"name like '%postgres%'\"\"\") | ft Handle,Name,CommandLine > \"\"\"{fileName}\"\"\"\"";
+            var result = ExecProcessHelper.HiddenExec("powershell", args);
+            Console.WriteLine(result.OutputText);
+
+        }
+        [Test]
         public void TestNothing()
         {
             Console.WriteLine($"ArtifactsUtility.Can7z: [{ArtifactsUtility.Can7z}]");
