@@ -22,18 +22,20 @@ namespace Universe.Postgres.ServersAndSnapshots.Benchmark
     public class ServerBenchmark
     {
         private ServerBinaries _server;
-        List<string> Directories = new List<string>(10000);
+        List<string> _directories = new List<string>(10000);
 
         [GlobalSetup]
         public void GlobalSetup()
         {
             _server = PostgresServerDiscovery.GetServers().OrderByDescending(x => x.Version).FirstOrDefault();
+            Console.WriteLine($"PostgreSQL Server: {_server}");
+            InitDbImplementation(false);
         }
 
         [GlobalCleanup]
         public void GlobalCleanup()
         {
-            foreach (var directory in Directories)
+            foreach (var directory in _directories)
             {
                 try
                 {
@@ -48,8 +50,13 @@ namespace Universe.Postgres.ServersAndSnapshots.Benchmark
         [Benchmark]
         public void InitDb()
         {
+            InitDbImplementation(false);
+        }
+
+        private void InitDbImplementation(bool debug)
+        {
             var dataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff"));
-            Directories.Add(dataPath);
+            _directories.Add(dataPath);
 
             PostgresInstanceOptions options = new PostgresInstanceOptions()
             {
@@ -57,8 +64,11 @@ namespace Universe.Postgres.ServersAndSnapshots.Benchmark
                 ServerPort = Interlocked.Increment(ref TestUtils.Port),
             };
 
-            PostgresServerManager.CreateServerInstance(_server, options);
+            var result = PostgresServerManager.CreateServerInstance(_server, options);
+            if (debug)
+                Console.WriteLine($"INITDB OUTPUT: {Environment.NewLine}{result.OutputText}");
         }
+
     }
 
     internal class TestUtils
