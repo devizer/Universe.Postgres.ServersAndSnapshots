@@ -22,7 +22,7 @@ jobs:
         IMAGE: 'macos-12'
       'vDefault Windows 2022':
         IMAGE: 'windows-2022'
-      'vDefault on Ubuntu 22.04':
+      'vDefault on Ubuntu 20.04':
         IMAGE: 'ubuntu-20.04'
 
   steps:
