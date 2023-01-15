@@ -55,11 +55,11 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             {
                 var fileName = $"Data [{(string.IsNullOrEmpty(testCase.Locale) ? "Default Locale" : testCase.Locale)}] {testCase.ServerBinaries.Version} (running server)";
                 var fullFileName = Path.Combine(ArtifactsUtility.Directory, fileName);
-                var listProcessesCmd = $"bash -c \"ps -aux | grep postgres \" > \"{fullFileName}.processes.log\"";
+                var listProcessesCmd = $"bash -c 'echo; ps -aux | grep postgres > \"{fullFileName}.processes.log\" '";
                 ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{fullFileName}.7z\" \"{options.DataPath}\"");
                 ExecProcessHelper.HiddenExec("sudo", listProcessesCmd);
             }
-            
+
             TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
             TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
 
