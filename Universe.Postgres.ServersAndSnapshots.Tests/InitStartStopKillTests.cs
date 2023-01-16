@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Npgsql;
 using NUnit.Framework;
 using Universe.NUnitTests;

@@ -36,7 +36,7 @@ jobs:
 - job: PostgreSQL
   pool:
     vmImage: '$(IMAGE)'
-  timeoutInMinutes: 20
+  timeoutInMinutes: 25
   strategy:
     maxParallel: 7
     matrix:
@@ -153,7 +153,7 @@ jobs:
       dotnet --list-sdks
       Say "Locales"
       locale -a
-    condition: ne(variables['Agent.OS'], 'Windows')
+    condition: ne(variables['Agent.OS'], 'Windows_NT')
     displayName: 'Bootstrap on Linux/Mac'
 
   - bash: |
