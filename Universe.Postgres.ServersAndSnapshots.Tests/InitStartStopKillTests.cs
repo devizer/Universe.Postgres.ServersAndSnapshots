@@ -123,7 +123,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             string prefixSuccess = expectSuccess ? "OK:" : "WARNING:";
             string prefixFail = expectSuccess ? "WARNING:" : "OK:";
             if (error != null)
-                Console.WriteLine($"[Wait for '{testCase.ServerBinaries.ServerPath}'] {prefixFail} CONNECTION ERROR: {error.Message}{(expectSuccess ? Environment.NewLine + error : error.Message)}");
+                Console.WriteLine($"[Wait for '{testCase.ServerBinaries.ServerPath}'] {prefixFail} CONNECTION ERROR: {error.Message}{(expectSuccess ? Environment.NewLine + error : "")}");
             else
             {
                 Console.WriteLine($"[Wait for '{testCase.ServerBinaries.ServerPath}'] {prefixSuccess} SUCCESSFUL CONNECTION in {waitForStart.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
