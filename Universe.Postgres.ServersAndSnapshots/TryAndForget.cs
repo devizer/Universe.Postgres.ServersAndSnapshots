@@ -26,7 +26,5 @@ namespace Universe.Postgres.ServersAndSnapshots
             {
             }
         }
-
-
     }
 }
