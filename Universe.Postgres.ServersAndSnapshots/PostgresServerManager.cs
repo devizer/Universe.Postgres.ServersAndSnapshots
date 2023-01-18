@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Universe.Postgres.ServersAndSnapshots
 {
@@ -75,6 +78,7 @@ namespace Universe.Postgres.ServersAndSnapshots
         // True if process killed, otherwise stop command used
         public static bool KillInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions)
         {
+            var pidList = new List<int>();
             uint? pid = null;
             var pidFileName = Path.Combine(instanceOptions.DataPath, "postmaster.pid");
             if (File.Exists(pidFileName))
@@ -93,9 +97,48 @@ namespace Universe.Postgres.ServersAndSnapshots
                 StopInstanceSmarty(serverBinaries, instanceOptions);
                 return false;
             }
+            else
+            {
+                pidList.Add((int)pid.Value);
+                if (TinyCrossInfo.IsWindows)
+                {
+                    var processes = WindowsProcessInterop.GetAllProcesses();
+                    var children = processes.AsChildrenDictionary().GetDeepChildren(pid.Value).Reverse().ToArray();
+                    foreach (var idChild in children)
+                        pidList.Add((int)idChild);
+                }
+            }
 
-            var process = Process.GetProcessById((int)pid.Value);
-            process.Kill();
+            Stopwatch startKillAt = Stopwatch.StartNew();
+            StringBuilder sb = new StringBuilder();
+            Parallel.ForEach(pidList, idProcess =>
+            {
+                var status = "success";
+                try
+                {
+                    var process = Process.GetProcessById(idProcess);
+                    process.Kill();
+                }
+                catch (Exception ex)
+                {
+#if DEBUG || true
+                    status = $"[{ex.GetType()}]: {ex.Message}";
+#endif
+                }
+
+#if DEBUG || true
+                var msec = startKillAt.ElapsedMilliseconds;
+                lock (sb)
+                {
+                    sb.AppendLine($"[KillInstance] {msec,12:n0} Kill postgres process {idProcess}: {status}");
+                }
+#endif
+            });
+#if DEBUG || true
+            sb.AppendLine($"[KillInstance] {startKillAt.ElapsedMilliseconds,12:n0} Kill postgres finished. Root PID is {pid}");
+            Console.WriteLine(sb);
+#endif
+
             return true;
         }
 

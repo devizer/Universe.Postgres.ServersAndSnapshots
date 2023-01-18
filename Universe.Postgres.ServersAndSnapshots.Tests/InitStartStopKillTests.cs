@@ -162,6 +162,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 Password = options.SystemPassword,
                 Timeout = 1,
                 CommandTimeout = 1,
+                ApplicationName = $"Tests on port {options.ServerPort}",
             };
 
             return (csBuilder, options);
