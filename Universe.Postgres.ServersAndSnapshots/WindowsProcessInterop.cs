@@ -149,13 +149,61 @@ namespace Universe.Postgres.ServersAndSnapshots
 
     public static class WindowsProcessInteropExtensions
     {
-        public static IDictionary<uint, uint> AsParentsDictionary(this PROCESSENTRY32[] processes)
+        public static IDictionary<uint, uint> AsParentDictionary(this PROCESSENTRY32[] processes)
         {
             Dictionary<uint, uint> ret = new Dictionary<uint, uint>();
             foreach (var process in processes)
                 ret[process.ProcessID] = process.ParentProcessID;
 
             return ret;
+        }
+        public static IDictionary<uint, List<uint>> AsChildrenDictionary(this PROCESSENTRY32[] processes)
+        {
+            Dictionary<uint, List<uint>> ret = new Dictionary<uint, List<uint>>();
+            foreach (var process in processes)
+            {
+                var idParent = process.ParentProcessID;
+                if (!ret.TryGetValue(idParent, out var list))
+                {
+                    list = new List<uint>();
+                    ret[idParent] = list;
+                }
+                list.Add(process.ProcessID);
+            }
+
+            return ret;
+        }
+
+        public static IEnumerable<uint> GetChildren(this IDictionary<uint, List<uint>> processesDictionary, uint idParent)
+        {
+            if (processesDictionary.TryGetValue(idParent, out var children))
+                foreach (var idChild in children)
+                    yield return idChild;
+        }
+
+        public static IEnumerable<uint> GetDeepChildren(this IDictionary<uint, List<uint>> processesDictionary, uint idParent)
+        {
+            return GetDeepChildren(processesDictionary, idParent, false);
+        }
+
+        public static IEnumerable<uint> GetDeepChildren(this IDictionary<uint, List<uint>> processesDictionary, uint idParent, bool includeArgument)
+        {
+            List<uint> ret = new List<uint>();
+            if (includeArgument) ret.Add(idParent);
+            EnumSubTree(ret, processesDictionary, idParent);
+            return ret;
+        }
+
+        private static void EnumSubTree(List<uint> deepChildren, IDictionary<uint, List<uint>> processesDictionary, uint idParent)
+        {
+            if (processesDictionary.TryGetValue(idParent, out var children))
+            {
+                foreach (var idChild in children)
+                {
+                    deepChildren.Add(idChild);
+                    EnumSubTree(deepChildren, processesDictionary, idChild);
+                }
+            }
         }
     }
 }
