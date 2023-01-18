@@ -163,6 +163,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 Timeout = 1,
                 CommandTimeout = 1,
                 ApplicationName = $"Tests on port {options.ServerPort}",
+                Pooling = false, // Needs by killing server
             };
 
             return (csBuilder, options);
