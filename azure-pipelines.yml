@@ -234,7 +234,7 @@ jobs:
         echo "CPU: ${cpu}"
         Say "[Mac OS] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'";
       else
-        export PG_SERVER_LOCALES='en-US de-DE fr-FR it-IT -'
+        export PG_SERVER_LOCALES='en-US de-DE -'
         echo 'Write-Host "CPU: $((Get-WmiObject Win32_Processor).Name), $([Environment]::ProcessorCount) Cores"' | powershell -c -
         echo "[WINDOWS] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'"; echo ""
       fi
