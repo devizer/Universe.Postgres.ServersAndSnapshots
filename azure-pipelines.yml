@@ -179,7 +179,7 @@ jobs:
        psql --version
        command -v psql
        dir=$(dirname $(command -v psql))
-       ls -la $dir
+       ls -la $dir > System.ARTIFACTSDIRECTORY)/psql directiory content.txt"
        
        Say "Before"
        time find /usr -name initdb
@@ -187,7 +187,7 @@ jobs:
        Say "Install v10...15"
        for v in 9.5 10 11 12 13 14 15; do
          Say "Install Postgres v$v"
-         time brew install postgresql@${v}
+         time brew install postgresql@${v} || exit $?
        done
        Say "After"
        time find /usr -name initdb
