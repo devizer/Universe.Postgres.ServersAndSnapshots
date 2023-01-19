@@ -193,7 +193,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             if (includeArgument)
             {
                 ret.Add(idParent);
-                alreadyHandled.Add(idParent);
+                // wrong alreadyHandled.Add(idParent);
             }
 
             EnumSubTree(ret, alreadyHandled, processesDictionary, idParent);
@@ -209,8 +209,8 @@ namespace Universe.Postgres.ServersAndSnapshots
                 {
                     if (!alreadyHandled.Contains(idChild))
                     {
-                        alreadyHandled.Add(idChild);
                         deepChildren.Add(idChild);
+                        alreadyHandled.Add(idChild);
                         EnumSubTree(deepChildren, alreadyHandled, processesDictionary, idChild);
                     }
                 }
