@@ -189,19 +189,30 @@ namespace Universe.Postgres.ServersAndSnapshots
         public static IEnumerable<uint> GetDeepChildren(this IDictionary<uint, List<uint>> processesDictionary, uint idParent, bool includeArgument)
         {
             List<uint> ret = new List<uint>();
-            if (includeArgument) ret.Add(idParent);
-            EnumSubTree(ret, processesDictionary, idParent);
+            HashSet<uint> alreadyHandled = new HashSet<uint>();
+            if (includeArgument)
+            {
+                ret.Add(idParent);
+                alreadyHandled.Add(idParent);
+            }
+
+            EnumSubTree(ret, alreadyHandled, processesDictionary, idParent);
             return ret;
         }
 
-        private static void EnumSubTree(List<uint> deepChildren, IDictionary<uint, List<uint>> processesDictionary, uint idParent)
+        // Key: ParentID, Value: List of children
+        private static void EnumSubTree(List<uint> deepChildren, HashSet<uint> alreadyHandled, IDictionary<uint, List<uint>> processesDictionary, uint idParent)
         {
             if (processesDictionary.TryGetValue(idParent, out var children))
             {
                 foreach (var idChild in children)
                 {
-                    deepChildren.Add(idChild);
-                    EnumSubTree(deepChildren, processesDictionary, idChild);
+                    if (!alreadyHandled.Contains(idChild))
+                    {
+                        alreadyHandled.Add(idChild);
+                        deepChildren.Add(idChild);
+                        EnumSubTree(deepChildren, alreadyHandled, processesDictionary, idChild);
+                    }
                 }
             }
         }
