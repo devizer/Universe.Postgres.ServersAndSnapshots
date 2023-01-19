@@ -179,7 +179,7 @@ jobs:
        psql --version
        command -v psql
        dir=$(dirname $(command -v psql))
-       ls -la $dir > System.ARTIFACTSDIRECTORY)/psql directiory content.txt"
+       ls -la $dir > "$(System.ARTIFACTSDIRECTORY)/psql directiory content.txt"
        
        Say "Before"
        time find /usr -name initdb
