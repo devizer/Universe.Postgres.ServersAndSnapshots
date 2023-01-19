@@ -49,7 +49,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             Stopwatch startAsChildrenDictionaryAt = Stopwatch.StartNew();
             var deepChildren = processes.AsChildrenDictionary().GetDeepChildren(servicesProcess.ProcessID).ToArray();
             var msecAsChildrenDictionaryAt = startAsDictionaryAt.ElapsedTicks * 1000d / Stopwatch.Frequency;
-            Console.WriteLine($"WindowsProcessInteropExtensions.AsChildrenDictionary().GetDeepChildren({servicesProcess.ProcessID}) took {msecAsChildrenDictionaryAt:n2} milliseconds returned {deepChildren.Count()}: {string.Join(",", deepChildren)}");
+            Console.WriteLine($"WindowsProcessInteropExtensions.AsChildrenDictionary().GetDeepChildren({servicesProcess.ProcessID}) took {startAsChildrenDictionaryAt:n2} milliseconds returned {deepChildren.Count()}: {string.Join(",", deepChildren)}");
 
             Assert.AreEqual(tempPid, current.ProcessID, @"Current PID not found");
             Assert.AreNotEqual(0, current.ProcessID, @"Current PID is not zero");
