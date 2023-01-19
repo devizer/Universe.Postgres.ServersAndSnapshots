@@ -13,7 +13,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
     
     public class WindowsProcessListTest : NUnitTestsBase
     {
-        [Test, Explicit]
+        [Test/*, Explicit*/]
         [TestCase("First")]
         [TestCase("Next")]
         public void TestGetAllProcesses(string id)
