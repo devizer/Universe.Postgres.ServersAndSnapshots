@@ -104,7 +104,7 @@ namespace Universe.Postgres.ServersAndSnapshots
                 {
                     var processes = WindowsProcessInterop.GetAllProcesses();
                     var children = processes.AsChildrenDictionary().GetDeepChildren(pid.Value).Reverse().ToList();
-                    Console.WriteLine($"Postgres {pid} children: [{string.Join(",", children)}] (skipping kill)");
+                    Console.WriteLine($"Postgres {pid} children: [{string.Join(",", children)}]");
                     foreach (var idChild in children) pidList.Add((int)idChild);
                 }
             }
