@@ -191,7 +191,7 @@ jobs:
        # v 10th is temporary not work: initdb: dyld: Library not loaded: /usr/local/opt/icu4c/lib/libicui18n.71.dylib, image not found
        for v in ${PG_VERSION_LIST:-}; do
          Say "Install Postgres v$v"
-         time brew install postgresql@${v} || exit $?
+         time brew install ${v} || exit $?
        done
        Say "After"
        time find /usr -name initdb
