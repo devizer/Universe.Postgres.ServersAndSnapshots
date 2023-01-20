@@ -211,8 +211,7 @@ jobs:
     displayName: 'Postgres on Windows'
 
   - bash: |
-      ls -laR "C:\\Program Files\\PostgreSQL"
-      rm -rf "C:\\Program Files\\PostgreSQL"
+      for v in 14 15 16 17; do rm -f "C:\\Program Files\\PostgreSQL\\$v\\bin\\initdb.exe"; done
       file="postgres-${PG_PORTABLE_WINDOWS}-windows.7z"
       urlFast="https://sourceforge.net/projects/postgres-binaries/files/$file/download"
       urlSlow="https://master.dl.sourceforge.net/project/postgres-binaries/$file?viasf=1"
