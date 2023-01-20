@@ -148,9 +148,9 @@ jobs:
       Say --Reset-Stopwatch
       
       # 7z
-      Say "Before 7z: $(7z | head -1)"
+      Say "Before 7z: $(7z | grep -v '^$' | head -1)"
       export INSTALL_DIR=/usr/local/bin LINK_AS_7Z=/usr/local/bin/7z; script="https://master.dl.sourceforge.net/project/p7zz-repack/install-7zz.sh?viasf=1"; (wget -q -nv --no-check-certificate -O - $script 2>/dev/null || curl -ksSL $script) | bash
-      Say "After 7z: $(7z | head -1)"
+      Say "After 7z: $(7z | grep -v '^$' | head -1)"
 
       Say "Installing DotNet"
       export DOTNET_VERSIONS="5.0 6.0 7.0"
