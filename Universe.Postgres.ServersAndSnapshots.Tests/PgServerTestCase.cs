@@ -21,6 +21,9 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 foreach (var locale in locales)
                     ret.Add(new PgServerTestCase() { Locale = locale, ServerBinaries = server});
 
+            if (ret.Count == 0) 
+                throw new Exception("Can't find any postgres server binaries");
+
             return ret.ToArray();
         }
 
