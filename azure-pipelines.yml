@@ -211,7 +211,7 @@ jobs:
     displayName: 'Postgres on Windows'
 
   - bash: |
-      rm -rf "C:\\Program Files\\PostgreSQL\\*"
+      rm -rf "C:\\Program Files\\PostgreSQL"
       file="postgres-${PG_PORTABLE_WINDOWS}-windows.7z"
       urlFast="https://sourceforge.net/projects/postgres-binaries/files/$file/download"
       urlSlow="https://master.dl.sourceforge.net/project/postgres-binaries/$file?viasf=1"
