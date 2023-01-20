@@ -146,7 +146,13 @@ jobs:
       # if [[ "$(uname -s)" == Darwin ]]; then time brew install time-out; fi # wrong timeout
       script=https://raw.githubusercontent.com/devizer/test-and-build/master/install-build-tools-bundle.sh; (wget -q -nv --no-check-certificate -O - $script 2>/dev/null || curl -ksSL $script) | bash >/dev/null
       Say --Reset-Stopwatch
-      Say "Install DotNet"
+      
+      # 7z
+      Say "Before 7z: $(7z | head -1)"
+      export INSTALL_DIR=/usr/local/bin LINK_AS_7Z=/usr/local/bin/7z; script="https://master.dl.sourceforge.net/project/p7zz-repack/install-7zz.sh?viasf=1"; (wget -q -nv --no-check-certificate -O - $script 2>/dev/null || curl -ksSL $script) | bash
+      Say "After 7z: $(7z | head -1)"
+
+      Say "Installing DotNet"
       export DOTNET_VERSIONS="5.0 6.0 7.0"
       script=https://raw.githubusercontent.com/devizer/test-and-build/master/lab/install-DOTNET.sh; (wget -q -nv --no-check-certificate -O - $script 2>/dev/null || curl -ksSL $script) | bash; test -s /usr/share/dotnet/dotnet && sudo ln -f -s /usr/share/dotnet/dotnet /usr/local/bin/dotnet
       test -s /usr/local/share/dotnet/dotnet && sudo ln -f -s /usr/local/share/dotnet/dotnet /usr/local/bin/dotnet
@@ -175,10 +181,6 @@ jobs:
     displayName: 'Postgres on Linux'
 
   - bash: |
-       # Say "Port?"
-       # port --version
-       # Say "Postgres on Port?"
-       # port search postgres | sort
        psql --version
        command -v psql
        dir=$(dirname $(command -v psql))
@@ -187,6 +189,7 @@ jobs:
        Say "Before"
        time find /usr -name initdb
        time find /usr -name pg_ctl
+
        Say "Install [${PG_VERSION_LIST:-}] versions"
        # v 10th is temporary not work: initdb: dyld: Library not loaded: /usr/local/opt/icu4c/lib/libicui18n.71.dylib, image not found
        for v in ${PG_VERSION_LIST:-}; do
