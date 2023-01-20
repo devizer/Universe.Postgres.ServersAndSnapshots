@@ -19,7 +19,6 @@ namespace Universe.Postgres.ServersAndSnapshots
             return PostgresServerDiscovery.GetServers();
         }
 
-
         public static ExecProcessHelper.ExecResult CreateServerInstance(this ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions)
         {
             var passwordFileName = Guid.NewGuid().ToString("N");
@@ -104,7 +103,9 @@ namespace Universe.Postgres.ServersAndSnapshots
                 {
                     var processes = WindowsProcessInterop.GetAllProcesses();
                     var children = processes.AsChildrenDictionary().GetDeepChildren(pid.Value).Reverse().ToList();
-                    Console.WriteLine($"Postgres {pid} children: [{string.Join(",", children)}]");
+                    if (EnableKillLog)
+                        Console.WriteLine($"Postgres {pid} children: [{string.Join(",", children)}]");
+
                     foreach (var idChild in children) pidList.Add((int)idChild);
                 }
             }
@@ -121,26 +122,33 @@ namespace Universe.Postgres.ServersAndSnapshots
                 }
                 catch (Exception ex)
                 {
-#if DEBUG || true
-                    status = $"[{ex.GetType()}]: {ex.Message}";
-#endif
+                    if (EnableKillLog)
+                        status = $"[{ex.GetType()}]: {ex.Message}";
                 }
 
-#if DEBUG || true
-                var msec = startKillAt.ElapsedMilliseconds;
-                lock (sb)
+                if (EnableKillLog)
                 {
-                    sb.AppendLine($"[KillInstance] {msec,12:n0} Kill postgres process {idProcess}: {status}");
+                    var msec = startKillAt.ElapsedMilliseconds;
+                    lock (sb)
+                    {
+                        sb.AppendLine($"[KillInstance] {msec,12:n0} Kill postgres process {idProcess}: {status}");
+                    }
                 }
-#endif
             });
-#if DEBUG || true
-            sb.AppendLine($"[KillInstance] {startKillAt.ElapsedMilliseconds,12:n0} Kill postgres finished. Root PID is {pid}");
-            Console.WriteLine(sb);
-#endif
+            if (EnableKillLog)
+            {
+                sb.AppendLine($"[KillInstance] {startKillAt.ElapsedMilliseconds,12:n0} Kill postgres finished. Root PID is {pid}");
+                Console.WriteLine(sb);
+            }
 
             return true;
         }
+
+#if DEBUG && false
+        private const bool EnableKillLog = true;
+#else 
+        private const bool EnableKillLog = false;
+#endif
 
 
         private static ExecProcessHelper.ExecResult InvokePgCtl(ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, string command, bool waitFor, string options = null)

@@ -67,7 +67,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
 
             WaitForServer(testCase, options, connection, 15000, expectSuccess: true);
 
-            if (ArtifactsUtility.Can7z && ArtifactsUtility.Directory != null)
+            if (ArtifactsUtility.Directory != null && ArtifactsUtility.Can7z)
             {
                 var fileName = $"Data [{(string.IsNullOrEmpty(testCase.Locale) ? "Default Locale" : testCase.Locale)}] {testCase.ServerBinaries.Version} (running server)";
                 var fullFileName = Path.Combine(ArtifactsUtility.Directory, fileName);
