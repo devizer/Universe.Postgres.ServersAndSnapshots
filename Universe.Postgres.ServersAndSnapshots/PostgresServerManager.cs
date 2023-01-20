@@ -23,8 +23,7 @@ namespace Universe.Postgres.ServersAndSnapshots
         {
             var passwordFileName = Guid.NewGuid().ToString("N");
             using var passwordFile = DisposableTempFile.Create(passwordFileName, instanceOptions.SystemPassword);
-            var ext = TinyCrossInfo.IsWindows ? ".exe" : "";
-            var exe = Path.Combine(serverBinaries.ServerPath, $"bin{Path.DirectorySeparatorChar}initdb{ext}");
+            var exe = serverBinaries.InitDbFullPath;
             var localeParam = string.IsNullOrEmpty(instanceOptions.Locale) ? "" : $"--locale={instanceOptions.Locale} ";
             var args = $"{localeParam}-D \"{instanceOptions.DataPath}\" --pwfile \"{passwordFileName}\" -U \"{instanceOptions.SystemUser}\"";
 
@@ -110,8 +109,14 @@ namespace Universe.Postgres.ServersAndSnapshots
                 }
             }
 
-            Stopwatch startKillAt = Stopwatch.StartNew();
-            StringBuilder sb = new StringBuilder();
+            Stopwatch startKillAt;
+            StringBuilder killLog;
+            if (EnableKillLog)
+            {
+                startKillAt = Stopwatch.StartNew();
+                killLog = new StringBuilder();
+            }
+
             Parallel.ForEach(pidList, idProcess =>
             {
                 var status = "success";
@@ -129,22 +134,22 @@ namespace Universe.Postgres.ServersAndSnapshots
                 if (EnableKillLog)
                 {
                     var msec = startKillAt.ElapsedMilliseconds;
-                    lock (sb)
+                    lock (killLog)
                     {
-                        sb.AppendLine($"[KillInstance] {msec,12:n0} Kill postgres process {idProcess}: {status}");
+                        killLog.AppendLine($"[KillInstance] {msec,12:n0} Kill postgres process {idProcess}: {status}");
                     }
                 }
             });
             if (EnableKillLog)
             {
-                sb.AppendLine($"[KillInstance] {startKillAt.ElapsedMilliseconds,12:n0} Kill postgres finished. Root PID is {pid}");
-                Console.WriteLine(sb);
+                killLog.AppendLine($"[KillInstance] {startKillAt.ElapsedMilliseconds,12:n0} Kill postgres finished. Root PID is {pid}");
+                Console.WriteLine(killLog);
             }
 
             return true;
         }
 
-#if DEBUG && false
+#if DEBUG || true
         private const bool EnableKillLog = true;
 #else 
         private const bool EnableKillLog = false;
@@ -153,8 +158,7 @@ namespace Universe.Postgres.ServersAndSnapshots
 
         private static ExecProcessHelper.ExecResult InvokePgCtl(ServerBinariesRequest serverBinaries, PostgresInstanceOptions instanceOptions, string command, bool waitFor, string options = null)
         {
-            var ext = TinyCrossInfo.IsWindows ? ".exe" : "";
-            var exe = Path.Combine(serverBinaries.ServerPath, $"bin{Path.DirectorySeparatorChar}pg_ctl{ext}");
+            var exe = serverBinaries.PgCtlFullPath;
             var logFile = Path.Combine(instanceOptions.DataPath, "server.log");
             // time sudo -u "$user" "$pgbin/pg_ctl" -w -D "$data" -l "$data/server.log" start
             var waitForArgs = waitFor ? "-w " : "";
@@ -179,10 +183,27 @@ namespace Universe.Postgres.ServersAndSnapshots
 
     public class ServerBinariesRequest
     {
-        public string ServerPath { get; set; }
+        public string PgCtlFullPath { get; set; }
+        public string InitDbFullPath { get; set; }
     }
 
     public class ServerBinaries
+    {
+        public string PgCtlFullPath { get; set; }
+        public string InitDbFullPath { get; set; }
+        public Version Version { get; set; }
+
+        public static implicit operator ServerBinariesRequest(ServerBinaries arg) => new ServerBinariesRequest() { InitDbFullPath = arg.InitDbFullPath, PgCtlFullPath = arg.PgCtlFullPath};
+
+        public override string ToString()
+        {
+            var path = Path.GetDirectoryName(InitDbFullPath);
+            return $"PostgreSQL Server Version {Version} '{path}'";
+        }
+
+    }
+
+    public class ServerBinaries_Legacy
     {
         public string ServerPath { get; set; }
         public bool IsValid { get; set; }
@@ -193,7 +214,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             return $"PostgreSQL Server Version {Version} '{ServerPath}'";
         }
 
-        public static implicit operator ServerBinariesRequest(ServerBinaries arg) => new ServerBinariesRequest() { ServerPath = arg.ServerPath };
+        // public static implicit operator ServerBinariesRequest(ServerBinaries_Legacy arg) => new ServerBinariesRequest() { InitDbFullPath = arg.};
     }
 
     public class PostgresInstanceOptions

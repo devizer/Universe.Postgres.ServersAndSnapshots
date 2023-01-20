@@ -81,14 +81,20 @@ namespace Universe.Postgres.ServersAndSnapshots
                     if (version != null)
                         ret.Add(new ServerBinaries()
                         {
-                            ServerPath = Path.GetFullPath(candidate).TrimEnd(new[] { '/', '\\' }),
-                            IsValid = true,
+                            InitDbFullPath = GetFullPathByCandidate(candidate, "initdb"),
+                            PgCtlFullPath = GetFullPathByCandidate(candidate, "pg_ctl"),
                             Version = version,
                         });
                 }
             }
 
-            return ret.OrderBy(x => x.ServerPath, StringComparer.OrdinalIgnoreCase).ToArray();
+            return ret.OrderBy(x => x.PgCtlFullPath, StringComparer.OrdinalIgnoreCase).ToArray();
+        }
+
+        static string GetFullPathByCandidate(string candidate, string binFileName)
+        {
+            string ext = TinyCrossInfo.IsWindows ? ".exe" : "";
+            return Path.Combine(candidate, $"bin{Path.DirectorySeparatorChar}{binFileName}{ext}");
         }
 
         /*

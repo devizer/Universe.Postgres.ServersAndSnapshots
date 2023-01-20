@@ -123,10 +123,10 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             string prefixSuccess = expectSuccess ? "OK:" : "WARNING:";
             string prefixFail = expectSuccess ? "WARNING:" : "OK:";
             if (error != null)
-                Console.WriteLine($"[Wait for '{testCase.ServerBinaries.ServerPath}'] {prefixFail} CONNECTION ERROR: {error.Message}{(expectSuccess ? Environment.NewLine + error : "")}");
+                Console.WriteLine($"[Wait for '{testCase.ServerBinaries.PgCtlFullPath}'] {prefixFail} CONNECTION ERROR: {error.Message}{(expectSuccess ? Environment.NewLine + error : "")}");
             else
             {
-                Console.WriteLine($"[Wait for '{testCase.ServerBinaries.ServerPath}'] {prefixSuccess} SUCCESSFUL CONNECTION in {waitForStart.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
+                Console.WriteLine($"[Wait for '{testCase.ServerBinaries.PgCtlFullPath}'] {prefixSuccess} SUCCESSFUL CONNECTION in {waitForStart.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
                 Console.WriteLine($"[LOCALE '{options.Locale}'] {new NpgsqlConnection(connection.ConnectionString).GetCurrentDatabaseLocale()}");
             }
 
