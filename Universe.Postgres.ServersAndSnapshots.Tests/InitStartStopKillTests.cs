@@ -154,9 +154,12 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
 
         (NpgsqlConnectionStringBuilder, PostgresInstanceOptions) InitDb(PgServerTestCase testCase, string suffix, bool pooling = true)
         {
+            var dataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-v" + testCase.ServerBinaries.Version + $"-{suffix}-Pooling-{(pooling ? "On" : "Off")}");
+            dataPath = dataPath.ToLower();
+
             PostgresInstanceOptions options = new PostgresInstanceOptions()
             {
-                DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-" + testCase.ServerBinaries.Version + $"-{suffix}-Pooling-{(pooling ? "On" : "Off")}"),
+                DataPath = dataPath,
                 ServerPort = Interlocked.Increment(ref TestUtils.Port),
                 Locale = testCase.Locale,
                 StatementLogFolder = "CSV Logs",
