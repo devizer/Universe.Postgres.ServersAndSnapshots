@@ -230,6 +230,10 @@ jobs:
     displayName: 'Postgres Portable on Windows'
 
   - bash: |
+      dotnet restore || dotnet restore --disable-parallel
+    displayName: 'restore'
+
+  - bash: |
       set -eu; set -o pipefail
       if [[ "${AGENT_OS:-}" == Linux ]]; then
         printf "en_US.UTF-8 UTF-8\nde_DE.UTF8 UTF-8\n" | sudo tee /etc/locale.gen > /dev/null; sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
