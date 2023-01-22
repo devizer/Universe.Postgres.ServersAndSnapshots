@@ -39,6 +39,23 @@ namespace Universe.Postgres.ServersAndSnapshots
                 wr.WriteLine(@$"{Environment.NewLine}port = {instanceOptions.ServerPort:f0}");
                 if (!TinyCrossInfo.IsWindows)
                     wr.WriteLine(@$"{Environment.NewLine}unix_socket_directories = '{socketDir}'");
+
+                if (!string.IsNullOrEmpty(instanceOptions.StatementLogFolder))
+                {
+                    wr.WriteLine(@$"
+log_statement = 'all'
+log_filename = 'statements.csv'
+log_duration = on
+log_destination = 'csvlog'
+logging_collector = on
+log_directory = '{instanceOptions.StatementLogFolder}'
+log_file_mode = 0666
+# disable log rotation
+log_rotation_age = 0
+log_rotation_size = 0
+");
+
+                }
             }
 
             return ret;
@@ -127,8 +144,7 @@ namespace Universe.Postgres.ServersAndSnapshots
                 }
                 catch (Exception ex)
                 {
-                    if (EnableKillLog)
-                        status = $"[{ex.GetType()}]: {ex.Message}";
+                    if (EnableKillLog) status = $"[{ex.GetType()}]: {ex.Message}";
                 }
 
                 if (EnableKillLog)
@@ -203,20 +219,6 @@ namespace Universe.Postgres.ServersAndSnapshots
 
     }
 
-    public class ServerBinaries_Legacy
-    {
-        public string ServerPath { get; set; }
-        public bool IsValid { get; set; }
-        public Version Version { get; set; }
-
-        public override string ToString()
-        {
-            return $"PostgreSQL Server Version {Version} '{ServerPath}'";
-        }
-
-        // public static implicit operator ServerBinariesRequest(ServerBinaries_Legacy arg) => new ServerBinariesRequest() { InitDbFullPath = arg.};
-    }
-
     public class PostgresInstanceOptions
     {
         public string SystemUser { get; set; } = "postgres";
@@ -225,6 +227,8 @@ namespace Universe.Postgres.ServersAndSnapshots
         public int ServerPort { get; set; } = 5432;
         public bool LocalhostOnly { get; set; } = true;
         public string Locale { get; set; }
+
+        public string StatementLogFolder { get; set; } = null;
     }
 
     public class PostgresInstanceSnapshot

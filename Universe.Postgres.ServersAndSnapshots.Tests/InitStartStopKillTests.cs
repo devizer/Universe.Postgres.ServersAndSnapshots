@@ -149,6 +149,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-" + testCase.ServerBinaries.Version + "-start"),
                 ServerPort = Interlocked.Increment(ref TestUtils.Port),
                 Locale = testCase.Locale,
+                StatementLogFolder = "CSV Logs",
             };
 
             var resultInit = PostgresServerManager.CreateServerInstance(testCase.ServerBinaries, options);
