@@ -28,13 +28,13 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             var resultStart = PostgresServerManager.StartInstance(serverBinaries, options, waitFor: true);
             Console.WriteLine(@$"START SERVER Output (took {startAt.ElapsedMilliseconds:n0} milliseconds):{Environment.NewLine}{resultStart.OutputText}");
 
-            WaitForServer(testCase, options, connection, 15000, expectSuccess: true);
+            AssertConnectivity(testCase, options, connection, 15000, expectSuccess: true);
 
             Stopwatch killAt = Stopwatch.StartNew();
             var resultKill = PostgresServerManager.StopInstanceSmarty(serverBinaries, options);
             Console.WriteLine(@$"KILL SERVER Output (took {killAt.ElapsedMilliseconds:n0} milliseconds):{Environment.NewLine}{resultKill.OutputText}");
 
-            WaitForServer(testCase, options, connection, 3000, expectSuccess: false);
+            AssertConnectivity(testCase, options, connection, 3000, expectSuccess: false);
         }
 
         enum StopMode
@@ -70,7 +70,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             var resultStart = PostgresServerManager.StartInstance(serverBinaries, options, waitFor: true);
             Console.WriteLine(@$"START SERVER Output (took {startAt.ElapsedMilliseconds:n0} milliseconds):{Environment.NewLine}{resultStart.OutputText}");
 
-            WaitForServer(testCase, options, connection, 15000, expectSuccess: true);
+            AssertConnectivity(testCase, options, connection, 15000, expectSuccess: true);
 
             if (ArtifactsUtility.Directory != null && ArtifactsUtility.Can7z)
             {
@@ -119,17 +119,17 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             var msec = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
             Console.WriteLine($"[{mode}] server took {msec:n2} milliseconds");
             
-            WaitForServer(testCase, options, connection, 3000, expectSuccess: false);
+            AssertConnectivity(testCase, options, connection, 3000, expectSuccess: false);
         }
 
-        void WaitForServer(PgServerTestCase testCase, PostgresInstanceOptions options, NpgsqlConnectionStringBuilder connection, int timeoutMilleconds, bool expectSuccess)
+        void AssertConnectivity(PgServerTestCase testCase, PostgresInstanceOptions options, NpgsqlConnectionStringBuilder connection, int timeoutMilliseconds, bool expectSuccess)
         {
-            Stopwatch waitForStart = NpgsqlWaitForExtensions.WaitForPgsqllDb(connection.ToString(), timeoutMilleconds, out var serverVersion, out var error);
+            Stopwatch waitForStart = NpgsqlWaitForExtensions.WaitForPgsqllDb(connection.ToString(), timeoutMilliseconds, out var serverVersion, out var error);
 
             string prefixSuccess = expectSuccess ? "OK:" : "WARNING:";
             string prefixFail = expectSuccess ? "WARNING:" : "OK:";
             if (error != null)
-                Console.WriteLine($"[Wait for '{testCase.ServerBinaries.PgCtlFullPath}'] {prefixFail} CONNECTION ERROR: {error.Message}{(expectSuccess ? Environment.NewLine + error : "")}");
+                Console.WriteLine($"[Wait for '{testCase.ServerBinaries.PgCtlFullPath}'] {prefixFail} CONNECTION ERROR {(expectSuccess ? "AS EXPECTED" : "")}: {error.Message}{(expectSuccess ? Environment.NewLine + error : "")}");
             else
             {
                 Console.WriteLine($"[Wait for '{testCase.ServerBinaries.PgCtlFullPath}'] {prefixSuccess} SUCCESSFUL CONNECTION in {waitForStart.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
