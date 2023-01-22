@@ -115,7 +115,8 @@ log_rotation_size = 0
             else
             {
                 pidList.Add((int)pid.Value);
-                if (TinyCrossInfo.IsWindows)
+                // On windows logs are empty
+                if (TinyCrossInfo.IsWindows && false)
                 {
                     var processes = WindowsProcessInterop.GetAllProcesses();
                     var children = processes.AsChildrenDictionary().GetDeepChildren(pid.Value).Reverse().ToList();
