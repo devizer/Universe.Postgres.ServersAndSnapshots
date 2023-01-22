@@ -44,7 +44,7 @@ namespace Universe.Postgres.ServersAndSnapshots
                 {
                     wr.WriteLine(@$"
 log_statement = 'all'
-log_filename = 'statements.csv'
+log_filename = 'statements'
 log_duration = on
 log_destination = 'csvlog'
 logging_collector = on
