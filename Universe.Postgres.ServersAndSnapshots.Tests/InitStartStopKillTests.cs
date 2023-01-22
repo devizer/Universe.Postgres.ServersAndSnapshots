@@ -189,17 +189,20 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             return (csBuilder, options);
         }
 
+        private static int WorkFolderCounter = 0;
         string FindDataPathPrefix()
         {
             if (!Directory.Exists(TestUtils.RootWorkFolder))
-                return Path.Combine(TestUtils.RootWorkFolder, "00001");
+                // return Path.Combine(TestUtils.RootWorkFolder, "00001");
+                TryAndForget.Execute(() => Directory.CreateDirectory(TestUtils.RootWorkFolder));
+
 
             var subDirs = new DirectoryInfo(TestUtils.RootWorkFolder)
                 .GetDirectories()
                 .Select(x => x.Name)
                 .ToArray();
 
-            for (int i = 1; i < 99999; i++)
+            for (int i = Interlocked.Increment(ref WorkFolderCounter); i < 99999; i++)
             {
                 string prefix = i.ToString("00000");
                 bool exists = subDirs.Any(x => x.StartsWith(prefix));
