@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Npgsql;
 using NUnit.Framework;
@@ -154,9 +155,13 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
 
         (NpgsqlConnectionStringBuilder, PostgresInstanceOptions) InitDb(PgServerTestCase testCase, string suffix, bool pooling = true)
         {
+            // TOO LONG
             // var dataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-v" + testCase.ServerBinaries.Version + $"-{suffix}-Pooling-{(pooling ? "On" : "Off")}");
-            var dataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-v" + testCase.ServerBinaries.Version);
-            dataPath = dataPath.ToLower();
+            // OK
+            // var dataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-v" + testCase.ServerBinaries.Version);
+            var dataPath = FindDataPathPrefix() + "-v" + testCase.ServerBinaries.Version + $"-{suffix}-Pooling-{(pooling ? "On" : "Off")}";
+
+            // dataPath = dataPath.ToLower();
 
             PostgresInstanceOptions options = new PostgresInstanceOptions()
             {
@@ -182,6 +187,27 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             };
 
             return (csBuilder, options);
+        }
+
+        string FindDataPathPrefix()
+        {
+            if (!Directory.Exists(TestUtils.RootWorkFolder))
+                return Path.Combine(TestUtils.RootWorkFolder, "00001");
+
+            var subDirs = new DirectoryInfo(TestUtils.RootWorkFolder)
+                .GetDirectories()
+                .Select(x => x.Name)
+                .ToArray();
+
+            for (int i = 1; i < 99999; i++)
+            {
+                string prefix = i.ToString("00000");
+                bool exists = subDirs.Any(x => x.StartsWith(prefix));
+                if (!exists)
+                    return Path.Combine(TestUtils.RootWorkFolder, prefix);
+            }
+
+            throw new InvalidOperationException($"Can't create the new subfolder {Path.Combine(TestUtils.RootWorkFolder, "NNNNN")}");
         }
 
     }
