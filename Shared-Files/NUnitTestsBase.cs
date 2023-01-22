@@ -27,31 +27,36 @@ namespace Universe.NUnitTests
         private int OnDisposeCounter = 0;
         protected void OnDispose(string title, Action action)
         {
-            string id = $"#{TestClassCounter}.{TestCounter}";
             OnDisposeList += () =>
             {
                 try
                 {
                     action();
-                    Console.WriteLine($"[On Dispose Info {id}] {title} success");
+                    Console.WriteLine($"[On Dispose Info {TestId}] {title} success");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[On Dispose Error {id}] {title} failed.{Environment.NewLine}{ex}");
+                    Console.WriteLine($"[On Dispose Error {TestId}] {title} failed.{Environment.NewLine}{ex}");
                 }
             };
         }
 
+        private string TestId => $"#{TestClassCounter}.{TestCounter}";
+
         protected void OnDispose(Action action)
         {
-            OnDispose($"Dispose Action #{Interlocked.Increment(ref OnDisposeCounter)}", action);
+            OnDispose($"Dispose Action {TestId}.{Interlocked.Increment(ref OnDisposeCounter)}", action);
+        }
+
+        protected void OnDisposeSilent(string actionTitle, Action action)
+        {
+            OnDispose(actionTitle, () => TryAndForget.Execute(action));
         }
 
         protected void OnDisposeSilent(Action action)
         {
-            OnDispose($"Dispose Action #{Interlocked.Increment(ref OnDisposeCounter)}", () => TryAndForget.Execute(action));
+            OnDispose($"Dispose Action {TestId}.{Interlocked.Increment(ref OnDisposeCounter)}", () => TryAndForget.Execute(action));
         }
-
 
 
         [SetUp]

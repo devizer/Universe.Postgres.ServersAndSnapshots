@@ -13,7 +13,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
         public void TestInitDb(PgServerTestCase testCase)
         {
-            var (connection, options) = InitDb(testCase);
+            var (connection, options) = InitDb(testCase, "Init");
             OnDispose(() => Directory.Delete(options.DataPath, true));
         }
 
@@ -21,7 +21,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         public void TestKillServer(PgServerTestCase testCase)
         {
             var serverBinaries = testCase.ServerBinaries;
-            var (connection, options) = InitDb(testCase);
+            var (connection, options) = InitDb(testCase, "Kill");
             OnDisposeSilent(() => Directory.Delete(options.DataPath, true));
 
             Stopwatch startAt = Stopwatch.StartNew();
@@ -58,7 +58,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
 
         private void TestStartStopServer_Implementation(PgServerTestCase testCase, StopMode stopMode)
         {
-            var (connection, options) = InitDb(testCase);
+            var (connection, options) = InitDb(testCase, $"Start-and-{stopMode}");
             var serverBinaries = testCase.ServerBinaries;
 
             Stopwatch startAt = Stopwatch.StartNew();
@@ -110,7 +110,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             }
 
             // TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
-            OnDisposeSilent(() => Directory.Delete(options.DataPath, true));
+            OnDisposeSilent($"'Delete DataPath={options.DataPath}'", () => Directory.Delete(options.DataPath, true));
             var msec = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
             Console.WriteLine($"[{mode}] server took {msec:n2} milliseconds");
             
@@ -143,11 +143,11 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             }
         }
 
-        (NpgsqlConnectionStringBuilder, PostgresInstanceOptions) InitDb(PgServerTestCase testCase)
+        (NpgsqlConnectionStringBuilder, PostgresInstanceOptions) InitDb(PgServerTestCase testCase, string suffix)
         {
             PostgresInstanceOptions options = new PostgresInstanceOptions()
             {
-                DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-" + testCase.ServerBinaries.Version + "-start"),
+                DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-" + testCase.ServerBinaries.Version + $"-{suffix}"),
                 ServerPort = Interlocked.Increment(ref TestUtils.Port),
                 Locale = testCase.Locale,
                 StatementLogFolder = "CSV Logs",
