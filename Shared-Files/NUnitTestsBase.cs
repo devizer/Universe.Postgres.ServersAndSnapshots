@@ -195,6 +195,7 @@ namespace Universe.NUnitTests
         public RequiredOsAttribute(params Os[] operatingSystems)
         {
             if (operatingSystems == null) throw new ArgumentNullException(nameof(operatingSystems));
+            OperatingSystems = operatingSystems;
         }
 
         public void ApplyToTest(Test test)

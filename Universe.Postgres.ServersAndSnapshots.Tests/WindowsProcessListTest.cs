@@ -16,16 +16,16 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         [Test/*, Explicit*/]
         [TestCase("First")]
         [TestCase("Next")]
+        [RequiredOs(Os.Windows)]
         public void TestGetAllProcesses(string id)
         {
-            if (!TinyCrossInfo.IsWindows) return;
-
             Stopwatch startGetAt = Stopwatch.StartNew();
             WindowsProcessInterop.PROCESSENTRY32[] processes = WindowsProcessInterop.GetAllProcesses();
             var msecGet = startGetAt.ElapsedTicks * 1000d / Stopwatch.Frequency;
+            int processCounter = 0;
             foreach (var process in processes)
             {
-                Console.WriteLine(process);
+                Console.WriteLine($"{++processCounter + "║",4}  {process}");
             }
 
             Console.WriteLine($"WindowsProcessInterop.GetAllProcesses() returned {processes.Length} and took {msecGet:n2} milliseconds");
