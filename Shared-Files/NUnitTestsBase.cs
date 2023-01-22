@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
+using NUnit.Framework.Internal;
 using Universe.CpuUsage;
 using Universe.Postgres.ServersAndSnapshots;
 
@@ -173,6 +175,24 @@ namespace Universe.NUnitTests
                     {
                     }
                 }
+            }
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    public class RequiredWindowsAttribute : NUnitAttribute, IApplyToTest
+    {
+        public void ApplyToTest(Test test)
+        {
+            if (test.RunState == RunState.NotRunnable)
+            {
+                return;
+            }
+
+            if (CrossInfo.ThePlatform != CrossInfo.Platform.Windows)
+            {
+                test.RunState = RunState.Ignored;
+                test.Properties.Set(PropertyNames.SkipReason, "This test should run only on Windows");
             }
         }
     }

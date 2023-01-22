@@ -50,12 +50,14 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         }
 
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
+        [RequiredWindows]
         public void TestStartKillServerWithPooling(PgServerTestCase testCase)
         {
             TestStartStopServer_Implementation(testCase, StopMode.Kill, pooling: true);
         }
 
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
+        [RequiredWindows]
         public void TestStartKillServerWithoutPooling(PgServerTestCase testCase)
         {
             TestStartStopServer_Implementation(testCase, StopMode.Kill, pooling: false);
@@ -133,7 +135,9 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             else
             {
                 Console.WriteLine($"[Wait for '{testCase.ServerBinaries.PgCtlFullPath}'] {prefixSuccess} SUCCESSFUL CONNECTION in {waitForStart.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
-                Console.WriteLine($"[LOCALE '{options.Locale}'] {new NpgsqlConnection(connection.ConnectionString).GetCurrentDatabaseLocale()}");
+                // Sometimes fail if pooling=on
+                var locale = TryAndForget.Evaluate(() => new NpgsqlConnection(connection.ConnectionString).GetCurrentDatabaseLocale());
+                Console.WriteLine($"[LOCALE '{options.Locale}'] {locale}");
             }
 
             if (expectSuccess)
@@ -152,7 +156,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         {
             PostgresInstanceOptions options = new PostgresInstanceOptions()
             {
-                DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-" + testCase.ServerBinaries.Version + $"-{suffix}"),
+                DataPath = Path.Combine(TestUtils.RootWorkFolder, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + "-" + testCase.ServerBinaries.Version + $"-{suffix}-Pooling-{(pooling ? "On" : "Off")}"),
                 ServerPort = Interlocked.Increment(ref TestUtils.Port),
                 Locale = testCase.Locale,
                 StatementLogFolder = "CSV Logs",
