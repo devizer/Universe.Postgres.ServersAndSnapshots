@@ -179,9 +179,24 @@ namespace Universe.NUnitTests
         }
     }
 
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public class RequiredWindowsAttribute : NUnitAttribute, IApplyToTest
+    public enum Os
     {
+        Windows,
+        Mac,
+        Linux,
+        FreeBSD,
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    public class RequiredOsAttribute : NUnitAttribute, IApplyToTest
+    {
+        public readonly Os[] OperatingSystems;
+
+        public RequiredOsAttribute(params Os[] operatingSystems)
+        {
+            if (operatingSystems == null) throw new ArgumentNullException(nameof(operatingSystems));
+        }
+
         public void ApplyToTest(Test test)
         {
             if (test.RunState == RunState.NotRunnable)
@@ -189,10 +204,18 @@ namespace Universe.NUnitTests
                 return;
             }
 
-            if (CrossInfo.ThePlatform != CrossInfo.Platform.Windows)
+            bool isIt = false;
+            if (OperatingSystems.Contains(Os.Windows) && CrossInfo.ThePlatform == CrossInfo.Platform.Windows) isIt = true;
+            if (OperatingSystems.Contains(Os.Linux) && CrossInfo.ThePlatform == CrossInfo.Platform.Linux) isIt = true;
+            if (OperatingSystems.Contains(Os.Mac) && CrossInfo.ThePlatform == CrossInfo.Platform.MacOSX) isIt = true;
+            if (OperatingSystems.Contains(Os.FreeBSD) && CrossInfo.ThePlatform == CrossInfo.Platform.FreeBSD) isIt = true;
+
+            if (!isIt)
             {
                 test.RunState = RunState.Ignored;
-                test.Properties.Set(PropertyNames.SkipReason, "This test should run only on Windows");
+                string onOs = string.Join(", ", OperatingSystems);
+                if (OperatingSystems.Length == 0) onOs = "none of any OS";
+                test.Properties.Set(PropertyNames.SkipReason, $"This test should run only on '{onOs}'");
             }
         }
     }

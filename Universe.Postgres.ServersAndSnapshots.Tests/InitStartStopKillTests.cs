@@ -45,21 +45,21 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         }
 
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
-        public void TestStartStopServer(PgServerTestCase testCase)
+        public void TestStartThenStopServer(PgServerTestCase testCase)
         {
             TestStartStopServer_Implementation(testCase, StopMode.Stop, pooling: true);
         }
 
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
-        [RequiredWindows]
-        public void TestStartKillServerWithPooling(PgServerTestCase testCase)
+        [RequiredOs(Os.Windows)]
+        public void TestStartThenKillServerWithPooling(PgServerTestCase testCase)
         {
             TestStartStopServer_Implementation(testCase, StopMode.Kill, pooling: true);
         }
 
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
-        [RequiredWindows]
-        public void TestStartKillServerWithoutPooling(PgServerTestCase testCase)
+        [RequiredOs(Os.Windows)]
+        public void TestStartThenKillServerWithoutPooling(PgServerTestCase testCase)
         {
             TestStartStopServer_Implementation(testCase, StopMode.Kill, pooling: false);
         }
