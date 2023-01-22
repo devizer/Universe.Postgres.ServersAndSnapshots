@@ -159,7 +159,7 @@ log_rotation_size = 0
             });
             if (EnableKillLog)
             {
-                killLog.AppendLine($"[KillInstance] {startKillAt.ElapsedMilliseconds,12:n0} Kill postgres finished. Root PID is {pid}");
+                killLog.AppendLine($"[KillInstance] finished in {startKillAt.ElapsedMilliseconds:n0} milliseconds. Root PID is {pid}");
                 Console.WriteLine(killLog);
             }
 
