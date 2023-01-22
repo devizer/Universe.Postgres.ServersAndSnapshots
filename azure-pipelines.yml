@@ -36,7 +36,7 @@ jobs:
 - job: PostgreSQL
   pool:
     vmImage: '$(IMAGE)'
-  timeoutInMinutes: 35
+  timeoutInMinutes: 40
   strategy:
     maxParallel: 7
     matrix:

@@ -18,7 +18,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         }
 
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
-        public void TestKillServer(PgServerTestCase testCase)
+        public void TestStopInstanceSmarty(PgServerTestCase testCase)
         {
             var serverBinaries = testCase.ServerBinaries;
             var (connection, options) = InitDb(testCase, "Kill");
@@ -37,7 +37,6 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             WaitForServer(testCase, options, connection, 3000, expectSuccess: false);
         }
 
-
         enum StopMode
         {
             Kill,
@@ -47,18 +46,24 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
         public void TestStartStopServer(PgServerTestCase testCase)
         {
-            TestStartStopServer_Implementation(testCase, StopMode.Stop);
+            TestStartStopServer_Implementation(testCase, StopMode.Stop, pooling: true);
         }
 
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
-        public void TestStartKillServer(PgServerTestCase testCase)
+        public void TestStartKillServerWithPooling(PgServerTestCase testCase)
         {
-            TestStartStopServer_Implementation(testCase, StopMode.Kill);
+            TestStartStopServer_Implementation(testCase, StopMode.Kill, pooling: true);
         }
 
-        private void TestStartStopServer_Implementation(PgServerTestCase testCase, StopMode stopMode)
+        [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
+        public void TestStartKillServerWithoutPooling(PgServerTestCase testCase)
         {
-            var (connection, options) = InitDb(testCase, $"Start-and-{stopMode}");
+            TestStartStopServer_Implementation(testCase, StopMode.Kill, pooling: false);
+        }
+
+        private void TestStartStopServer_Implementation(PgServerTestCase testCase, StopMode stopMode, bool pooling)
+        {
+            var (connection, options) = InitDb(testCase, $"Start-and-{stopMode}", pooling);
             var serverBinaries = testCase.ServerBinaries;
 
             Stopwatch startAt = Stopwatch.StartNew();
@@ -143,7 +148,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             }
         }
 
-        (NpgsqlConnectionStringBuilder, PostgresInstanceOptions) InitDb(PgServerTestCase testCase, string suffix)
+        (NpgsqlConnectionStringBuilder, PostgresInstanceOptions) InitDb(PgServerTestCase testCase, string suffix, bool pooling = true)
         {
             PostgresInstanceOptions options = new PostgresInstanceOptions()
             {
@@ -165,7 +170,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 Timeout = 1,
                 CommandTimeout = 1,
                 ApplicationName = $"Tests on port {options.ServerPort}",
-                Pooling = true, // False is needed by killing server
+                Pooling = pooling, // False is needed by killing server
             };
 
             return (csBuilder, options);
