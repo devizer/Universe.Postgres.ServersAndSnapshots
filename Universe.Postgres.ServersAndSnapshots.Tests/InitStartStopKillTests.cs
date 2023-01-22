@@ -109,7 +109,8 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 });
             }
 
-            TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
+            // TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
+            OnDisposeSilent(() => Directory.Delete(options.DataPath, true));
             var msec = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
             Console.WriteLine($"[{mode}] server took {msec:n2} milliseconds");
             

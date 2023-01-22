@@ -1,0 +1,3 @@
+On windows logs are empty
+https://www.postgresql.org/docs/current/runtime-config-logging.html#GUC-LOG-DURATION
+https://aws.amazon.com/premiumsupport/knowledge-center/rds-postgresql-query-logging/
