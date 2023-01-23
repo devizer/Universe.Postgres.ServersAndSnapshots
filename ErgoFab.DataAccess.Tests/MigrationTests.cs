@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -53,7 +54,9 @@ namespace ErgoFab.DataAccess.Tests
             dbOptions.UseNpgsql(connectionString);
             ErgoFabDbContext db = new ErgoFabDbContext(dbOptions.Options);
 
+            Stopwatch sw = Stopwatch.StartNew();
             db.Database.Migrate();
+            Console.WriteLine($"Migration took {sw.ElapsedMilliseconds:n0} milliseconds");
             return db;
         }
 
