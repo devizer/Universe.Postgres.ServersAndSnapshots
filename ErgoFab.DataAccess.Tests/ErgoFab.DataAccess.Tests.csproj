@@ -10,6 +10,14 @@
     <Import Project="..\Shared-Files\NUnit-Platform.props" />
 
     <ItemGroup>
+      <Compile Include="..\Universe.Postgres.ServersAndSnapshots.Tests\TestUtils.cs" Link="TestUtils.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Dapper" Version="2.0.123" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\ErgoFab.DataAccess\ErgoFab.DataAccess.csproj" />
       <ProjectReference Include="..\Universe.Postgres.ServersAndSnapshots\Universe.Postgres.ServersAndSnapshots.csproj" />
       <ProjectReference Include="..\Universe.PrototypingSources\Universe.PrototypingSources.csproj" />

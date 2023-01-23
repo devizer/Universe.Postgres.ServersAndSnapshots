@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Universe.NUnitTests;
-using static NUnit.Framework.Assert;
+using NUnit.Framework;
 
 namespace Universe.Postgres.ServersAndSnapshots.Tests
 {
