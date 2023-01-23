@@ -8,7 +8,6 @@ using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using Universe.CpuUsage;
-using Universe.Postgres.ServersAndSnapshots;
 
 namespace Universe.NUnitTests
 {
@@ -52,12 +51,12 @@ namespace Universe.NUnitTests
 
         protected void OnDisposeSilent(string actionTitle, Action action)
         {
-            OnDispose(actionTitle, () => TryAndForget.Execute(action));
+            OnDispose(actionTitle, () => SilentExecute(action));
         }
 
         protected void OnDisposeSilent(Action action)
         {
-            OnDispose($"Dispose Action {TestId}.{Interlocked.Increment(ref OnDisposeCounter)}", () => TryAndForget.Execute(action));
+            OnDispose($"Dispose Action {TestId}.{Interlocked.Increment(ref OnDisposeCounter)}", () => SilentExecute(action));
         }
 
 
@@ -130,6 +129,18 @@ namespace Universe.NUnitTests
             // nothing todo
         }
 
+        protected static void SilentExecute(Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch
+            {
+            }
+        }
+
+
         protected static bool IsDebug
         {
             get
@@ -178,6 +189,8 @@ namespace Universe.NUnitTests
             }
         }
     }
+
+
 
     public enum Os
     {

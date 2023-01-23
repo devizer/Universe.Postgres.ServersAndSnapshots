@@ -10,6 +10,9 @@ namespace Universe.Postgres.ServersAndSnapshots
 {
     public static class PostgresServerManager
     {
+        public static int PgCtlWaitTimeout = 15000;
+        public static int PgCtlNonWaitTimeout = 10000;
+
         // Fuzzy logic
         public static ServerBinaries[] FindPostgresServers()
         {
@@ -183,7 +186,8 @@ log_rotation_size = 0
             var args = $"-D \"{instanceOptions.DataPath}\" {waitForArgs}{optionsArg}-l \"{logFile}\" {command}";
 
 
-            var ret = ExecProcessHelper.HiddenExec(exe, args, 15000);
+            var pgCtlTimeout = waitFor ? PgCtlWaitTimeout : PgCtlNonWaitTimeout;
+            var ret = ExecProcessHelper.HiddenExec(exe, args, PgCtlWaitTimeout);
             ret.DemandGenericSuccess($"Command '{command}' for '{exe}' using data at '{instanceOptions.DataPath}'");
             return ret;
         }
