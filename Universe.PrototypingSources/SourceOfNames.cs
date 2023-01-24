@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    class SourceOfNames
+    public class SourceOfNames
     {
         public static List<HumanName> Names = new List<HumanName>(new HumanName[]
         {

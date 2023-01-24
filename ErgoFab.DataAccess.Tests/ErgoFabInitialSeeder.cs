@@ -31,7 +31,7 @@ namespace ErgoFab.DataAccess.Tests
                 Db.Country.Add(new Country()
                 {
                     EnglishName = countryWithFlag.Name,
-                    // Flag = Utf8.GetBytes(countryWithFlag.FlagAsSvg),
+                    Flag = Utf8.GetBytes(countryWithFlag.FlagAsSvg),
                 });
             }
             Console.WriteLine($"Saving {countriesSources.Count} countries");
@@ -50,9 +50,32 @@ namespace ErgoFab.DataAccess.Tests
                 });
             }
             Console.WriteLine($"Saving {organizationSource.Count} organizations");
-            // Db.SaveChanges();
+            Db.SaveChanges();
+            var orgs = Db.Organization.ToList();
 
-            Console.WriteLine($"Seed took {startSeedAt.ElapsedMilliseconds} milliseconds");
+            int totalNewEmployees = 0;
+            foreach (var org in orgs)
+            {
+                int nEmployees = random.Next(2, 4);
+                for (int i = 1; i <= nEmployees; i++)
+                {
+                    totalNewEmployees++;
+                    var surname = SourceOfSurnames.Surnames[random.Next(SourceOfSurnames.Surnames.Count)].FamilyName;
+                    var name = SourceOfNames.Names[random.Next(SourceOfNames.Names.Count)].Name;
+                    var country = countries[random.Next(countries.Count)];
+                    Db.Employee.Add(new Employee()
+                    {
+                        Name = name,
+                        Surname = surname,
+                        CountryId = country.Id,
+                        OrganizationId = org.Id,
+                    });
+                }
+            }
+            Console.WriteLine($"Saving {totalNewEmployees} organizations");
+            Db.SaveChanges();
+
+            Console.WriteLine($"Seeding took {startSeedAt.ElapsedMilliseconds} milliseconds");
         }
     }
 }

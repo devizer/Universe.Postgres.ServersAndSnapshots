@@ -65,7 +65,6 @@ namespace ErgoFab.DataAccess.Tests
             var locale = SilentEvaluate(() => new NpgsqlConnection(connection.ConnectionString).GetCurrentDatabaseLocale());
             Console.WriteLine($"[LOCALE '{options.Locale}'] {locale}");
 
-
             var dbOptions = new DbContextOptionsBuilder<ErgoFabDbContext>();
             dbOptions.UseNpgsql(connectionString);
             ErgoFabDbContext db = new ErgoFabDbContext(dbOptions.Options);
@@ -75,7 +74,6 @@ namespace ErgoFab.DataAccess.Tests
             Console.WriteLine($"Migration took {sw.ElapsedMilliseconds:n0} milliseconds");
             return db;
         }
-
 
     }
 }
