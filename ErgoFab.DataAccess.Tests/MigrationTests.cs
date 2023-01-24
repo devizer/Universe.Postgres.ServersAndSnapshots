@@ -55,7 +55,7 @@ namespace ErgoFab.DataAccess.Tests
             {
                 OnDisposeSilent($"7z folder {options.DataPath}", () =>
                 {
-                    var fileName = $"Data [{TestContext.CurrentContext.Test.Name}] on {DateTime.Now:yyyy-MM-dd HH-mm-ss}";
+                    var fileName = $"Test '{TestContext.CurrentContext.Test.Name}' {DateTime.Now:yyyy-MM-dd HH-mm-ss}";
                     var fullFileName = Path.Combine(ArtifactsUtility.Directory, fileName);
                     ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{fullFileName}.7z\" \"{options.DataPath}\"");
                 });
