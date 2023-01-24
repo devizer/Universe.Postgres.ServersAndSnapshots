@@ -18,7 +18,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ErgoFab.DataAccess", "ErgoF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Universe.PrototypingSources", "Universe.PrototypingSources\Universe.PrototypingSources.csproj", "{1DB6722A-5374-44B4-81DE-AA0FE99EF56F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErgoFab.DataAccess.Tests", "ErgoFab.DataAccess.Tests\ErgoFab.DataAccess.Tests.csproj", "{6FE48898-3326-4D50-9B02-F80E0D0E9B6C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ErgoFab.DataAccess.Tests", "ErgoFab.DataAccess.Tests\ErgoFab.DataAccess.Tests.csproj", "{6FE48898-3326-4D50-9B02-F80E0D0E9B6C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Universe.NpglExtensions", "Universe.NpglExtensions\Universe.NpglExtensions.csproj", "{C75E8922-25A8-405C-9BFF-52DB14A63E2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +52,10 @@ Global
 		{6FE48898-3326-4D50-9B02-F80E0D0E9B6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FE48898-3326-4D50-9B02-F80E0D0E9B6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FE48898-3326-4D50-9B02-F80E0D0E9B6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C75E8922-25A8-405C-9BFF-52DB14A63E2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C75E8922-25A8-405C-9BFF-52DB14A63E2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C75E8922-25A8-405C-9BFF-52DB14A63E2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C75E8922-25A8-405C-9BFF-52DB14A63E2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

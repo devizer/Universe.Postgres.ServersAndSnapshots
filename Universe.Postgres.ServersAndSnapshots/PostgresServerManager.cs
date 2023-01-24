@@ -27,9 +27,10 @@ namespace Universe.Postgres.ServersAndSnapshots
             var passwordFileName = Guid.NewGuid().ToString("N");
             using var passwordFile = DisposableTempFile.Create(passwordFileName, instanceOptions.SystemPassword);
             var exe = serverBinaries.InitDbFullPath;
-            var localeParam = string.IsNullOrEmpty(instanceOptions.Locale) ? "" : $"--locale={instanceOptions.Locale} ";
+            var localeParam = string.IsNullOrEmpty(instanceOptions.Locale) ? "" : $"--locale={instanceOptions.Locale} --lc-ctype={instanceOptions.Locale} --lc-collate={instanceOptions.Locale} -E UTF-8 ";
             var args = $"{localeParam}-D \"{instanceOptions.DataPath}\" --pwfile \"{passwordFileName}\" -U \"{instanceOptions.SystemUser}\"";
 
+            Console.WriteLine($"[initdb args] '{args}'");
             var ret = ExecProcessHelper.HiddenExec(exe, args);
             ret.DemandGenericSuccess($"InitDb invocation of '{exe}'");
 

@@ -19,6 +19,7 @@ namespace SampleDb.Entities
 
 
         [Required]
+        [MaxLength(2048)]
         public string Title { get; set; }
 
         [ForeignKey("Country")]

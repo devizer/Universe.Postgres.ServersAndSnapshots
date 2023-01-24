@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Npgsql;
 using NUnit.Framework;
+using Universe.NpglExtensions;
 using Universe.NUnitTests;
 
 namespace Universe.Postgres.ServersAndSnapshots.Tests
@@ -106,11 +107,11 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             string mode = stopMode.ToString();
             if (stopMode == StopMode.Stop)
             {
-                TryAndForget.Execute(() => PostgresServerManager.StopInstance(serverBinaries, options));
+                SilentExecute(() => PostgresServerManager.StopInstance(serverBinaries, options));
             }
             else
             {
-                TryAndForget.Execute(() =>
+                SilentExecute(() =>
                 {
                     bool isKill = PostgresServerManager.KillInstance(serverBinaries, options);
                     if (!isKill) mode = "Kill (nope, stop)";
@@ -137,7 +138,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             {
                 Console.WriteLine($"[Wait for '{testCase.ServerBinaries.PgCtlFullPath}'] {prefixSuccess} SUCCESSFUL CONNECTION in {waitForStart.ElapsedMilliseconds:n0} milliseconds{Environment.NewLine}{serverVersion}");
                 // Sometimes fail if pooling=on
-                var locale = TryAndForget.Evaluate(() => new NpgsqlConnection(connection.ConnectionString).GetCurrentDatabaseLocale());
+                var locale = SilentEvaluate(() => new NpgsqlConnection(connection.ConnectionString).GetCurrentDatabaseLocale());
                 Console.WriteLine($"[LOCALE '{options.Locale}'] {locale}");
             }
 
@@ -194,7 +195,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         {
             if (!Directory.Exists(TestUtils.RootWorkFolder))
                 // return Path.Combine(TestUtils.RootWorkFolder, "00001");
-                TryAndForget.Execute(() => Directory.CreateDirectory(TestUtils.RootWorkFolder));
+                SilentExecute(() => Directory.CreateDirectory(TestUtils.RootWorkFolder));
 
 
             var subDirs = new DirectoryInfo(TestUtils.RootWorkFolder)

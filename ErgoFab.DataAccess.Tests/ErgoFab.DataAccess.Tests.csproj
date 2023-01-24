@@ -21,6 +21,7 @@
       <ProjectReference Include="..\ErgoFab.DataAccess\ErgoFab.DataAccess.csproj" />
       <ProjectReference Include="..\Universe.Postgres.ServersAndSnapshots\Universe.Postgres.ServersAndSnapshots.csproj" />
       <ProjectReference Include="..\Universe.PrototypingSources\Universe.PrototypingSources.csproj" />
+      <ProjectReference Include="..\Universe.NpglExtensions\Universe.NpglExtensions.csproj" />
     </ItemGroup>
 
 </Project>

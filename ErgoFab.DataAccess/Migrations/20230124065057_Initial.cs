@@ -16,7 +16,7 @@ namespace ErgoFab.DataAccess.Migrations
                 {
                     Id = table.Column<short>(type: "smallint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    EnglishName = table.Column<string>(type: "text", nullable: true),
+                    EnglishName = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
                     Flag = table.Column<byte[]>(type: "bytea", nullable: true)
                 },
                 constraints: table =>
@@ -31,8 +31,8 @@ namespace ErgoFab.DataAccess.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     OrganizationId = table.Column<int>(type: "integer", nullable: false),
-                    Name = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    Surname = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Name = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
+                    Surname = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
                     CountryId = table.Column<short>(type: "smallint", nullable: true)
                 },
                 constraints: table =>
@@ -52,7 +52,7 @@ namespace ErgoFab.DataAccess.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     DirectorId = table.Column<int>(type: "integer", nullable: true),
-                    Title = table.Column<string>(type: "text", nullable: false),
+                    Title = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
                     CountryId = table.Column<short>(type: "smallint", nullable: true)
                 },
                 constraints: table =>

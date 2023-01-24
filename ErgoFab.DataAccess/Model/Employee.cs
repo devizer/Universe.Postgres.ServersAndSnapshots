@@ -17,11 +17,11 @@ namespace SampleDb.Entities
         public virtual Organization Organization { get; set; }
 
         [Required]
-        [MaxLength(20)]
+        [MaxLength(2048)]
         public string Name { get; set; }
 
         [Required]
-        [MaxLength(20)]
+        [MaxLength(2048)]
         public string Surname { get; set; }
 
 

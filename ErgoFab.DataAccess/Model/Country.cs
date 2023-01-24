@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace SampleDb.Entities
 {
 
@@ -6,6 +8,7 @@ namespace SampleDb.Entities
         
         public short Id { get; set; }
 
+        [MaxLength(2048)]
         public string EnglishName { get; set; }
 
         public byte[] Flag { get; set; }

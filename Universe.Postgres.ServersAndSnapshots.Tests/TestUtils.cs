@@ -8,6 +8,18 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
     {
         public static int Port = 5433;
 
+        public static string GetUnicodePostgresLocale()
+        {
+            if (CrossInfo.ThePlatform == CrossInfo.Platform.Linux) // Debian derivatives
+                return "en_US.UTF-8";
+            else if (CrossInfo.ThePlatform == CrossInfo.Platform.Windows)
+                return "en-US";
+            else if (CrossInfo.ThePlatform == CrossInfo.Platform.MacOSX)
+                return "en_US.UTF-8";
+            else
+                throw new NotSupportedException();
+        }
+
         public static string RootWorkFolder
         {
             get

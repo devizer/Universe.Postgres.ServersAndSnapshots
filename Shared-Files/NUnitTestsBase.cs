@@ -140,6 +140,18 @@ namespace Universe.NUnitTests
             }
         }
 
+        public static T SilentEvaluate<T>(Func<T> factory)
+        {
+            try
+            {
+                return factory();
+            }
+            catch
+            {
+                return default(T);
+            }
+        }
+
 
         protected static bool IsDebug
         {

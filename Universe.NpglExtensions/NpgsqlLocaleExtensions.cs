@@ -1,7 +1,7 @@
 using System.Data;
 using Dapper;
 
-namespace Universe.Postgres.ServersAndSnapshots.Tests
+namespace Universe.NpglExtensions
 {
     public static class NpgsqlLocaleExtensions
     {

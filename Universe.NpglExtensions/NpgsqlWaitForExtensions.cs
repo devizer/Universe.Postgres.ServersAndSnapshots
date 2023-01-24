@@ -4,7 +4,7 @@ using System.Threading;
 using Dapper;
 using Npgsql;
 
-namespace Universe.Postgres.ServersAndSnapshots.Tests
+namespace Universe.NpglExtensions
 {
     public class NpgsqlWaitForExtensions
     {
