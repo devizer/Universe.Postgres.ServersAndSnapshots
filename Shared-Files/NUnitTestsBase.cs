@@ -30,14 +30,15 @@ namespace Universe.NUnitTests
         {
             OnDisposeList += () =>
             {
+                Stopwatch sw = Stopwatch.StartNew();
                 try
                 {
                     action();
-                    Console.WriteLine($"[On Dispose Info {TestId}] {title} success");
+                    Console.WriteLine($"[On Dispose Info {TestId}] {title} success (took {sw.ElapsedMilliseconds:n0} milliseconds)");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[On Dispose Error {TestId}] {title} failed.{Environment.NewLine}{ex}");
+                    Console.WriteLine($"[On Dispose Error {TestId}] {title} failed (took {sw.ElapsedMilliseconds:n0} milliseconds).{Environment.NewLine}{ex}");
                 }
             };
         }

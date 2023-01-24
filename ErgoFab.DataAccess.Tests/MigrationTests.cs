@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
 using ErgoFab.DataAccess.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Npgsql;
 using NUnit.Framework;
+using Universe;
 using Universe.NpglExtensions;
 using Universe.NUnitTests;
 using Universe.Postgres.ServersAndSnapshots;
@@ -42,12 +44,22 @@ namespace ErgoFab.DataAccess.Tests
                 DataPath = Path.Combine(TestUtils.RootWorkFolder, Guid.NewGuid().ToString("N")),
                 ServerPort = Interlocked.Increment(ref TestUtils.Port),
                 Locale = TestUtils.GetUnicodePostgresLocale(),
+                StatementLogFolder = "CSV Logs",
             };
 
             PostgresServerManager.CreateServerInstance(latestServer, options);
             PostgresServerManager.StartInstance(latestServer, options);
 
             OnDisposeSilent("Stop Server", () => PostgresServerManager.StopInstanceSmarty(latestServer, options));
+            if (ArtifactsUtility.Directory != null && ArtifactsUtility.Can7z)
+            {
+                OnDisposeSilent($"7z folder {options.DataPath}", () =>
+                {
+                    var fileName = $"Data [{TestContext.CurrentContext.Test.Name}] on {DateTime.Now:yyyy-MM-dd HH-mm-ss}";
+                    var fullFileName = Path.Combine(ArtifactsUtility.Directory, fileName);
+                    ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{fullFileName}.7z\" \"{options.DataPath}\"");
+                });
+            }
             OnDisposeSilent($"Delete Folder {options.DataPath}", () => Directory.Delete(options.DataPath, true));
 
             NpgsqlConnectionStringBuilder connectionStringOptions = new NpgsqlConnectionStringBuilder()
