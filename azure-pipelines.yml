@@ -260,7 +260,7 @@ jobs:
       set -eu; set -o pipefail
       d=$PWD
       pushd "$(System.ARTIFACTSDIRECTORY)"
-      7z a -mx=1 "Source-$(Agent.JobName).7z" "$d"
+      7z a -mx=1 -ms=on -mqs=on "Source-$(Agent.JobName).7z" "$d"
       popd
     condition: succeededOrFailed()
     displayName: 'Prepare Artifacts'
