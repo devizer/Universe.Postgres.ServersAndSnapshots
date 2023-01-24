@@ -27,6 +27,8 @@ namespace ErgoFab.DataAccess.Tests
         private ErgoFabDbContext MigrateImplementation()
         {
             var latestServer = PostgresServerDiscovery.GetServers().OrderByDescending(x => x.Version).FirstOrDefault();
+            if (latestServer == null || latestServer.Version.Major < 10) return null;
+
             PostgresInstanceOptions options = new PostgresInstanceOptions()
             {
                 DataPath = Path.Combine(TestUtils.RootWorkFolder, Guid.NewGuid().ToString("N")),
@@ -66,6 +68,7 @@ namespace ErgoFab.DataAccess.Tests
         public void MigrateAndSeed(string id)
         {
             var db = MigrateImplementation();
+            if (db == null) return;
             ErgoFabInitialSeeder seeder = new ErgoFabInitialSeeder(db);
             // seeder.Seed();
         }
