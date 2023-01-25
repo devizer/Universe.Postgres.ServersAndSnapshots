@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 using Universe.LinuxTaskStats;
 using Universe.NUnitTests;
@@ -8,7 +10,9 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
     public class LinuxProcessTreeTests : NUnitTestsBase
     {
         [Test]
-        public void ShowSupportedFeatures()
+        [TestCase("Warmup")]
+        [TestCase("Run")]
+        public void ShowSupportedFeatures(string id)
         {
             Console.WriteLine($"IsGetTidSupported: {LinuxTaskStatsReader.IsGetTidSupported}");
             Console.WriteLine($"IsGetPidSupported: {LinuxTaskStatsReader.IsGetPidSupported}");
@@ -17,5 +21,27 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             if (LinuxTaskStatsReader.IsGetTaskStatByProcessSupported)
                 Console.WriteLine($"GeTaskStatsVersion(): {LinuxTaskStatsReader.GeTaskStatsVersion()}");
         }
+
+        [Test]
+        [TestCase("Warmup")]
+        [TestCase("Run")]
+        [RequiredOs(Os.Linux)]
+        public void MeasureProcessTreeOnLinux(string id)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            var processIds = Process.GetProcesses().Select(x => x.Id).ToArray();
+            var msecIdList = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
+            sw = Stopwatch.StartNew();
+            foreach (var processId in processIds)
+            {
+                LinuxTaskStatsReader.GetByProcess(processId);
+            }
+
+            var msecStat = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
+            Console.WriteLine(@$"Process.GetProcesses() took {msecIdList:n2} milliseconds
+LinuxTaskStatsReader.GetByProcess() for each took {msecStat:n2} milliseconds");
+
+        }
+
     }
 }
