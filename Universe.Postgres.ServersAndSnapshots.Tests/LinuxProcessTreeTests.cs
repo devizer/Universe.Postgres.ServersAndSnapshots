@@ -32,14 +32,17 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             var processIds = Process.GetProcesses().Select(x => x.Id).ToArray();
             var msecIdList = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
             sw = Stopwatch.StartNew();
+            int success = 0;
             foreach (var processId in processIds)
             {
-                LinuxTaskStatsReader.GetByProcess(processId);
+                var stat = LinuxTaskStatsReader.GetByProcess(processId);
+                if (stat.HasValue && stat.Value.Pid != processId) success++;
             }
 
             var msecStat = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
             Console.WriteLine(@$"Process.GetProcesses() took {msecIdList:n2} milliseconds
-LinuxTaskStatsReader.GetByProcess() for each took {msecStat:n2} milliseconds");
+LinuxTaskStatsReader.GetByProcess() for each took {msecStat:n2} milliseconds
+Success: {success} of {processIds}");
 
         }
 
