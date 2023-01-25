@@ -72,8 +72,18 @@ namespace ErgoFab.DataAccess.Tests
                     });
                 }
             }
-            Console.WriteLine($"Saving {totalNewEmployees} organizations");
+            Console.WriteLine($"Saving {totalNewEmployees} employees");
             Db.SaveChanges();
+            var employees = Db.Employee.ToList();
+
+            int directorsCount = 0;
+            foreach (var org in orgs.Where(x => x.Id % 2 == 1))
+            {
+                directorsCount++;
+                var director = employees[random.Next(employees.Count)];
+                org.DirectorId = director.Id;
+            }
+            Console.WriteLine($"Saving {directorsCount} org's directors");
 
             Console.WriteLine($"Seeding took {startSeedAt.ElapsedMilliseconds} milliseconds");
         }

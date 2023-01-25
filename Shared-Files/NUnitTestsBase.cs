@@ -203,8 +203,6 @@ namespace Universe.NUnitTests
         }
     }
 
-
-
     public enum Os
     {
         Windows,
