@@ -84,6 +84,7 @@ namespace ErgoFab.DataAccess.Tests
                 org.DirectorId = director.Id;
             }
             Console.WriteLine($"Saving {directorsCount} org's directors");
+            Db.SaveChanges();
 
             Console.WriteLine($"Seeding took {startSeedAt.ElapsedMilliseconds} milliseconds");
         }
