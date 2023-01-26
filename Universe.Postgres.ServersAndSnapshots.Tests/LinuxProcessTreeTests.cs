@@ -42,7 +42,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             var msecStat = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
             Console.WriteLine(@$"Process.GetProcesses() took {msecIdList:n2} milliseconds
 LinuxTaskStatsReader.GetByProcess() for each took {msecStat:n2} milliseconds
-Success Statistics: {success} of {processIds}");
+Success Statistics: {success} of {processIds.Length}");
 
         }
 
