@@ -19,7 +19,11 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             Console.WriteLine($"IsGetTaskStatByProcessSupported: {LinuxTaskStatsReader.IsGetTaskStatByProcessSupported}");
             Console.WriteLine($"IsGetTaskStatByThreadSupported: {LinuxTaskStatsReader.IsGetTaskStatByThreadSupported}");
             if (LinuxTaskStatsReader.IsGetTaskStatByProcessSupported)
+            {
                 Console.WriteLine($"GeTaskStatsVersion(): {LinuxTaskStatsReader.GeTaskStatsVersion()}");
+                LinuxTaskStats.LinuxTaskStats? currentStat = LinuxTaskStatsReader.GetByProcess(Process.GetCurrentProcess().Id);
+                Console.WriteLine($"Has Permission: {(currentStat == null ? "Yes" : "No")}");
+            }
         }
 
         [Test]
