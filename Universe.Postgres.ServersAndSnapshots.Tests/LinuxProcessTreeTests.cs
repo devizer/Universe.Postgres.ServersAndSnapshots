@@ -22,7 +22,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             {
                 Console.WriteLine($"GeTaskStatsVersion(): {LinuxTaskStatsReader.GeTaskStatsVersion()}");
                 LinuxTaskStats.LinuxTaskStats? currentStat = LinuxTaskStatsReader.GetByProcess(Process.GetCurrentProcess().Id);
-                Console.WriteLine($"Has Permission: {(currentStat == null ? "Yes" : "No")}");
+                Console.WriteLine($"Has Permission: {(currentStat != null ? "Yes" : "No")}");
             }
         }
 
