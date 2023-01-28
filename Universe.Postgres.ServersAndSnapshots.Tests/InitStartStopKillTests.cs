@@ -48,6 +48,16 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
         public void TestStartThenStopServer(PgServerTestCase testCase)
         {
+            var parameters = TestContext.CurrentContext.Test.Arguments;
+            var x = TestContext.CurrentContext;
+            Console.WriteLine($"Arguments Count: {parameters.Length}");
+            foreach(var parameter in parameters)
+            {
+                Console.WriteLine($" - {parameter?.GetType()}: {parameter}");
+            }
+
+            // if (Debugger.IsAttached) Debugger.Break();
+
             TestStartStopServer_Implementation(testCase, StopMode.Stop, pooling: true);
         }
 

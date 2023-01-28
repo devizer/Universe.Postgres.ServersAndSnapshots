@@ -21,6 +21,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
                 throw new NotSupportedException();
         }
 
+        public static string RootSnapshotFolder => Path.Combine(RootWorkFolder, "Snapshots");
         public static string RootWorkFolder
         {
             get

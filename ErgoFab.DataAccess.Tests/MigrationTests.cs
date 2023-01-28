@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using ErgoFab.DataAccess.Model;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Npgsql;
 using NUnit.Framework;
 using Universe;

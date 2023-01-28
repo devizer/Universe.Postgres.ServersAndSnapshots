@@ -20,12 +20,13 @@ namespace ErgoFab.DataAccess.Tests
         }
 
         private static UTF8Encoding Utf8 = new UTF8Encoding(false);
-        public void Seed()
+        public void Seed(int maxCountries = Int32.MaxValue, int maxOrganizations = Int32.MaxValue, int maxEmployeesPerOrg = 4)
         {
             Stopwatch startSeedAt = Stopwatch.StartNew();
             Random random = new Random(42);
             // Countries
             var countriesSources = SourceOfCountriesWithFlags.Countries;
+            int nCountries = 0;
             foreach (var countryWithFlag in countriesSources)
             {
                 Db.Country.Add(new Country()
@@ -33,13 +34,15 @@ namespace ErgoFab.DataAccess.Tests
                     EnglishName = countryWithFlag.Name,
                     Flag = Utf8.GetBytes(countryWithFlag.FlagAsSvg),
                 });
+                if (++nCountries >= maxCountries) break;
             }
-            Console.WriteLine($"Saving {countriesSources.Count} countries");
+            Console.WriteLine($"Saving {nCountries} countries");
             Db.SaveChanges();
             var countries = Db.Country.ToList();
 
             // Organizations
             var organizationSource = SourceOfOrganizations.Orgs;
+            int nOrganizations = 0;
             foreach (var org in organizationSource.Where(x => x.IsLeaf))
             {
                 var country = countries[random.Next(countries.Count)];
@@ -48,16 +51,17 @@ namespace ErgoFab.DataAccess.Tests
                     CountryId = country.Id,
                     Title = org.Name,
                 });
+                if (++nOrganizations >= maxOrganizations) break;
             }
-            Console.WriteLine($"Saving {organizationSource.Count} organizations");
+            Console.WriteLine($"Saving {nOrganizations} organizations");
             Db.SaveChanges();
             var orgs = Db.Organization.ToList();
 
+            // Employees
             int totalNewEmployees = 0;
             foreach (var org in orgs)
             {
-                int nEmployees = random.Next(2, 4);
-                for (int i = 1; i <= nEmployees; i++)
+                for (int i = 1; i <= maxEmployeesPerOrg; i++)
                 {
                     totalNewEmployees++;
                     var surname = SourceOfSurnames.Surnames[random.Next(SourceOfSurnames.Surnames.Count)].FamilyName;

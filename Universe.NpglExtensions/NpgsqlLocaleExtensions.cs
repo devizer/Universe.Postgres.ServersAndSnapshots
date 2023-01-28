@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Dapper;
 
 namespace Universe.NpglExtensions
@@ -23,5 +25,12 @@ namespace Universe.NpglExtensions
             const string sql = "Select datname As DbName, datcollate As Collate, datctype As CType, pg_encoding_to_char(encoding) As Encoding FROM pg_database where datname = current_database();";
             return connection.QueryFirst<DbLocale>(sql);
         }
+
+        public static IEnumerable<DbLocale> GetDatabasesWithLocale(this IDbConnection connection)
+        {
+            const string sql = "Select datname As DbName, datcollate As Collate, datctype As CType, pg_encoding_to_char(encoding) As Encoding FROM pg_database where datname = current_database();";
+            return connection.Query<DbLocale>(sql).ToArray();
+        }
+
     }
 }

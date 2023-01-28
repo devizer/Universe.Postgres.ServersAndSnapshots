@@ -16,14 +16,16 @@ namespace Universe.Postgres.ServersAndSnapshots
             }
         }
 
-        public static void Execute(Action action)
+        public static bool Execute(Action action)
         {
             try
             {
                 action();
+                return true;
             }
             catch
             {
+                return false;
             }
         }
     }

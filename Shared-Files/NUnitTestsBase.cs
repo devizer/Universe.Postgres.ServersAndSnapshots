@@ -54,6 +54,25 @@ namespace Universe.NUnitTests
         {
             OnDispose(actionTitle, () => SilentExecute(action));
         }
+        protected void OnDisposeSilentAsync(string actionTitle, Action action)
+        {
+            OnDisposeList += () =>
+            {
+                ThreadPool.QueueUserWorkItem(_ =>
+                {
+                    Stopwatch sw = Stopwatch.StartNew();
+                    try
+                    {
+                        action();
+                        Console.WriteLine($"[On Dispose Info {TestId}] {actionTitle} success (took {sw.ElapsedMilliseconds:n0} milliseconds)");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[On Dispose Error {TestId}] {actionTitle} failed (took {sw.ElapsedMilliseconds:n0} milliseconds).{Environment.NewLine}{ex}");
+                    }
+                });
+            };
+        }
 
         protected void OnDisposeSilent(Action action)
         {

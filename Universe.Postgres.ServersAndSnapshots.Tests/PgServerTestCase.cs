@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 
 namespace Universe.Postgres.ServersAndSnapshots.Tests
 {
@@ -9,7 +8,6 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
     {
         public ServerBinaries ServerBinaries { get; set; }
         public string Locale { get; set; }
-
 
         public static PgServerTestCase[] GetServers()
         {

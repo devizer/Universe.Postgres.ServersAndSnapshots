@@ -10,11 +10,13 @@
     <Import Project="..\Shared-Files\NUnit-Platform.props" />
 
     <ItemGroup>
+      <Compile Include="..\Universe.Postgres.ServersAndSnapshots.Tests\PgServerTestCase.cs" Link="PgServerTestCase.cs" />
       <Compile Include="..\Universe.Postgres.ServersAndSnapshots.Tests\TestUtils.cs" Link="TestUtils.cs" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Dapper" Version="2.0.123" />
+      <PackageReference Include="Npgsql" Version="7.0.1" />
     </ItemGroup>
 
     <ItemGroup>
