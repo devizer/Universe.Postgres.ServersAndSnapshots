@@ -50,7 +50,9 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             foreach (FileInfo file in dir.GetFiles())
             {
                 string targetFilePath = Path.Combine(destinationDir, file.Name);
-                file.CopyTo(targetFilePath, true);
+                using (FileStream src = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 64 * 1024))
+                using (FileStream dest = new FileStream(targetFilePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, 64 * 1024))
+                    src.CopyTo(dest, 64 * 1024);
             }
 
             if (recursive)
