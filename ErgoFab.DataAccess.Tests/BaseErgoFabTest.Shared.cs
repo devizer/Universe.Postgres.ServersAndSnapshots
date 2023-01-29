@@ -107,6 +107,7 @@ namespace ErgoFab.DataAccess.Tests
         [SetUp]
         public void BaseErgoFabTestSetup()
         {
+            Console.WriteLine("[Db Setup] Starting ...");
 
             // 2. Server Definition:
             // Either by TryServerDefinitionByArgument
@@ -117,11 +118,6 @@ namespace ErgoFab.DataAccess.Tests
                 server = GetPreferredServer();
             }
 
-            if (server == null)
-            {
-                ConnectionString = null;
-                return;
-            }
 
             // 1. Seeder
             DbSeederAttribute attr = GetTestAttribute<DbSeederAttribute>();
@@ -134,6 +130,15 @@ namespace ErgoFab.DataAccess.Tests
                 if (seeder == null)
                     throw new NotImplementedException($"Seeder {seederType} for Test {TestContext.CurrentContext.Test.MethodName} is not valid IDbSeeder");
             }
+
+            Console.WriteLine($"[Db Setup] Seeder is '{seeder}', Server is '{server}'");
+
+            if (server == null)
+            {
+                ConnectionString = null;
+                return;
+            }
+
 
             var cacheKey = $"{server.PgCtlFullPath}⇛{seeder?.GetType()}";
             NpgsqlConnectionStringBuilder connection;
