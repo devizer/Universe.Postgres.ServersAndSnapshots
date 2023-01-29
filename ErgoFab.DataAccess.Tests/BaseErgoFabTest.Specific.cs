@@ -21,8 +21,13 @@ namespace ErgoFab.DataAccess.Tests
         protected virtual ServerBinaries GetPreferredServer()
         {
             // By Default get latest pre-installed postgres server
-            return PostgresServerDiscovery.GetServers().MaxBy(x => x.Version);
+            return _PreferredServer.Value;
         }
+
+        private static Lazy<ServerBinaries> _PreferredServer = new Lazy<ServerBinaries>(
+            () => PostgresServerDiscovery.GetServers().MaxBy(x => x.Version),
+            LazyThreadSafetyMode.ExecutionAndPublication
+        );
 
 
 
