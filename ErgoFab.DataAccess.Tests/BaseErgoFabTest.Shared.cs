@@ -166,6 +166,8 @@ namespace ErgoFab.DataAccess.Tests
             }
 
             ConnectionString = connection.ConnectionString;
+            Console.WriteLine($"[Db Setup] Completed '{ConnectionString}'");
+
         }
 
         private static IDictionary<string, BackupState> Backups = new ConcurrentDictionary<string, BackupState>();
