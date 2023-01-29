@@ -17,5 +17,15 @@ namespace ErgoFab.DataAccess.Tests
 
             return null;
         }
+
+        protected virtual ServerBinaries GetPreferredServer()
+        {
+            // By Default get latest pre-installed postgres server
+            return PostgresServerDiscovery.GetServers().MaxBy(x => x.Version);
+        }
+
+
+
+
     }
 }

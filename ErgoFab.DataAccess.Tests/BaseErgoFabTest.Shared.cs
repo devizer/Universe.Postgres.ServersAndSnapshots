@@ -111,7 +111,17 @@ namespace ErgoFab.DataAccess.Tests
             // 2. Server Definition:
             // Either by TryServerDefinitionByArgument
             ServerBinaries server = FindServerDefinition();
-            // Or Latest by Discovery
+            if (server == null)
+            {
+                // Or Latest by Discovery
+                server = GetPreferredServer();
+            }
+
+            if (server == null)
+            {
+                ConnectionString = null;
+                return;
+            }
 
             // 1. Seeder
             DbSeederAttribute attr = GetTestAttribute<DbSeederAttribute>();
@@ -200,24 +210,6 @@ namespace ErgoFab.DataAccess.Tests
             ret.Database = newDbName;
             return (ret, options);
         }
-
-        // Non cached, Does 
-        /*
-        private string GetDbImplementation()
-        {
-            DbSeederAttribute attr = GetTestAttribute<DbSeederAttribute>();
-            var seederType = attr.Seeder;
-            var seederRaw = Activator.CreateInstance(seederType);
-            if (!(seederRaw is IDbSeeder))
-                throw new NotImplementedException($"Seeder {seederType} for Test {TestContext.CurrentContext.Test.MethodName} is not valid IDbSeeder");
-
-            IDbSeeder seeder = (IDbSeeder)seederRaw;
-            var dbOptions = new DbContextOptionsBuilder<ErgoFabDbContext>();
-            var ergoFabDbContextFactory = new ErgoFabDbContextFactory() { ConnectionString = ""};
-            seeder.Seed(ergoFabDbContextFactory);
-            return ergoFabDbContextFactory;
-        }
-        */
 
         TA GetTestAttribute<TA>() where TA : Attribute
         {
