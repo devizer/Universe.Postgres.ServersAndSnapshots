@@ -154,16 +154,17 @@ log_rotation_size = 0
 
                 if (EnableKillLog)
                 {
-                    var msec = startKillAt.ElapsedMilliseconds;
+                    var msec = startKillAt.ElapsedTicks * 1000d / Stopwatch.Frequency;
                     lock (killLog)
                     {
-                        killLog.AppendLine($"[KillInstance] {msec,12:n0} Kill postgres process {idProcess}: {status}");
+                        killLog.AppendLine($"[KillInstance] {msec,12:n3} Kill postgres process {idProcess}: {status}");
                     }
                 }
             });
             if (EnableKillLog)
             {
-                killLog.AppendLine($"[KillInstance] finished in {startKillAt.ElapsedMilliseconds:n0} milliseconds. Root PID is {pid}");
+                var msec = startKillAt.ElapsedTicks * 1000d / Stopwatch.Frequency;
+                killLog.AppendLine($"[KillInstance] finished in {msec:n3} milliseconds. Root PID is {pid}");
                 Console.WriteLine(killLog);
             }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -84,26 +85,19 @@ namespace ErgoFab.DataAccess.Tests
         }
     }
 
-    public class BaseErgoFabTest : NUnitTestsBase
+    public partial class BaseErgoFabTest : NUnitTestsBase
     {
 
         // The Goal is to prepare database on Startup and initialize using the DbSeederAttribute's seeder
         // Multiple test cases also supported
         protected string ConnectionString;
 
-        protected ServerBinaries TryServerDefinition(object argument)
-        {
-            if (argument is PgServerTestCase testCase)
-                return testCase.ServerBinaries;
-
-            return null;
-        }
 
         private ServerBinaries FindServerDefinition()
         {
             foreach (var testArgument in TestContext.CurrentContext.Test.Arguments)
             {
-                var ret = TryServerDefinition(testArgument);
+                var ret = TryServerDefinitionByArgument(testArgument);
                 if (ret != null) return ret;
             }
 
@@ -113,6 +107,12 @@ namespace ErgoFab.DataAccess.Tests
         [SetUp]
         public void BaseErgoFabTestSetup()
         {
+
+            // 2. Server Definition:
+            // Either by TryServerDefinitionByArgument
+            ServerBinaries server = FindServerDefinition();
+            // Or Latest by Discovery
+
             // 1. Seeder
             DbSeederAttribute attr = GetTestAttribute<DbSeederAttribute>();
             IDbSeeder seeder = null;
@@ -125,10 +125,25 @@ namespace ErgoFab.DataAccess.Tests
                     throw new NotImplementedException($"Seeder {seederType} for Test {TestContext.CurrentContext.Test.MethodName} is not valid IDbSeeder");
             }
 
-            // 2. Server Definition
-            ServerBinaries server = FindServerDefinition();
+            var cacheKey = $"{server.PgCtlFullPath}⇛{seeder?.GetType()}";
+            NpgsqlConnectionStringBuilder connection;
+            PostgresInstanceOptions options;
+            if (Backups.TryGetValue(cacheKey, out var backupFolder))
+            {
+                (connection, options) = RestoreDatabase(server, backupFolder.Folder, backupFolder.DbName);
+            }
+            else
+            {
+                (connection, options) = CreateDatabase(server);
+                backupFolder = new BackupState()
+                {
+                    Folder = Path.Combine(TestUtils.RootSnapshotFolder, Guid.NewGuid().ToString("N")),
+                    DbName = connection.Database,
+                };
+                TestUtils.CopyDirectory(options.DataPath, backupFolder.Folder, recursive: true);
+                // On Global Dispose: Directory.Delete(backupFolder.Folder);
+            }
 
-            var (connection, options) = CreateDatabase(server);
             if (seeder != null)
             {
                 // Cache By Seeder
@@ -136,6 +151,18 @@ namespace ErgoFab.DataAccess.Tests
             }
 
             ConnectionString = connection.ConnectionString;
+        }
+
+        private static IDictionary<string, BackupState> Backups = new ConcurrentDictionary<string, BackupState>();
+
+        private class BackupState
+        {
+            public string Folder, DbName;
+        }
+
+        private (NpgsqlConnectionStringBuilder, PostgresInstanceOptions) RestoreDatabase(ServerBinaries server, string backupFolder, string dbName)
+        {
+            throw new NotImplementedException();
         }
 
         private (NpgsqlConnectionStringBuilder, PostgresInstanceOptions) CreateDatabase(ServerBinaries server)
