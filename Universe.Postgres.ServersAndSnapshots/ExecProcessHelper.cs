@@ -82,6 +82,20 @@ namespace Universe
                 StartInfo = startInfo,
             };
 
+            object syncOutput = new object(), syncError = new object();
+            string ReadLineByLine(StreamReader source)
+            {
+                StringBuilder retString = new StringBuilder();
+                while (true)
+                {
+                    var line = source.ReadLine();
+                    if (line == null) break;
+                    retString.AppendLine(line);
+                }
+
+                return retString.ToString();
+            }
+
             ManualResetEventSlim outputDone = new ManualResetEventSlim(false);
             ManualResetEventSlim errorDone = new ManualResetEventSlim(false);
             string outputText = null;
@@ -118,7 +132,8 @@ namespace Universe
                     {
                         try
                         {
-                            ReadLineByLine(errorTextBuilder, process.StandardError);
+                            var buffer = ReadLineByLine(process.StandardError);
+                            lock (syncError) errorTextBuilder.Append(buffer);
                             // errorText = errorTextBuilder.ToString();
                             // errorText = process.StandardError.ReadToEnd();
                         }
@@ -137,9 +152,8 @@ namespace Universe
                     {
                         try
                         {
-                            ReadLineByLine(outputTextBuilder, process.StandardOutput);
-                            // outputText = outputTextBuilder.ToString();
-                            // outputText = process.StandardOutput.ReadToEnd();
+                            var buffer = ReadLineByLine(process.StandardOutput);
+                            lock (syncOutput) outputTextBuilder.Append(buffer);
                         }
                         catch (Exception ex)
                         {
@@ -170,8 +184,13 @@ namespace Universe
 
                 var exitCode = isSuccess ? process.ExitCode : -1;
 
-                errorText = errorTextBuilder.ToString();
-                outputText = outputTextBuilder.ToString();
+                lock(syncError)
+                    errorText = errorTextBuilder.ToString();
+
+                // System.ArgumentOutOfRangeException : Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'chunkLength')
+                lock (syncOutput)
+                    outputText = outputTextBuilder.ToString();
+
                 errorText = errorText?.TrimEnd('\r', '\n');
                 return new ExecResult()
                 {
@@ -186,6 +205,7 @@ namespace Universe
             }
         }
 
+        /*
         private static void ReadLineByLine(StringBuilder result, StreamReader source)
         {
             while (true)
@@ -195,6 +215,7 @@ namespace Universe
                 result.AppendLine(line);
             }
         }
+    */
     }
 
     public class ProcessInvocationException : Exception
