@@ -56,6 +56,7 @@ namespace Universe.NUnitTests
         }
         protected void OnDisposeSilentAsync(string actionTitle, Action action)
         {
+            var testId = TestId;
             OnDisposeList += () =>
             {
                 ThreadPool.QueueUserWorkItem(_ =>
@@ -64,11 +65,11 @@ namespace Universe.NUnitTests
                     try
                     {
                         action();
-                        Console.WriteLine($"[On Dispose Info {TestId}] {actionTitle} success (took {sw.ElapsedMilliseconds:n0} milliseconds)");
+                        Console.WriteLine($"[On Dispose Info {testId}] {actionTitle} success (took {sw.ElapsedMilliseconds:n0} milliseconds)");
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"[On Dispose Error {TestId}] {actionTitle} failed (took {sw.ElapsedMilliseconds:n0} milliseconds).{Environment.NewLine}{ex}");
+                        Console.WriteLine($"[On Dispose Error {testId}] {actionTitle} failed (took {sw.ElapsedMilliseconds:n0} milliseconds).{Environment.NewLine}{ex}");
                     }
                 });
             };
