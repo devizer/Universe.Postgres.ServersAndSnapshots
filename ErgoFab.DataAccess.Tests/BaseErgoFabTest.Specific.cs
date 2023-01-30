@@ -30,5 +30,8 @@ namespace ErgoFab.DataAccess.Tests
             LazyThreadSafetyMode.ExecutionAndPublication
         );
 
+        protected static int? LatestVersionMajor => _LatestServer.Value?.Version.Major;
+
+
     }
 }

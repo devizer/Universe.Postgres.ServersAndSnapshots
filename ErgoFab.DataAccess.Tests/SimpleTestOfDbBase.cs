@@ -16,6 +16,7 @@ namespace ErgoFab.DataAccess.Tests
         [Test]
         public void TestEmptyInitialization()
         {
+            if (LatestVersionMajor < 10) return;
             Console.WriteLine($"ConnectionString: [{this.ConnectionString}]");
             Assert.IsNotNull(this.ConnectionString);
 
@@ -29,6 +30,7 @@ namespace ErgoFab.DataAccess.Tests
         [TestCase("Run")]
         public void TestEmptyInitializationTwice(string id)
         {
+            if (LatestVersionMajor < 10) return;
             Console.WriteLine($"ConnectionString: [{this.ConnectionString}]");
             Assert.IsNotNull(this.ConnectionString);
 
@@ -44,7 +46,7 @@ namespace ErgoFab.DataAccess.Tests
         public void TestBasicSeederTwice(string id)
         {
             Console.WriteLine($"Latest Server: {_LatestServer.Value}");
-            if (_LatestServer.Value?.Version.Major < 10) return;
+            if (LatestVersionMajor < 10) return;
 
             Console.WriteLine($"ConnectionString: [{this.ConnectionString}]");
             Assert.IsNotNull(this.ConnectionString);
@@ -54,7 +56,9 @@ namespace ErgoFab.DataAccess.Tests
             Console.WriteLine(conn.CheckConnectivity(timeout: 5000));
 
             var db = ErgoFabDbContextFactory.CreateErgoFabDbContext(ConnectionString);
+            Console.WriteLine($"Total Organizations: {db.Organization.Count()}");
             Assert.IsTrue(db.Organization.Any(), "At least one organization is expected");
+
         }
 
     }
