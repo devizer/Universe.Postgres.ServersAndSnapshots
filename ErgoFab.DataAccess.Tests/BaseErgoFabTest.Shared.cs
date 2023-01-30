@@ -10,6 +10,9 @@ using ErgoFab.DataAccess.Model;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
+using NUnit.Framework.Internal;
+using Universe;
 using Universe.NUnitTests;
 using Universe.Postgres.ServersAndSnapshots;
 using Universe.Postgres.ServersAndSnapshots.Tests;
@@ -233,4 +236,36 @@ namespace ErgoFab.DataAccess.Tests
             return attr;
         }
     }
+
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class MinimumPostgresVersionAttribute : NUnitAttribute, IApplyToTest
+    {
+        public readonly int MajorVersion;
+
+        public MinimumPostgresVersionAttribute(int majorVersion)
+        {
+            MajorVersion = majorVersion;
+        }
+
+        public void ApplyToTest(Test test)
+        {
+            if (test.RunState == RunState.NotRunnable)
+            {
+                return;
+            }
+
+            if (_LatestServer.Value.Version.Major < MajorVersion)
+            {
+                test.RunState = RunState.Ignored;
+                test.Properties.Set(PropertyNames.SkipReason, $"Minimum postgres server version is {MajorVersion}");
+            }
+        }
+
+        protected static Lazy<ServerBinaries> _LatestServer = new Lazy<ServerBinaries>(
+            () => PostgresServerDiscovery.GetServers().MaxBy(x => x.Version),
+            LazyThreadSafetyMode.ExecutionAndPublication
+        );
+
+    }
+
 }

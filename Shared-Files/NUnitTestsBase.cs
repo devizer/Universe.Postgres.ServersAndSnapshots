@@ -230,7 +230,7 @@ namespace Universe.NUnitTests
         FreeBSD,
     }
 
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class RequiredOsAttribute : NUnitAttribute, IApplyToTest
     {
         public readonly Os[] OperatingSystems;

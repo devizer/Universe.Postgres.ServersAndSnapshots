@@ -14,9 +14,10 @@ namespace ErgoFab.DataAccess.Tests
     {
 
         [Test]
+        [MinimumPostgresVersion(10)]
         public void TestEmptyInitialization()
         {
-            if (LatestVersionMajor < 10) return;
+            // if (LatestVersionMajor < 10) return;
             Console.WriteLine($"ConnectionString: [{this.ConnectionString}]");
             Assert.IsNotNull(this.ConnectionString);
 
@@ -28,9 +29,10 @@ namespace ErgoFab.DataAccess.Tests
         [Test]
         [TestCase("Warmup")]
         [TestCase("Run")]
+        [MinimumPostgresVersion(10)]
         public void TestEmptyInitializationTwice(string id)
         {
-            if (LatestVersionMajor < 10) return;
+            // if (LatestVersionMajor < 10) return;
             Console.WriteLine($"ConnectionString: [{this.ConnectionString}]");
             Assert.IsNotNull(this.ConnectionString);
 
@@ -43,10 +45,11 @@ namespace ErgoFab.DataAccess.Tests
         [TestCase("Warmup")]
         [TestCase("Run")]
         [DbSeeder(typeof(BasicDbSeeder))]
+        [MinimumPostgresVersion(10)]
         public void TestBasicSeederTwice(string id)
         {
             Console.WriteLine($"Latest Server: {_LatestServer.Value}");
-            if (LatestVersionMajor < 10) return;
+            // if (LatestVersionMajor < 10) return;
 
             Console.WriteLine($"ConnectionString: [{this.ConnectionString}]");
             Assert.IsNotNull(this.ConnectionString);
