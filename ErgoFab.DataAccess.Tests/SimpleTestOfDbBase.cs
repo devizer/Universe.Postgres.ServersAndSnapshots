@@ -43,6 +43,7 @@ namespace ErgoFab.DataAccess.Tests
         [DbSeeder(typeof(BasicDbSeeder))]
         public void TestBasicSeederTwice(string id)
         {
+            Console.WriteLine($"Latest Server: {_LatestServer.Value}");
             if (_LatestServer.Value?.Version.Major < 10) return;
 
             Console.WriteLine($"ConnectionString: [{this.ConnectionString}]");

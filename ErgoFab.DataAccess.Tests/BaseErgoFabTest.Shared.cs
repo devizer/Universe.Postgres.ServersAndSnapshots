@@ -131,7 +131,7 @@ namespace ErgoFab.DataAccess.Tests
                     throw new NotImplementedException($"Seeder {seederType} for Test {TestContext.CurrentContext.Test.MethodName} is not valid IDbSeeder");
             }
 
-            Console.WriteLine($"[Db Setup] Seeder is '{seeder}', Server is '{server}'");
+            Console.WriteLine($"[Db Setup] Seeder is '{seeder}', Server is {server}");
 
             if (server == null)
             {
