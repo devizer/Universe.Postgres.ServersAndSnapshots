@@ -132,7 +132,12 @@ namespace Universe.NUnitTests
 
             var copy = OnDisposeList;
             OnDisposeList = () => { };
-            copy();
+            if (copy.GetInvocationList().Length > 0)
+            {
+                Stopwatch sw = Stopwatch.StartNew();
+                copy();
+                // Console.WriteLine($"[On Dispose Info {TestId}] Completed in {sw.ElapsedMilliseconds:n0} milliseconds");
+            }
 
             Console.WriteLine("");
         }

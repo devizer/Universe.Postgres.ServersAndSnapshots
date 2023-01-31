@@ -285,7 +285,12 @@ public class GlobalTestsTearDown
     {
         var copy = OnDisposeList;
         OnDisposeList = () => { };
-        copy();
+        if (copy.GetInvocationList().Length > 0)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            copy();
+            Console.WriteLine($"[Global Dispose] Completed in {sw.ElapsedMilliseconds:n0} milliseconds");
+        }
     }
 
     static Action OnDisposeList = () => { };
