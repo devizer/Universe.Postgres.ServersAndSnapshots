@@ -196,6 +196,7 @@ jobs:
        # v 10th is temporary not work: initdb: dyld: Library not loaded: /usr/local/opt/icu4c/lib/libicui18n.71.dylib, image not found
        for v in ${PG_VERSION_LIST:-}; do
          Say "Install Postgres v$v"
+         export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
          time brew install ${v} || exit $?
        done
        Say "After"
@@ -252,7 +253,7 @@ jobs:
         echo 'Write-Host "CPU: $((Get-WmiObject Win32_Processor).Name), $([Environment]::ProcessorCount) Cores"' | powershell -c -
         echo "[WINDOWS] Assign PG_SERVER_LOCALES='$PG_SERVER_LOCALES'"; echo ""
       fi
-      dotnet restore || dotnet restore --disable-parallel
+
       dotnet test --collect:"XPlat Code Coverage" --logger trx
     displayName: 'Test All'
 
