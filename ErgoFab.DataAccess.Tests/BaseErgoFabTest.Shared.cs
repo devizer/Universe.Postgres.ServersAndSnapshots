@@ -164,7 +164,7 @@ namespace ErgoFab.DataAccess.Tests
                 // Backups[cacheKey] = backupFolder;
                 GlobalTestsTearDown.OnDispose($"Delete snapshot {backupFolder.Folder}", () =>
                 {
-                    Directory.Delete(backupFolder.Folder);
+                    Directory.Delete(backupFolder.Folder, true);
                 });
             }
 
@@ -210,7 +210,7 @@ namespace ErgoFab.DataAccess.Tests
             // OnDisposeSilentAsync($"Stop Server and Clean up DB {newDbName}", () =>
             {
                 TryAndForget.Execute(() => PostgresServerManager.StopInstanceSmarty(server, options));
-                TryAndForget.Execute(() => Directory.Delete(options.DataPath));
+                TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
             });
 
             NpgsqlConnectionStringBuilder ret = new NpgsqlConnectionStringBuilder()
