@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -16,6 +17,7 @@ using Universe;
 using Universe.NUnitTests;
 using Universe.Postgres.ServersAndSnapshots;
 using Universe.Postgres.ServersAndSnapshots.Tests;
+using Console = System.Console;
 
 namespace ErgoFab.DataAccess.Tests
 {
@@ -159,7 +161,11 @@ namespace ErgoFab.DataAccess.Tests
                     DbName = connection.Database,
                 };
                 TestUtils.CopyDirectory(options.DataPath, backupFolder.Folder, recursive: true);
-                // On Global Dispose: Directory.Delete(backupFolder.Folder);
+                // Backups[cacheKey] = backupFolder;
+                GlobalTestsTearDown.OnDispose($"Delete snapshot {backupFolder.Folder}", () =>
+                {
+                    Directory.Delete(backupFolder.Folder);
+                });
             }
 
             if (seeder != null)
@@ -200,7 +206,8 @@ namespace ErgoFab.DataAccess.Tests
             PostgresServerManager.StartInstance(server, options);
             // TODO: Replace by Global Tear Down
             // https://stackoverflow.com/questions/3619735/nunit-global-initialization-bad-idea
-            OnDisposeSilentAsync($"Stop Server and Clean up DB {newDbName}", () =>
+            GlobalTestsTearDown.OnDispose($"Stop Server and Clean up DB {newDbName}", () =>
+            // OnDisposeSilentAsync($"Stop Server and Clean up DB {newDbName}", () =>
             {
                 TryAndForget.Execute(() => PostgresServerManager.StopInstanceSmarty(server, options));
                 TryAndForget.Execute(() => Directory.Delete(options.DataPath));
@@ -266,6 +273,38 @@ namespace ErgoFab.DataAccess.Tests
             LazyThreadSafetyMode.ExecutionAndPublication
         );
 
+    }
+
+}
+
+[SetUpFixture]
+public class GlobalTestsTearDown
+{
+    [OneTimeTearDown]
+    public void GlobalTearDown()
+    {
+        var copy = OnDisposeList;
+        OnDisposeList = () => { };
+        copy();
+    }
+
+    static Action OnDisposeList = () => { };
+
+    public static void OnDispose(string title, Action action)
+    {
+        OnDisposeList += () =>
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            try
+            {
+                action();
+                Console.WriteLine($"[Global Dispose] {title} success (took {sw.ElapsedMilliseconds:n0} milliseconds)");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Global Dispose] {title} failed (took {sw.ElapsedMilliseconds:n0} milliseconds).{Environment.NewLine}{ex}");
+            }
+        };
     }
 
 }
