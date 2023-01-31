@@ -43,7 +43,7 @@ namespace Universe.NUnitTests
             };
         }
 
-        private string TestId => $"#{TestClassCounter}.{TestCounter}";
+        protected string TestId => $"#{TestClassCounter}.{TestCounter}";
 
         protected void OnDispose(Action action)
         {
