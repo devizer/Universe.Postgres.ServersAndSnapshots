@@ -277,37 +277,34 @@ namespace ErgoFab.DataAccess.Tests
 
 }
 
-namespace Universe
+[SetUpFixture]
+public class GlobalTestsTearDown
 {
-    [SetUpFixture]
-    public class GlobalTestsTearDown
+    [OneTimeTearDown]
+    public void GlobalTearDown()
     {
-        [OneTimeTearDown]
-        public void GlobalTearDown()
-        {
-            var copy = OnDisposeList;
-            OnDisposeList = () => { };
-            copy();
-        }
-
-        static Action OnDisposeList = () => { };
-
-        public static void OnDispose(string title, Action action)
-        {
-            OnDisposeList += () =>
-            {
-                Stopwatch sw = Stopwatch.StartNew();
-                try
-                {
-                    action();
-                    Console.WriteLine($"[Global Dispose] {title} success (took {sw.ElapsedMilliseconds:n0} milliseconds)");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[Global Dispose] {title} failed (took {sw.ElapsedMilliseconds:n0} milliseconds).{Environment.NewLine}{ex}");
-                }
-            };
-        }
-
+        var copy = OnDisposeList;
+        OnDisposeList = () => { };
+        copy();
     }
+
+    static Action OnDisposeList = () => { };
+
+    public static void OnDispose(string title, Action action)
+    {
+        OnDisposeList += () =>
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            try
+            {
+                action();
+                Console.WriteLine($"[Global Dispose] {title} success (took {sw.ElapsedMilliseconds:n0} milliseconds)");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Global Dispose] {title} failed (took {sw.ElapsedMilliseconds:n0} milliseconds).{Environment.NewLine}{ex}");
+            }
+        };
+    }
+
 }
