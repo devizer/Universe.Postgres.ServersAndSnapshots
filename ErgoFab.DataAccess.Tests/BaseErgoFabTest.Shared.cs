@@ -206,11 +206,13 @@ namespace ErgoFab.DataAccess.Tests
             PostgresServerManager.StartInstance(server, options);
             // TODO: Replace by Global Tear Down
             // https://stackoverflow.com/questions/3619735/nunit-global-initialization-bad-idea
-            GlobalTestsTearDown.OnDispose($"{TestId} Stop Server and Clean up DB {newDbName}", () =>
-            // OnDisposeSilentAsync($"Stop Server and Clean up DB {newDbName}", () =>
+            GlobalTestsTearDown.OnDispose($"{TestId} Stop Server", () =>
             {
-                TryAndForget.Execute(() => PostgresServerManager.StopInstanceSmarty(server, options));
-                TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
+                PostgresServerManager.StopInstanceSmarty(server, options);
+            });
+            GlobalTestsTearDown.OnDispose($"{TestId} Clean up DB {newDbName}", () =>
+            {
+                Directory.Delete(options.DataPath, true);
             });
 
             NpgsqlConnectionStringBuilder ret = new NpgsqlConnectionStringBuilder()
