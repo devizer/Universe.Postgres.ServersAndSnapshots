@@ -189,14 +189,14 @@ jobs:
         Say "Install MacPort"
         cd /tmp
         curl -kSL -o MacPorts.pkg "$MACPORT_URL" || curl -kSL -o MacPorts.pkg "$MACPORT_URL"
-        time sudo installer -verbose -pkg MacPorts.pkg -target /
+        time sudo installer -pkg MacPorts.pkg -target / # -verbose 
         # sudo ln -f -s /
-        export PATH="/opt/local/bin:$PATH"
+        export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
         Say "Packages 'postgresql'"
         port search postgresql | grep -E "^postgresql" | sort
         for p in ${MACPORT_PACKAGES:-}; do
           Say "Installing [$p]"
-          sudo port -v install $p
+          time sudo port install $p # -v
         done
         time sudo find /opt -name pg_ctl
         true
