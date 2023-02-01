@@ -279,9 +279,6 @@ public class GlobalTestsTearDown
 
     static Action OnDisposeList = () => { };
 
-    public static void OnDisposeInternal(Action action)
-    {
-        OnDisposeList += action;
-    }
+    public static void OnDisposeInternal(Action action) => OnDisposeList += action;
 
 }
