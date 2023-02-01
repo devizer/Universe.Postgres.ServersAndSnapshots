@@ -25,8 +25,6 @@ namespace Universe.NUnitTests
 
         Action OnDisposeList = () => { };
 
-        private int OnDisposeCounter = 0;
-
         protected void OnDispose(string title, Action action, TestDisposeOptions mode)
         {
             if (title.IndexOf('\'') < 0) title = $"'{title}'";
@@ -35,10 +33,12 @@ namespace Universe.NUnitTests
             var testName = TestContext.CurrentContext.Test.Name;
             bool isIgnoringError = (mode & TestDisposeOptions.IgnoreError) != 0;
             bool isGlobal = (mode & TestDisposeOptions.Global) != 0;
+            var isAsync = (mode & TestDisposeOptions.Async) != 0;
 
-            Action actFirst = () =>
+            Action actionWithLog = () =>
             {
-                string prefix = $"{(isGlobal ? "Global " : "")}Dispose {testId}{(isGlobal ? $" {testName}" : "")}";
+                
+                string prefix = $"Dispose {(isGlobal ? "Global " : "")}{(isAsync ? "Async " : "")}{testId}{(isGlobal ? $" {testName}" : "")}";
                 Stopwatch sw = Stopwatch.StartNew();
                 try
                 {
@@ -54,14 +54,14 @@ namespace Universe.NUnitTests
                 }
             };
 
-            var actSeconds = (mode & TestDisposeOptions.Async) != 0
-                ? () => ThreadPool.QueueUserWorkItem(_ => actFirst())
-                : actFirst;
+            var actionWrapped = isAsync
+                ? () => ThreadPool.QueueUserWorkItem(_ => actionWithLog())
+                : actionWithLog;
 
             if (isGlobal) 
-                GlobalTestsTearDown.OnDisposeInternal(actSeconds);
+                GlobalTestsTearDown.OnDisposeInternal(actionWrapped);
             else
-                OnDisposeList += actSeconds;
+                OnDisposeList += actionWrapped;
         }
 
 
