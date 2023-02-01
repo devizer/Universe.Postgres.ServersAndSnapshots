@@ -196,7 +196,7 @@ jobs:
         port search postgresql | grep -E "^postgresql" | sort
         for p in ${MACPORT_PACKAGES:-}; do
           Say "Installing [$p]"
-          port -v install $p
+          sudo port -v install $p
         done
         time sudo find /opt -name pg_ctl
         true
