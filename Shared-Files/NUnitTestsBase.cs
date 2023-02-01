@@ -55,7 +55,7 @@ namespace Universe.NUnitTests
             };
 
             var actSeconds = (mode & TestDisposeOptions.Async) != 0
-                ? () => ThreadPool.QueueUserWorkItem(_ => action())
+                ? () => ThreadPool.QueueUserWorkItem(_ => actFirst())
                 : actFirst;
 
             if (isGlobal) 
