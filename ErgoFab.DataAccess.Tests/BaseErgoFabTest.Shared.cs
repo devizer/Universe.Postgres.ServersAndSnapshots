@@ -162,10 +162,11 @@ namespace ErgoFab.DataAccess.Tests
                 };
                 TestUtils.CopyDirectory(options.DataPath, backupFolder.Folder, recursive: true);
                 // Backups[cacheKey] = backupFolder;
-                GlobalTestsTearDown.OnDispose($"{TestId} Delete snapshot {backupFolder.Folder}", () =>
-                {
-                    Directory.Delete(backupFolder.Folder, true);
-                });
+                OnDispose(
+                    $"Delete snapshot {backupFolder.Folder}",
+                    () => Directory.Delete(backupFolder.Folder, true),
+                    TestDisposeOptions.Global
+                );
             }
 
             if (seeder != null)
@@ -206,14 +207,16 @@ namespace ErgoFab.DataAccess.Tests
             PostgresServerManager.StartInstance(server, options);
             // TODO: Replace by Global Tear Down
             // https://stackoverflow.com/questions/3619735/nunit-global-initialization-bad-idea
-            GlobalTestsTearDown.OnDispose($"{TestId} Stop Server", () =>
-            {
-                PostgresServerManager.StopInstanceSmarty(server, options);
-            });
-            GlobalTestsTearDown.OnDispose($"{TestId} Clean up DB {newDbName}", () =>
-            {
-                Directory.Delete(options.DataPath, true);
-            });
+            OnDispose(
+                $"Stop Server {server.Version} at {server.PgCtlFullPath}",
+                () => PostgresServerManager.StopInstanceSmarty(server, options),
+                TestDisposeOptions.Async
+            );
+            OnDispose(
+                $"Clean up DB {newDbName}",
+                () => Directory.Delete(options.DataPath, true),
+                TestDisposeOptions.Global
+            );
 
             NpgsqlConnectionStringBuilder ret = new NpgsqlConnectionStringBuilder()
             {
@@ -279,39 +282,3 @@ namespace ErgoFab.DataAccess.Tests
 
 }
 
-[SetUpFixture]
-public class GlobalTestsTearDown
-{
-    [OneTimeTearDown]
-    public void GlobalTearDown()
-    {
-        var copy = OnDisposeList;
-        OnDisposeList = () => { };
-        if (copy.GetInvocationList().Length > 0)
-        {
-            Stopwatch sw = Stopwatch.StartNew();
-            copy();
-            Console.WriteLine($"[Global Dispose] Completed in {sw.ElapsedMilliseconds:n0} milliseconds");
-        }
-    }
-
-    static Action OnDisposeList = () => { };
-
-    public static void OnDispose(string title, Action action)
-    {
-        OnDisposeList += () =>
-        {
-            Stopwatch sw = Stopwatch.StartNew();
-            try
-            {
-                action();
-                Console.WriteLine($"[Global Dispose] {title} success (took {sw.ElapsedMilliseconds:n0} milliseconds)");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[Global Dispose] {title} failed (took {sw.ElapsedMilliseconds:n0} milliseconds).{Environment.NewLine}{ex}");
-            }
-        };
-    }
-
-}

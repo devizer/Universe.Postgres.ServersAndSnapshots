@@ -49,17 +49,17 @@ namespace ErgoFab.DataAccess.Tests
             PostgresServerManager.CreateServerInstance(latestServer, options);
             PostgresServerManager.StartInstance(latestServer, options);
 
-            OnDisposeSilent("Stop Server", () => PostgresServerManager.StopInstanceSmarty(latestServer, options));
+            OnDispose("Stop Server", () => PostgresServerManager.StopInstanceSmarty(latestServer, options), TestDisposeOptions.IgnoreError);
             if (ArtifactsUtility.Directory != null && ArtifactsUtility.Can7z)
             {
-                OnDisposeSilent($"7z folder {options.DataPath}", () =>
+                OnDispose($"7z folder {options.DataPath}", () =>
                 {
                     var fileName = $"Test '{TestContext.CurrentContext.Test.Name}' {DateTime.Now:yyyy-MM-dd HH-mm-ss}";
                     var fullFileName = Path.Combine(ArtifactsUtility.Directory, fileName);
                     ExecProcessHelper.HiddenExec("7z", $"a -ms=on -mqs=on -mx=1 \"{fullFileName}.7z\" \"{options.DataPath}\"");
-                });
+                }, TestDisposeOptions.IgnoreError);
             }
-            OnDisposeSilent($"Delete Folder {options.DataPath}", () => Directory.Delete(options.DataPath, true));
+            OnDispose($"Delete Folder {options.DataPath}", () => Directory.Delete(options.DataPath, true), TestDisposeOptions.IgnoreError);
 
             NpgsqlConnectionStringBuilder connectionStringOptions = new NpgsqlConnectionStringBuilder()
             {

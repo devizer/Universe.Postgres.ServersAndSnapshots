@@ -26,59 +26,46 @@ namespace Universe.NUnitTests
         Action OnDisposeList = () => { };
 
         private int OnDisposeCounter = 0;
-        protected void OnDispose(string title, Action action)
+
+        protected void OnDispose(string title, Action action, TestDisposeOptions mode)
         {
-            OnDisposeList += () =>
+            if (title.IndexOf('\'') < 0) title = $"'{title}'";
+
+            var testId = TestId;
+            var testName = TestContext.CurrentContext.Test.Name;
+            bool isIgnoringError = (mode & TestDisposeOptions.IgnoreError) != 0;
+            bool isGlobal = (mode & TestDisposeOptions.Global) != 0;
+
+            Action actFirst = () =>
             {
+                string prefix = $"{(isGlobal ? "Global " : "")}Dispose {testId}{(isGlobal ? $" {testName}" : "")}";
                 Stopwatch sw = Stopwatch.StartNew();
                 try
                 {
                     action();
-                    Console.WriteLine($"[On Dispose Info {TestId}] {title} success (took {sw.ElapsedMilliseconds:n0} milliseconds)");
+                    var msec = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
+                    Console.WriteLine($"[{prefix}] {title} success (took {msec:n1} milliseconds)");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[On Dispose Error {TestId}] {title} failed (took {sw.ElapsedMilliseconds:n0} milliseconds).{Environment.NewLine}{ex}");
+                    var msec = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
+                    var err = isIgnoringError ? $"[{ex.GetType()}] {ex.Message}" : Environment.NewLine + ex;
+                    Console.WriteLine($"[{prefix}] {title} failed (took {msec:n1} milliseconds).{err}");
                 }
             };
+
+            var actSeconds = (mode & TestDisposeOptions.Async) != 0
+                ? () => ThreadPool.QueueUserWorkItem(_ => action())
+                : actFirst;
+
+            if (isGlobal) 
+                GlobalTestsTearDown.OnDisposeInternal(actSeconds);
+            else
+                OnDisposeList += actSeconds;
         }
+
 
         protected string TestId => $"#{TestClassCounter}.{TestCounter}";
-
-        protected void OnDispose(Action action)
-        {
-            OnDispose($"Dispose Action {TestId}.{Interlocked.Increment(ref OnDisposeCounter)}", action);
-        }
-
-        protected void OnDisposeSilent(string actionTitle, Action action)
-        {
-            OnDispose(actionTitle, () => SilentExecute(action));
-        }
-        protected void OnDisposeSilentAsync(string actionTitle, Action action)
-        {
-            var testId = TestId;
-            OnDisposeList += () =>
-            {
-                ThreadPool.QueueUserWorkItem(_ =>
-                {
-                    Stopwatch sw = Stopwatch.StartNew();
-                    try
-                    {
-                        action();
-                        Console.WriteLine($"[On Dispose Info {testId}] {actionTitle} success (took {sw.ElapsedMilliseconds:n0} milliseconds)");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"[On Dispose Error {testId}] {actionTitle} failed (took {sw.ElapsedMilliseconds:n0} milliseconds).{Environment.NewLine}{ex}");
-                    }
-                });
-            };
-        }
-
-        protected void OnDisposeSilent(Action action)
-        {
-            OnDispose($"Dispose Action {TestId}.{Interlocked.Increment(ref OnDisposeCounter)}", () => SilentExecute(action));
-        }
 
 
         [SetUp]
@@ -210,15 +197,9 @@ namespace Universe.NUnitTests
 
                 public override void WriteLine(string value)
                 {
-                    //                    TestContext.Progress.Write(string.Join(",", value.Select(x => ((int)x).ToString("X2"))) );
-                    //                    if (value.Length > Environment.NewLine.Length && value.EndsWith(Environment.NewLine))
-                    //                        value = value.Substring(0, value.Length - Environment.NewLine.Length);
-
-
                     try
                     {
                         TestContext.Progress.WriteLine(value);
-                        // TestContext.Error.WriteLine(value); // .WriteLine();
                     }
                     catch
                     {
@@ -269,4 +250,38 @@ namespace Universe.NUnitTests
             }
         }
     }
+
+    [Flags]
+    public enum TestDisposeOptions
+    {
+        Default = 0,
+        Async = 1,
+        Global = 2,
+        IgnoreError = 4,
+    }
+}
+
+[SetUpFixture]
+public class GlobalTestsTearDown
+{
+    [OneTimeTearDown]
+    public void GlobalTearDown()
+    {
+        var copy = OnDisposeList;
+        OnDisposeList = () => { };
+        if (copy.GetInvocationList().Length > 1)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            copy();
+            Console.WriteLine($"[Global Dispose] Completed in {sw.ElapsedMilliseconds:n0} milliseconds");
+        }
+    }
+
+    static Action OnDisposeList = () => { };
+
+    public static void OnDisposeInternal(Action action)
+    {
+        OnDisposeList += action;
+    }
+
 }

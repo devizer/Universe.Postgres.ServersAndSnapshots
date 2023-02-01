@@ -16,7 +16,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         public void TestInitDb(PgServerTestCase testCase)
         {
             var (connection, options) = InitDb(testCase, "Init");
-            OnDispose(() => Directory.Delete(options.DataPath, true));
+            OnDispose("Drop DB Data", () => Directory.Delete(options.DataPath, true), TestDisposeOptions.Default);
         }
 
         [Test, TestCaseSource(typeof(PgServerTestCase), nameof(PgServerTestCase.GetServers))]
@@ -24,7 +24,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
         {
             var serverBinaries = testCase.ServerBinaries;
             var (connection, options) = InitDb(testCase, "Kill");
-            OnDisposeSilent(() => Directory.Delete(options.DataPath, true));
+            OnDispose("Drop DB Data", () => Directory.Delete(options.DataPath, true), TestDisposeOptions.IgnoreError);
 
             Stopwatch startAt = Stopwatch.StartNew();
             var resultStart = PostgresServerManager.StartInstance(serverBinaries, options, waitFor: true);
@@ -129,7 +129,7 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             }
 
             // TryAndForget.Execute(() => Directory.Delete(options.DataPath, true));
-            OnDisposeSilent($"'Delete DataPath={options.DataPath}'", () => Directory.Delete(options.DataPath, true));
+            OnDispose($"'Delete DataPath={options.DataPath}'", () => Directory.Delete(options.DataPath, true), TestDisposeOptions.IgnoreError);
             var msec = sw.ElapsedTicks * 1000d / Stopwatch.Frequency;
             Console.WriteLine($"[{mode}] server took {msec:n2} milliseconds");
             
