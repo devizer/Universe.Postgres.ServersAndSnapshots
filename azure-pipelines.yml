@@ -189,7 +189,7 @@ jobs:
         Say "Install MacPort"
         cd /tmp
         curl -kSL -o MacPorts.pkg "$MACPORT_URL" || curl -kSL -o MacPorts.pkg "$MACPORT_URL"
-        sudo install -pkg MacPorts.pkg -target /
+        sudo installer -pkg MacPorts.pkg -target /
         # sudo ln -f -s /
         export PATH="/opt/local/bin:$PATH"
         Say "Packages 'postgresql'"
