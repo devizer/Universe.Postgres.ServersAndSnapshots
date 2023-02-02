@@ -21,12 +21,17 @@ function Build-Image()
       docker cp /usr/local/bin/$cmd "container-$KEY":/usr/local/bin/$cmd
     done
     docker cp $(pwd)/Repack-Postgres-on-Linux-in-Container.sh "container-$KEY":/tmp/Repack-Postgres-on-Linux-in-Container.sh
-    docker exec -t "container-$KEY" bash /tmp/Repack-Postgres-on-Linux-in-Container.sh || Say ERRRRRRRRRRRRRROR
+    err=0
+    docker exec -t "container-$KEY" bash /tmp/Repack-Postgres-on-Linux-in-Container.sh || err=1
+    suffix="ok"; if [[ $err != 0 ]]; then Say "ERRRRRRRRRRRRRRRROR"; suffix="with-errors"; fi
     mkdir -p /tmp/$KEY-plain
     docker cp "container-$KEY":/Artifacts/ /tmp/$KEY-plain
     pushd /tmp/$KEY-plain/Artifacts
-      7z a -mx=2 -ms=on -mqs=on $SYSTEM_ARTIFACTSDIRECTORY/$KEY.7z .
+      7z a -mx=2 -ms=on -mqs=on $SYSTEM_ARTIFACTSDIRECTORY/$KEY-$suffix.7z .
     popd
+    Say "Clean up $KEY"
+    rm -rf /tmp/$KEY-plain
+    docker rm -f "container-$KEY"
 }
 IMAGE="ubuntu:20.04" KEY=ubuntu-2004-x86_64 Build-Image
 # IMAGE="debian:testing"    KEY=debian-12-x86_64   Build-Image
