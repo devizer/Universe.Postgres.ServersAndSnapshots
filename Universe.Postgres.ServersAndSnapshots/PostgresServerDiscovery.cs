@@ -65,7 +65,10 @@ namespace Universe.Postgres.ServersAndSnapshots
                 candidates.Add("/usr");
                 candidates.Add("/usr/local");
 
-                foreach (var macOsFolder in WeakMacOsSearch())
+                // MacPorts
+                candidates.AddRange(TryPostgresSubfolders("/opt/local/lib", subDirPattern: "postgresql*"));
+
+                foreach (var macOsFolder in WeakMacOsSearchForHomeBrew())
                 {
                     // Console.WriteLine($"macOsFolder: '{macOsFolder}'");
                     candidates.AddRange(TryPostgresSubfolders(macOsFolder));
@@ -103,18 +106,11 @@ namespace Universe.Postgres.ServersAndSnapshots
 /usr/local/Cellar/postgresql@14/14.5_5/bin/initdb
 /usr/local/Cellar/postgresql@12/12.12_3/bin/initdb
          */
-        static IEnumerable<string> WeakMacOsSearch()
+        static IEnumerable<string> WeakMacOsSearchForHomeBrew()
         {
             DirectoryInfo[] dirsHomeBrew = TryAndForget.Evaluate(() => new DirectoryInfo("/usr/local/Cellar").GetDirectories("postgresql@*"));
             // Console.WriteLine($"/usr/local/Cellar/postgresql@* count: {dirs?.Length}");
             foreach (var dir in dirsHomeBrew ?? new DirectoryInfo[0])
-            {
-                yield return dir.FullName;
-            }
-
-            DirectoryInfo[] dirsMacPort = TryAndForget.Evaluate(() => new DirectoryInfo("/opt/local/lib/").GetDirectories("postgresql*"));
-            // Console.WriteLine($"/usr/local/Cellar/postgresql@* count: {dirs?.Length}");
-            foreach (var dir in dirsMacPort ?? new DirectoryInfo[0])
             {
                 yield return dir.FullName;
             }
