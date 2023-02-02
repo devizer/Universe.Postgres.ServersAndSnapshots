@@ -167,29 +167,30 @@ namespace Universe
                 );
 
                 Stopwatch startAt = Stopwatch.StartNew();
-                bool isProcessFinished = process.WaitForExit(millisecondsTimeout);
+                bool isStreamFinished = WaitHandle.WaitAll(
+                    new[] { errorDone.WaitHandle, outputDone.WaitHandle },
+                    millisecondsTimeout);
 
-                int remainingMilliseconds = millisecondsTimeout - (int)startAt.ElapsedMilliseconds;
+                int remainingMilliseconds =
+                    isStreamFinished
+                    ? Math.Max(1, millisecondsTimeout - (int)startAt.ElapsedMilliseconds)
+                    : 1;
+
+                bool isProcessFinished = process.WaitForExit(remainingMilliseconds);
 
                 if (args.EndsWith("start", StringComparison.CurrentCultureIgnoreCase))
                     if (Debugger.IsAttached) Debugger.Break();
-
-                if (isProcessFinished) remainingMilliseconds = 1;
-
-                bool isSuccess1 = WaitHandle.WaitAll(
-                    new[] {errorDone.WaitHandle, outputDone.WaitHandle},
-                    Math.Max(1, remainingMilliseconds));
 
                 bool isSuccess = isProcessFinished;
 
                 var exitCode = isSuccess ? process.ExitCode : -1;
 
-                lock(syncError)
-                    errorText = errorTextBuilder.ToString();
+                // lock(syncError)
+                errorText = errorTextBuilder.ToString();
 
                 // System.ArgumentOutOfRangeException : Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'chunkLength')
-                lock (syncOutput)
-                    outputText = outputTextBuilder.ToString();
+                // lock (syncOutput)
+                outputText = outputTextBuilder.ToString();
 
                 errorText = errorText?.TrimEnd('\r', '\n');
                 return new ExecResult()
