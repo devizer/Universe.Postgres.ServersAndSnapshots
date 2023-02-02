@@ -27,7 +27,7 @@ function Build-Image()
     docker exec -t "container-$KEY" bash /tmp/Repack-Postgres-on-Linux-in-Container.sh || Say ERRRRRRRRRRRRRROR
     mkdir -p /tmp/$KEY-plain
     docker cp "container-$KEY":/Artifacts /tmp/$KEY-plain
-    7z a -mx=9 -ms=on -msq=on $SYSTEM_ARTIFACTSDIRECTORY/$KEY.7z /tmp/$KEY-plain
+    7z a -mx=9 -ms=on -mqs=on $SYSTEM_ARTIFACTSDIRECTORY/$KEY.7z /tmp/$KEY-plain
 }
 IMAGE="debian:testing"    KEY=debian-12-x86_64   Build-Image
 IMAGE="debian:10"    KEY=debian-10-x86_64   Build-Image
