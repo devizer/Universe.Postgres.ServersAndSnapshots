@@ -12,14 +12,14 @@ Acquire::AllowDowngradeToInsecureRepositories "1";
 mkdir -p /Artifacts
 Say "Bootstrap docker container"
 try-and-retry apt-get update -y -qq
-try-and-retry apt-get install curl ca-certificates gnupg lsb-release -y -qq
+try-and-retry apt-get install curl ca-certificates gnupg lsb-release tree -y -qq
 
 echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list
 apt-get update -qq
 apt-cache search postgres | grep -E '^postgres' | sort | tee /Artifacts/apt-postgres-packages.txt
-apt-cache policy postgres-14
+apt-cache policy postgresql-14
 err=0
-time apt-get install -y postgres-14 |& tee /Artifacts/postgres-14-install-log.txt || err=1
+time apt-get install -y -qq postgresql-14 |& tee /Artifacts/postgres-14-install-log.txt || err=1
 
 
 
