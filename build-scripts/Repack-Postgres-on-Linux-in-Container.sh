@@ -29,5 +29,7 @@ Say "Installing postgresql-14"
 err=0
 time apt-get install -y -qq postgresql-14 postgresql-server-dev-14 postgresql-pltcl-14 postgresql-14-cron postgresql-14-orafce postgresql-14-pg-stat-kcache |& tee /Artifacts/postgres-14-install-log.txt || err=1
 
+ps aux |& tee "/Artifacts/Process after install of postres.txt"
+
 Say "[After] /usr snapshot"
 time cp -a /usr "/Artifacts/[After] usr"

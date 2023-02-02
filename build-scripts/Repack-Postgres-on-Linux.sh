@@ -27,7 +27,7 @@ function Build-Image()
     mkdir -p /tmp/$KEY-plain
     docker cp "container-$KEY":/Artifacts/ /tmp/$KEY-plain
     pushd /tmp/$KEY-plain/Artifacts
-      7z a -mx=9 -ms=on -mqs=on $SYSTEM_ARTIFACTSDIRECTORY/$KEY-$suffix.7z .
+      7z a -mx=7 -ms=on -mqs=on $SYSTEM_ARTIFACTSDIRECTORY/$KEY-$suffix.7z .
     popd
     Say "Clean up $KEY"
     rm -rf /tmp/$KEY-plain
