@@ -16,7 +16,7 @@ time cp -a /usr "/Artifacts/[Before] usr"
 
 Say "Bootstrap docker container [$(hostname)]"
 try-and-retry apt-get update -y -qq
-try-and-retry apt-get install curl ca-certificates gnupg lsb-release tree locales sudo -y -qq | grep Unpack
+try-and-retry apt-get install curl ca-certificates gnupg lsb-release tree locales sudo procps -y -qq | grep Unpack
 
 printf "en_US.UTF-8 UTF-8\nde_DE.UTF8 UTF-8\n" | tee /etc/locale.gen > /dev/null; DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
 
