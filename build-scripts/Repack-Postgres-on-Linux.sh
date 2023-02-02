@@ -29,9 +29,9 @@ function Build-Image()
     docker cp "container-$KEY":/Artifacts /tmp/$KEY-plain
     7z a -mx=9 -ms=on -msq=on $SYSTEM_ARTIFACTSDIRECTORY/$KEY.7z /tmp/$KEY-plain
 }
+IMAGE="debian:testing"    KEY=debian-12-x86_64   Build-Image
 IMAGE="debian:10"    KEY=debian-10-x86_64   Build-Image
 IMAGE="debian:11"    KEY=debian-11-x86_64   Build-Image
-# IMAGE="debian:12"    KEY=debian-12-x86_64   Build-Image
 # IMAGE="ubuntu:18.04" KEY=ubuntu-1804-x86_64 Build-Image
 IMAGE="ubuntu:20.04" KEY=ubuntu-2004-x86_64 Build-Image
 # IMAGE="ubuntu:22.04" KEY=ubuntu-2204-x86_64 Build-Image

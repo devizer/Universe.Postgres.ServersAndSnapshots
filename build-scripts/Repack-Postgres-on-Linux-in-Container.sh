@@ -11,6 +11,7 @@ Acquire::AllowDowngradeToInsecureRepositories "1";
 
 mkdir -p /Artifacts
 Say "Bootstrap docker container"
+cat /etc/*release
 try-and-retry apt-get update -y -qq
 try-and-retry apt-get install curl ca-certificates gnupg lsb-release tree -y -qq | grep Unpack
 
