@@ -13,7 +13,9 @@ Acquire::AllowDowngradeToInsecureRepositories "1";
 mkdir -p /Artifacts
 Say "Bootstrap docker container [$(hostname)]"
 try-and-retry apt-get update -y -qq
-try-and-retry apt-get install curl ca-certificates gnupg lsb-release tree -y -qq | grep Unpack
+try-and-retry apt-get install curl ca-certificates gnupg lsb-release tree locales -y -qq | grep Unpack
+
+printf "en_US.UTF-8 UTF-8\nde_DE.UTF8 UTF-8\n" | sudo tee /etc/locale.gen > /dev/null; sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
 
 Say "Configure postgres apt repo [$(hostname)]"
 echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list

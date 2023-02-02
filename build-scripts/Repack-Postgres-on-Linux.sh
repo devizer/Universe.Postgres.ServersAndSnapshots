@@ -1,11 +1,8 @@
 set -e; set -u; set -o pipefail
-images="debian:10 debian:11 debian:12 ubuntu:18.04 ubuntu:20.04 ubuntu:22.04 ubuntu:22.10"
-
 
 SYSTEM_ARTIFACTSDIRECTORY="${SYSTEM_ARTIFACTSDIRECTORY:-/transient-builds}"
 export LC_ALL=en_US.utf8
 
-sudo apt-get install rsync pv sshpass jq qemu-user-static -y -qq >/dev/null
 script=https://raw.githubusercontent.com/devizer/test-and-build/master/install-build-tools-bundle.sh; (wget -q -nv --no-check-certificate -O - $script 2>/dev/null || curl -ksSL $script) | TARGET_DIR=/usr/local/bin bash > /dev/null
 Say --Reset-Stopwatch
 smart-apt-install rsync pv sshpass jq qemu-user-static -y -qq >/dev/null
