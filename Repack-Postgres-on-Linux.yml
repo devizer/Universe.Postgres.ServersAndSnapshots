@@ -7,7 +7,7 @@ trigger:
     - main
   paths:
     include:
-    - 'none'
+    - 'build-scripts/**'
 
 jobs:
 
