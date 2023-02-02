@@ -93,7 +93,10 @@ namespace Universe.Postgres.ServersAndSnapshots
                 }
             }
 
-            return ret.OrderBy(x => x.PgCtlFullPath, StringComparer.OrdinalIgnoreCase).ToArray();
+            return ret
+                .OrderByDescending(x => x.Version)
+                .ThenBy(x => x.PgCtlFullPath, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
         }
 
         static string GetFullPathByCandidate(string candidate, string binFileName)
