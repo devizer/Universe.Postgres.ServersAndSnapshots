@@ -7,7 +7,7 @@ APT::Get::Assume-Yes "true";
 APT::Get::AllowUnauthenticated "true";
 Acquire::AllowInsecureRepositories "1";
 Acquire::AllowDowngradeToInsecureRepositories "1";
-' | tee ./files/etc/apt/apt.conf.d/98_Z_Custom
+' | tee /etc/apt/apt.conf.d/98_Z_Custom
 
 mkdir -p /Artifacts
 Say "Bootstrap docker container"

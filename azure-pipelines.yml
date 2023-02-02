@@ -8,6 +8,8 @@ trigger:
   paths:
     include:
     - '**'
+    exclude:
+    - 'build-scripts'
 
 jobs:
 
