@@ -151,7 +151,7 @@ jobs:
       if [[ "$(uname -s)" == Darwin ]]; then 
         Say "[Mac] sw_vers"
         sw_vers
-        Say "[Mac] sysctl's: [$(sysctl -n kern.osversion)]"
+        Say "[Mac] sysctl's: kern.osrelease=[$(sysctl -n kern.osrelease)] kern.osversion=[$(sysctl -n kern.osversion)]"
         sysctl -a > "$SYSTEM_ARTIFACTSDIRECTORY/Mac SysCtl All Variables.txt"
       fi 
       
