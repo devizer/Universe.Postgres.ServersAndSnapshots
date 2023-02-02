@@ -11,6 +11,9 @@ Acquire::AllowDowngradeToInsecureRepositories "1";
 ' > /etc/apt/apt.conf.d/98_Z_Custom
 
 mkdir -p /Artifacts
+Say "[Before] /usr snapshot"
+time cp -a /usr "/Artifacts/[Before] usr"
+
 Say "Bootstrap docker container [$(hostname)]"
 try-and-retry apt-get update -y -qq
 try-and-retry apt-get install curl ca-certificates gnupg lsb-release tree locales sudo -y -qq | grep Unpack
@@ -25,3 +28,6 @@ apt-cache policy postgresql-14
 Say "Installing postgresql-14"
 err=0
 time apt-get install -y -qq postgresql-14 |& tee /Artifacts/postgres-14-install-log.txt || err=1
+
+Say "[After] /usr snapshot"
+time cp -a /usr "/Artifacts/[After] usr"
