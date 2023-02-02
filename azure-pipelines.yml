@@ -43,7 +43,7 @@ jobs:
       'vAll on Mac OS 10.15':
         IMAGE: 'macos-10.15'
         PG_VERSION_LIST: "postgresql@11 postgresql@12 postgresql@13 postgresql@14"
-        MACPORT_PACKAGES: 'postgresql14-server postgresql96-server postgresql10-server postgresql15-server'
+        MACPORT_PACKAGES: 'postgresql84-server postgresql14-server postgresql96-server postgresql10-server postgresql15-server'
       'vAll on Mac OS 11':
         IMAGE: 'macos-11'
         PG_VERSION_LIST: "postgresql@11 postgresql@12 postgresql@13 postgresql@14 postgresql@15"
