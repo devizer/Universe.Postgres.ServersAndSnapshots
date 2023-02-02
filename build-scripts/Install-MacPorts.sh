@@ -24,6 +24,7 @@ case $v in
 esac
 echo "macports_pkg=[$macports_pkg]"
 
-curl -kSL -o MacPorts.pkg "$macports_pkg" || curl -kSL -o MacPorts.pkg "$macports_pkg"
-time sudo installer -pkg MacPorts.pkg -target / # -verbose
+curl -kSL -o /tmp/MacPorts.pkg "$macports_pkg" || curl -kSL -o /tmp/MacPorts.pkg "$macports_pkg"
+time sudo installer -pkg /tmp/MacPorts.pkg -target / # -verbose
+rm -f /tmp/MacPorts.pkg || true
 export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
