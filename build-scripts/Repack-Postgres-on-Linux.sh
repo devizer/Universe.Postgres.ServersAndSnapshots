@@ -24,7 +24,7 @@ function Build-Image()
       docker cp /usr/local/bin/$cmd "container-$KEY":/usr/local/bin/$cmd
     done
     docker cp $(pwd)/Repack-Postgres-on-Linux-in-Container.sh "container-$KEY":/tmp/Repack-Postgres-on-Linux-in-Container.sh
-    docker exec "container-$KEY" -t bash /tmp/Repack-Postgres-on-Linux-in-Container.sh || Say ERRRRRRRRRRRRRROR
+    docker exec -t "container-$KEY" bash /tmp/Repack-Postgres-on-Linux-in-Container.sh || Say ERRRRRRRRRRRRRROR
     mkdir -p /tmp/$KEY-plain
     docker cp "container-$KEY":/Artifact /tmp/$KEY-plain
     7z a $SYSTEM_ARTIFACTSDIRECTORY/$KEY.7z
