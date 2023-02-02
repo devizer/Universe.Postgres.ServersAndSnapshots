@@ -57,9 +57,11 @@ namespace Universe.Postgres.ServersAndSnapshots
             }
             else
             {
+                // linux
                 candidates.AddRange(TryPostgresSubfolders("/usr/lib/postgresql"));
                 candidates.AddRange(TryPostgresSubfolders("/usr/local/lib/postgresql"));
 
+                // 
                 candidates.Add("/usr");
                 candidates.Add("/usr/local");
 
@@ -103,9 +105,16 @@ namespace Universe.Postgres.ServersAndSnapshots
          */
         static IEnumerable<string> WeakMacOsSearch()
         {
-            DirectoryInfo[] dirs = TryAndForget.Evaluate(() => new DirectoryInfo("/usr/local/Cellar").GetDirectories("postgresql@*"));
+            DirectoryInfo[] dirsHomeBrew = TryAndForget.Evaluate(() => new DirectoryInfo("/usr/local/Cellar").GetDirectories("postgresql@*"));
             // Console.WriteLine($"/usr/local/Cellar/postgresql@* count: {dirs?.Length}");
-            foreach (var dir in dirs ?? new DirectoryInfo[0])
+            foreach (var dir in dirsHomeBrew ?? new DirectoryInfo[0])
+            {
+                yield return dir.FullName;
+            }
+
+            DirectoryInfo[] dirsMacPort = TryAndForget.Evaluate(() => new DirectoryInfo("/opt/local/lib/").GetDirectories("postgresql*"));
+            // Console.WriteLine($"/usr/local/Cellar/postgresql@* count: {dirs?.Length}");
+            foreach (var dir in dirsMacPort ?? new DirectoryInfo[0])
             {
                 yield return dir.FullName;
             }
@@ -152,7 +161,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             return null;
         }
 
-        static IEnumerable<string> TryPostgresSubfolders(string dir)
+        static IEnumerable<string> TryPostgresSubfolders(string dir, string subDirPattern = "*")
         {
             if (!Directory.Exists(dir)) yield break;
 
