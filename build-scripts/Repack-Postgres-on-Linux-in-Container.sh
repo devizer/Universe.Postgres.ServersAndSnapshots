@@ -33,14 +33,18 @@ Say "ERROR = [$err]"
 
 
 Say "Starting v15"
-/usr/lib/postgresql/15/bin/initdb -D /var/pg-15
+mkdir -p /var/pg-15
+sudo chown -R postgres /var/pg-15
+sudo -u postgres /usr/lib/postgresql/15/bin/initdb -D /var/pg-15
 sudo chown -R postgres /var/pg-15
 pushd /var/pg-15
 sudo -u postgres /usr/lib/postgresql/15/bin/pg_ctl -w -D /var/pg-15 start || true
 popd
 
 Say "Starting v14"
-/usr/lib/postgresql/14/bin/initdb -D /var/pg-14
+mkdir -p /var/pg-14
+sudo chown -R postgres /var/pg-14
+sudo -u postgres /usr/lib/postgresql/14/bin/initdb -D /var/pg-14
 echo "
 port = 5433" >> /var/pg-14/postgresql.conf
 sudo chown -R postgres /var/pg-14
