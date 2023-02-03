@@ -25,6 +25,16 @@ echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" 
 apt-get update -qq
 apt-cache search postgres | grep -E '^postgres' | sort | tee /Artifacts/Debug/apt-postgres-packages.txt
 apt-cache policy postgresql-14
+
+Say "Checking postgres versions"
+for v in 9.6 10 11 12 13 14 15 16; do
+  f="/Artifacts/Debug/Postgres Versions.txt"
+  echo "Try Version [$v]" tee -a "$f"
+  apt-cache policy "postgresql-$v" 2>&1 | tee -a "$f"
+  echo "" | tee -a "$f"
+done
+
+
 Say "Installing postgresql-14"
 err=0
 time apt-get install -y -qq postgresql-14 postgresql-server-dev-14 postgresql-pltcl-14 postgresql-14-cron postgresql-14-orafce postgresql-14-pg-stat-kcache |& tee /Artifacts/Debug/postgres-14-install-log.txt || err=1
