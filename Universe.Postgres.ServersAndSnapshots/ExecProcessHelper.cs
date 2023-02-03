@@ -178,10 +178,9 @@ namespace Universe
 
                 if (millisecondsTimeout < 0) remainingMilliseconds = -1;
 
-                bool isProcessFinished = process.WaitForExit(remainingMilliseconds);
+                bool isProcessFinished = isStreamFinished || process.WaitForExit(remainingMilliseconds);
 
-                if (args.EndsWith("start", StringComparison.CurrentCultureIgnoreCase))
-                    if (Debugger.IsAttached) Debugger.Break();
+                // if (args.EndsWith("start", StringComparison.CurrentCultureIgnoreCase)) if (Debugger.IsAttached) Debugger.Break();
 
                 bool isSuccess = isProcessFinished;
 
