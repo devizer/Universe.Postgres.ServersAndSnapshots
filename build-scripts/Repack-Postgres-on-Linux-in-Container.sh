@@ -29,6 +29,7 @@ Say "Installing postgresql-14"
 err=0
 time apt-get install -y -qq postgresql-14 postgresql-server-dev-14 postgresql-pltcl-14 postgresql-14-cron postgresql-14-orafce postgresql-14-pg-stat-kcache |& tee /Artifacts/Debug/postgres-14-install-log.txt || err=1
 time apt-get install -y -qq postgresql-15 postgresql-server-dev-15 postgresql-pltcl-15 postgresql-15-cron postgresql-15-orafce postgresql-15-pg-stat-kcache |& tee /Artifacts/Debug/postgres-15-install-log.txt || err=2
+time apt-get install -y -qq postgresql-13 postgresql-server-dev-13 postgresql-pltcl-13 postgresql-13-cron postgresql-13-orafce postgresql-13-pg-stat-kcache |& tee /Artifacts/Debug/postgres-13-install-log.txt || err=3
 Say "ERROR = [$err]"
 
 
@@ -50,6 +51,16 @@ port = 5433" >> /var/pg-14/postgresql.conf
 sudo chown -R postgres /var/pg-14
 pushd /var/pg-14
 sudo -u postgres /usr/lib/postgresql/14/bin/pg_ctl -w -D /var/pg-14 start || true
+
+Say "Starting v13"
+mkdir -p /var/pg-13
+sudo chown -R postgres /var/pg-13
+sudo -u postgres /usr/lib/postgresql/13/bin/initdb -D /var/pg-13
+echo "
+port = 5434" >> /var/pg-13/postgresql.conf
+sudo chown -R postgres /var/pg-13
+pushd /var/pg-13
+sudo -u postgres /usr/lib/postgresql/13/bin/pg_ctl -w -D /var/pg-13 start || true
 
 
 ps aux |& tee "/Artifacts/Debug/Process after install of postres.txt"
