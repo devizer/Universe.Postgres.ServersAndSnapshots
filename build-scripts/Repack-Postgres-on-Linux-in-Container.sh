@@ -33,12 +33,12 @@ Say "ERROR = [$err]"
 
 
 Say "Starting v15"
-/usr/lib/postgresql/15/bin/pg_ctl -w -D /var/lib/postgresql/15/main start || true
+sudo -u postgres /usr/lib/postgresql/15/bin/pg_ctl -w -D /var/lib/postgresql/15/main start || true
 
 Say "Starting v14"
 echo "
 port = 5433" >> /var/lib/postgresql/14/main/postgresql.conf
-/usr/lib/postgresql/14/bin/pg_ctl -w -D /var/lib/postgresql/14/main start || true
+sudo -u postgres /usr/lib/postgresql/14/bin/pg_ctl -w -D /var/lib/postgresql/14/main start || true
 
 
 
