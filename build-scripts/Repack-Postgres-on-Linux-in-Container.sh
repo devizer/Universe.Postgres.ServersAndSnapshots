@@ -44,38 +44,30 @@ time try-and-retry apt-get install -y -qq postgresql-15 postgresql-server-dev-15
 time try-and-retry apt-get install -y -qq postgresql-13 postgresql-server-dev-13 postgresql-pltcl-13 postgresql-13-cron postgresql-13-orafce postgresql-13-pg-stat-kcache |& tee /Artifacts/Debug/postgres-13-install-log.txt || err=3
 Say "ERROR = [$err]"
 
+port=5433
+for v in 9.6 10 11 12 13 14 15; do
+  Say "Installing postgresql-$v"
+  for package in postgresql-$v postgresql-server-dev-$v postgresql-pltcl-$v postgresql-$v-cron postgresql-$v-orafce postgresql-$v-pg-stat-kcache; do
+    err=OK
+    try-and-retry apt-get install -y -qq $package |& tee -a /Artifacts/Debug/postgres-$v-install-detailed-log.txt || err=FAIL
+    echo "$err: v${v} ${package}" >> "/Artifacts/Debug/POSTGRES INSTALL RESULT.txt"
+  done
 
-Say "Starting v15"
-mkdir -p /var/pg-15
-sudo chown -R postgres /var/pg-15
-sudo -u postgres /usr/lib/postgresql/15/bin/initdb -D /var/pg-15 || true
-sudo chown -R postgres /var/pg-15
-pushd /var/pg-15
-sudo -u postgres /usr/lib/postgresql/15/bin/pg_ctl -w -D /var/pg-15 start || true
-popd
+  Say "Starting v$v"
+  mkdir -p /var/pg-$v
+  sudo chown -R postgres /var/pg-$v
+  sudo -u postgres /usr/lib/postgresql/$v/bin/initdb -D /var/pg-$v || true
+  echo "
+port = $port" >> /var/pg-$v/postgresql.conf
+  sudo chown -R postgres /var/pg-$v
+  pushd /var/pg-$v
+  start=OK
+  sudo -u postgres /usr/lib/postgresql/$v/bin/pg_ctl -w -D /var/pg-$v start || start=FAIL
+  echo "$start: Status of start for '$v'" | tee -a "/Artifacts/Debug/POSTGRES INSTALL RESULT.txt"
+  port=$((port+1))
+do
 
-Say "Starting v14"
-mkdir -p /var/pg-14
-sudo chown -R postgres /var/pg-14
-sudo -u postgres /usr/lib/postgresql/14/bin/initdb -D /var/pg-14 || true
-echo "
-port = 5433" >> /var/pg-14/postgresql.conf
-sudo chown -R postgres /var/pg-14
-pushd /var/pg-14
-sudo -u postgres /usr/lib/postgresql/14/bin/pg_ctl -w -D /var/pg-14 start || true
-
-Say "Starting v13"
-mkdir -p /var/pg-13
-sudo chown -R postgres /var/pg-13
-sudo -u postgres /usr/lib/postgresql/13/bin/initdb -D /var/pg-13 || true
-echo "
-port = 5434" >> /var/pg-13/postgresql.conf
-sudo chown -R postgres /var/pg-13
-pushd /var/pg-13
-sudo -u postgres /usr/lib/postgresql/13/bin/pg_ctl -w -D /var/pg-13 start || true
-
-
-ps aux |& tee "/Artifacts/Debug/Process after install of postres.txt"
+ps aux |& tee "/Artifacts/Debug/Postgres Processes (after install) of postres.txt"
 
 mkdir -p /Artifacts/PostgreSQL
 cp -a /usr/lib/postgresql /Artifacts/PostgreSQL

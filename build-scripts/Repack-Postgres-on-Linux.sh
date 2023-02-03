@@ -28,29 +28,30 @@ function Build-Image()
     docker cp "container-$KEY":/Artifacts/ /tmp/$KEY-plain
     pushd /tmp/$KEY-plain/Artifacts
       for d in *; do if [ -d "$d" ]; then
-        Say "[$KEY] Pack [$d]"
-        pushd "$d"
+        Say "[$KEY] Pack '$d'"
+        pushd "$d" >/dev/null
         if [[ "$d" == *"PostgreSQL"* ]] && [[ "$suffix" == "ok" ]]; then
           tar cf - . | xz -9 -e > "$SYSTEM_ARTIFACTSDIRECTORY/$KEY-$d.tar.xz"
         else
           7z a -mmt=$(nproc) -mx=1 -ms=on -mqs=on "$SYSTEM_ARTIFACTSDIRECTORY/$KEY-$suffix $d.7z" . | { grep "Archive\|Everything" || true; }
         fi
-        popd
+        popd >/dev/null
       fi; done
     popd
     Say "Clean up $KEY"
     rm -rf /tmp/$KEY-plain
     docker rm -f "container-$KEY"
 }
-IMAGE="arm32v7/debian:11" KEY=debian-11-arm32v7  Build-Image
+# arm32v7 IS NOT SUPPORTED
+IMAGE="ubuntu:20.04"      KEY=ubuntu-2004-x86_64 Build-Image
+exit 0;
 IMAGE="i386/debian:10"    KEY=debian-10-i386     Build-Image
+IMAGE="arm32v7/debian:11" KEY=debian-11-arm32v7  Build-Image
 
 IMAGE="arm64v8/debian:11" KEY=debian-11-aarch64  Build-Image
-IMAGE="ubuntu:20.04"      KEY=ubuntu-2004-x86_64 Build-Image
 # IMAGE="debian:testing"    KEY=debian-12-x86_64   Build-Image
 # IMAGE="debian:10"    KEY=debian-10-x86_64   Build-Image
 IMAGE="debian:11"    KEY=debian-11-x86_64   Build-Image
 # IMAGE="ubuntu:18.04" KEY=ubuntu-1804-x86_64 Build-Image
 # IMAGE="ubuntu:22.04" KEY=ubuntu-2204-x86_64 Build-Image
 # IMAGE="ubuntu:22.10" KEY=ubuntu-2210-x86_64 Build-Image
-IMAGE="arm32v7/debian:10" KEY=debian-10-arm32v7  Build-Image
