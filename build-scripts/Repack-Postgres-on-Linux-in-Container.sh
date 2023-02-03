@@ -11,7 +11,7 @@ Acquire::AllowDowngradeToInsecureRepositories "1";
 ' > /etc/apt/apt.conf.d/98_Z_Custom
 
 mkdir -p /Artifacts/Debug
-Say "[Before] /usr snapshot"
+Say "Creating '[Before] /usr snapshot' artifact ...."
 time cp -a /usr "/Artifacts/[Before] usr"
 
 Say "Bootstrap docker container [$(hostname)]"
@@ -34,5 +34,5 @@ ps aux |& tee "/Artifacts/Debug/Process after install of postres.txt"
 mkdir -p /Artifacts/PostgreSQL-14
 cp -a /usr/lib/postgresql /Artifacts/PostgreSQL-14
 
-Say "[After] /usr snapshot"
+Say "Creating '[After] /usr snapshot' artifact ...."
 time cp -a /usr "/Artifacts/[After] usr"
