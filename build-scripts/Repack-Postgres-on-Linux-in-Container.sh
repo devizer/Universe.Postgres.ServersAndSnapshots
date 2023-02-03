@@ -11,6 +11,8 @@ Acquire::AllowDowngradeToInsecureRepositories "1";
 ' > /etc/apt/apt.conf.d/98_Z_Custom
 
 mkdir -p /Artifacts/Debug
+cat /etc/*release > /Artifacts/Debug/OS-RELEASE.txt
+
 Say "Creating '[Before] /usr snapshot' artifact ...."
 time cp -a /usr "/Artifacts/[Before] usr"
 
@@ -28,7 +30,7 @@ apt-cache policy postgresql-14
 
 Say "Checking postgres versions"
 for v in 9.6 10 11 12 13 14 15 16; do
-  f="/Artifacts/Debug/Postgres Versions.txt"
+  f="/Artifacts/Debug/POSTGRES VERSIONS.txt"
   echo "Try Version [$v]" | tee -a "$f"
   apt-cache policy "postgresql-$v" 2>&1 | tee -a "$f"
   echo "" | tee -a "$f"
@@ -46,7 +48,7 @@ Say "ERROR = [$err]"
 Say "Starting v15"
 mkdir -p /var/pg-15
 sudo chown -R postgres /var/pg-15
-sudo -u postgres /usr/lib/postgresql/15/bin/initdb -D /var/pg-15
+sudo -u postgres /usr/lib/postgresql/15/bin/initdb -D /var/pg-15 || true
 sudo chown -R postgres /var/pg-15
 pushd /var/pg-15
 sudo -u postgres /usr/lib/postgresql/15/bin/pg_ctl -w -D /var/pg-15 start || true
@@ -55,7 +57,7 @@ popd
 Say "Starting v14"
 mkdir -p /var/pg-14
 sudo chown -R postgres /var/pg-14
-sudo -u postgres /usr/lib/postgresql/14/bin/initdb -D /var/pg-14
+sudo -u postgres /usr/lib/postgresql/14/bin/initdb -D /var/pg-14 || true
 echo "
 port = 5433" >> /var/pg-14/postgresql.conf
 sudo chown -R postgres /var/pg-14
@@ -65,7 +67,7 @@ sudo -u postgres /usr/lib/postgresql/14/bin/pg_ctl -w -D /var/pg-14 start || tru
 Say "Starting v13"
 mkdir -p /var/pg-13
 sudo chown -R postgres /var/pg-13
-sudo -u postgres /usr/lib/postgresql/13/bin/initdb -D /var/pg-13
+sudo -u postgres /usr/lib/postgresql/13/bin/initdb -D /var/pg-13 || true
 echo "
 port = 5434" >> /var/pg-13/postgresql.conf
 sudo chown -R postgres /var/pg-13
