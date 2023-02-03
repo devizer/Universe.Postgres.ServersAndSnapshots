@@ -37,13 +37,6 @@ for v in 9.6 10 11 12 13 14 15 16; do
 done
 
 
-Say "Installing postgresql-14"
-err=0
-time try-and-retry apt-get install -y -qq postgresql-14 postgresql-server-dev-14 postgresql-pltcl-14 postgresql-14-cron postgresql-14-orafce postgresql-14-pg-stat-kcache |& tee /Artifacts/Debug/postgres-14-install-log.txt || err=1
-time try-and-retry apt-get install -y -qq postgresql-15 postgresql-server-dev-15 postgresql-pltcl-15 postgresql-15-cron postgresql-15-orafce postgresql-15-pg-stat-kcache |& tee /Artifacts/Debug/postgres-15-install-log.txt || err=2
-time try-and-retry apt-get install -y -qq postgresql-13 postgresql-server-dev-13 postgresql-pltcl-13 postgresql-13-cron postgresql-13-orafce postgresql-13-pg-stat-kcache |& tee /Artifacts/Debug/postgres-13-install-log.txt || err=3
-Say "ERROR = [$err]"
-
 port=5433
 for v in 9.6 10 11 12 13 14 15; do
   Say "Installing postgresql-$v"
