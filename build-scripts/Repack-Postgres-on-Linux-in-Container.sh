@@ -33,13 +33,19 @@ Say "ERROR = [$err]"
 
 
 Say "Starting v15"
-sudo -u postgres /usr/lib/postgresql/15/bin/pg_ctl -w -D /var/lib/postgresql/15/main start || true
+/usr/lib/postgresql/15/bin/initdb -D /var/pg-15
+sudo chown -R postgres /var/pg-15
+pushd /var/pg-15
+sudo -u postgres /usr/lib/postgresql/15/bin/pg_ctl -w -D /var/pg-15 start || true
+popd
 
 Say "Starting v14"
+/usr/lib/postgresql/14/bin/initdb -D /var/pg-14
 echo "
-port = 5433" >> /var/lib/postgresql/14/main/postgresql.conf
-sudo -u postgres /usr/lib/postgresql/14/bin/pg_ctl -w -D /var/lib/postgresql/14/main start || true
-
+port = 5433" >> /var/pg-14/postgresql.conf
+sudo chown -R postgres /var/pg-14
+pushd /var/pg-14
+sudo -u postgres /usr/lib/postgresql/14/bin/pg_ctl -w -D /var/pg-14 start || true
 
 
 ps aux |& tee "/Artifacts/Debug/Process after install of postres.txt"
