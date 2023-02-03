@@ -31,7 +31,7 @@ function Build-Image()
         Say "[$KEY] Pack $d"
         pushd "$d"
         if [[ "$d" == *"PostgreSQL"* ]] && [[ "$suffix" == "ok" ]]; then
-          tar cf - . | xz -9 -e > "$SYSTEM_ARTIFACTSDIRECTORY/$KEY-$suffix $d.tar.xz"
+          tar cf - . | xz -9 -e > "$SYSTEM_ARTIFACTSDIRECTORY/$KEY-$d.tar.xz"
         else
           7z a -mmt=$(nproc) -mx=1 -ms=on -mqs=on "$SYSTEM_ARTIFACTSDIRECTORY/$KEY-$suffix $d.7z" .
         fi
