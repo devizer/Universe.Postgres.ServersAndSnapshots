@@ -42,7 +42,7 @@ function Build-Image()
     rm -rf /tmp/$KEY-plain
     docker rm -f "container-$KEY"
 }
-IMAGE="arm32v7/debian:10" KEY=debian-10-arm32v7  Build-Image
+IMAGE="arm32v7/debian:11" KEY=debian-11-arm32v7  Build-Image
 IMAGE="i386/debian:10"    KEY=debian-10-i386     Build-Image
 
 IMAGE="arm64v8/debian:11" KEY=debian-11-aarch64  Build-Image
@@ -53,3 +53,4 @@ IMAGE="debian:11"    KEY=debian-11-x86_64   Build-Image
 # IMAGE="ubuntu:18.04" KEY=ubuntu-1804-x86_64 Build-Image
 # IMAGE="ubuntu:22.04" KEY=ubuntu-2204-x86_64 Build-Image
 # IMAGE="ubuntu:22.10" KEY=ubuntu-2210-x86_64 Build-Image
+IMAGE="arm32v7/debian:10" KEY=debian-10-arm32v7  Build-Image
