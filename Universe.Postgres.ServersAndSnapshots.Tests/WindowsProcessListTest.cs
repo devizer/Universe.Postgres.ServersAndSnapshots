@@ -22,10 +22,14 @@ namespace Universe.Postgres.ServersAndSnapshots.Tests
             Stopwatch startGetAt = Stopwatch.StartNew();
             WindowsProcessInterop.PROCESSENTRY32[] processes = WindowsProcessInterop.GetAllProcesses();
             var msecGet = startGetAt.ElapsedTicks * 1000d / Stopwatch.Frequency;
-            int processCounter = 0;
-            foreach (var process in processes)
+
+            if (AllowLongListsOutput)
             {
-                Console.WriteLine($"{++processCounter + "║",4}  {process}");
+                int processCounter = 0;
+                foreach (var process in processes)
+                {
+                    Console.WriteLine($"{++processCounter + "║",4}  {process}");
+                }
             }
 
             Console.WriteLine($"WindowsProcessInterop.GetAllProcesses() returned {processes.Length} and took {msecGet:n2} milliseconds");

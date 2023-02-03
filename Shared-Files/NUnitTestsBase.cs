@@ -14,6 +14,7 @@ namespace Universe.NUnitTests
     public class NUnitTestsBase
     {
         public static bool IsTravis => Environment.GetEnvironmentVariable("TRAVIS") == "true";
+        public static bool AllowLongListsOutput => "True".Equals(Environment.GetEnvironmentVariable("ALLOW_LONG_LIST_OUTPUT"), StringComparison.OrdinalIgnoreCase);
 
         protected static TextWriter OUT;
         private Stopwatch StartAt;

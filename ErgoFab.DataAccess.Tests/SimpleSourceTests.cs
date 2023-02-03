@@ -19,6 +19,7 @@ public class SimpleSourceTests : NUnitTestsBase
         {
             List<CountryWithFlag> countries = worldRegion.CountriesWithFlag;
             Console.WriteLine($"{++regionCounter} {worldRegion}, Countries: {countries.Count}");
+            if (!AllowLongListsOutput) continue;
             var countryCounter = 0;
             foreach (var country in countries)
             {
@@ -27,7 +28,6 @@ public class SimpleSourceTests : NUnitTestsBase
 
             Console.WriteLine();
         }
-
     }
 
     [Test]
@@ -36,6 +36,8 @@ public class SimpleSourceTests : NUnitTestsBase
     public void ShowOrganizations(string id)
     {
         var organizations = SourceOfOrganizations.Orgs;
+        Console.WriteLine($"SourceOfOrganizations.Orgs Count: {organizations.Count}");
+        if (!AllowLongListsOutput) return;
         int orgCounter = 0;
         foreach (var organization in organizations)
         {
