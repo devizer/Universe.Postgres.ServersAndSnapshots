@@ -53,12 +53,13 @@ for v in 9.6 10 11 12 13 14 15; do
   echo "
 port = $port" >> /var/pg-$v/postgresql.conf
   sudo chown -R postgres /var/pg-$v
-  pushd /var/pg-$v
+  pushd /var/pg-$v >/dev/null
   start=OK
   sudo -u postgres /usr/lib/postgresql/$v/bin/pg_ctl -w -D /var/pg-$v start || start=FAIL
+  popd >/dev/null
   echo "$start: Status of start for '$v'" | tee -a "/Artifacts/Debug/POSTGRES INSTALL RESULT.txt"
   port=$((port+1))
-do
+done
 
 ps aux |& tee "/Artifacts/Debug/Postgres Processes (after install) of postres.txt"
 
