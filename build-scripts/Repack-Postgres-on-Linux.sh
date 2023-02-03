@@ -28,7 +28,7 @@ function Build-Image()
     docker cp "container-$KEY":/Artifacts/ /tmp/$KEY-plain
     pushd /tmp/$KEY-plain/Artifacts
       for d in *; do if [ -d "$d" ]; then
-        Say "[$KEY] Pack $d"
+        Say "[$KEY] Pack [$d]"
         pushd "$d"
         if [[ "$d" == *"PostgreSQL"* ]] && [[ "$suffix" == "ok" ]]; then
           tar cf - . | xz -9 -e > "$SYSTEM_ARTIFACTSDIRECTORY/$KEY-$d.tar.xz"
