@@ -8,7 +8,8 @@ Say --Reset-Stopwatch
 smart-apt-install rsync pv sshpass jq qemu-user-static -y -qq >/dev/null
 
 Say "Registering binary formats for qemu-user-static"
-docker run --rm --privileged multiarch/qemu-user-static:register --reset >/dev/null
+try-and-retry docker pull -q multiarch/qemu-user-static:register
+try-and-retry docker run --rm --privileged multiarch/qemu-user-static:register --reset >/dev/null
 # docker buildx imagetools inspect --raw "$image" | jq
 
 function Build-Image() 
