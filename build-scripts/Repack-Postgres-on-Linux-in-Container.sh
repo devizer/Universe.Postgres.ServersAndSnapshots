@@ -42,7 +42,7 @@ for v in 9.6 10 11 12 13 14 15; do
   for package in postgresql-$v postgresql-server-dev-$v postgresql-pltcl-$v postgresql-$v-cron postgresql-$v-orafce postgresql-$v-pg-stat-kcache; do
     Say "Installing postgresql-$v: '$package'"
     err=OK
-    try-and-retry apt-get install -y -qq $package |& grep -v "Reading database" |& tee -a /Artifacts/Debug/postgres-$v-install-detailed-log.txt || err=FAIL
+    try-and-retry apt-get install -y -qq $package | { grep -v "Reading database" || true; } |& tee -a /Artifacts/Debug/postgres-$v-install-detailed-log.txt || err=FAIL
     echo "$err: v${v} ${package}" >> "/Artifacts/Debug/POSTGRES INSTALL RESULT.txt"
   done
 
