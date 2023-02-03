@@ -47,7 +47,7 @@ namespace ErgoFab.DataAccess.Tests
             };
 
             PostgresServerManager.CreateServerInstance(latestServer, options);
-            PostgresServerManager.StartInstance(latestServer, options);
+            PostgresServerManager.StartInstance(latestServer, options, false);
 
             OnDispose("Stop Server", () => PostgresServerManager.StopInstanceSmarty(latestServer, options), TestDisposeOptions.IgnoreError);
             if (ArtifactsUtility.Directory != null && ArtifactsUtility.Can7z)
