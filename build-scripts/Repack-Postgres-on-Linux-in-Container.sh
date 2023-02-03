@@ -49,3 +49,9 @@ cp -a /usr/lib/postgresql /Artifacts/PostgreSQL
 
 Say "Creating '[After] /usr snapshot' artifact ...."
 time cp -a /usr "/Artifacts/[After] usr"
+
+Say "Creating '[After] /var snapshot' artifact ...."
+time cp -a /var "/Artifacts/[After] var"
+
+Say "Grab users"
+cat /etc/passwd | tee /Artifacts/Debug/passwd.txt

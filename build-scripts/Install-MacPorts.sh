@@ -28,3 +28,7 @@ curl -kSL -o /tmp/MacPorts.pkg "$macports_pkg" || curl -kSL -o /tmp/MacPorts.pkg
 time sudo installer -pkg /tmp/MacPorts.pkg -target / # -verbose
 rm -f /tmp/MacPorts.pkg || true
 export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
+echo '
+export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
+' >> ~/.profile
+
