@@ -27,12 +27,15 @@ apt-cache search postgres | grep -E '^postgres' | sort | tee /Artifacts/Debug/ap
 apt-cache policy postgresql-14
 Say "Installing postgresql-14"
 err=0
-time apt-get install -y -qq postgresql-14 postgresql-server-dev-14 postgresql-pltcl-14 postgresql-14-cron postgresql-14-orafce postgresql-14-pg-stat-kcache |& tee /Artifacts/postgres-14-install-log.txt || err=1
+time apt-get install -y -qq postgresql-14 postgresql-server-dev-14 postgresql-pltcl-14 postgresql-14-cron postgresql-14-orafce postgresql-14-pg-stat-kcache |& tee /Artifacts/Debug/postgres-14-install-log.txt || err=1
+time apt-get install -y -qq postgresql-15 postgresql-server-dev-15 postgresql-pltcl-15 postgresql-15-cron postgresql-15-orafce postgresql-15-pg-stat-kcache |& tee /Artifacts/Debug/postgres-15-install-log.txt || err=2
+Say "ERROR = [$err]"
+
 
 ps aux |& tee "/Artifacts/Debug/Process after install of postres.txt"
 
-mkdir -p /Artifacts/PostgreSQL-14
-cp -a /usr/lib/postgresql /Artifacts/PostgreSQL-14
+mkdir -p /Artifacts/PostgreSQL
+cp -a /usr/lib/postgresql /Artifacts/PostgreSQL
 
 Say "Creating '[After] /usr snapshot' artifact ...."
 time cp -a /usr "/Artifacts/[After] usr"
