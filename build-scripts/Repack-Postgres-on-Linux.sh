@@ -27,7 +27,12 @@ function Build-Image()
     mkdir -p /tmp/$KEY-plain
     docker cp "container-$KEY":/Artifacts/ /tmp/$KEY-plain
     pushd /tmp/$KEY-plain/Artifacts
-      7z a -mmt=$(nproc) -mx=2 -ms=on -mqs=on $SYSTEM_ARTIFACTSDIRECTORY/$KEY-$suffix.7z .
+      for d in *; do if [ -d "$d" ]; then
+        Say "[$KEY] Pack $d"
+        pushd "$d"
+        7z a -mmt=$(nproc) -mx=2 -ms=on -mqs=on "$SYSTEM_ARTIFACTSDIRECTORY/$KEY-$suffix $d.7z" .
+        popd
+      fi; done
     popd
     Say "Clean up $KEY"
     rm -rf /tmp/$KEY-plain

@@ -10,7 +10,7 @@ Acquire::AllowInsecureRepositories "1";
 Acquire::AllowDowngradeToInsecureRepositories "1";
 ' > /etc/apt/apt.conf.d/98_Z_Custom
 
-mkdir -p /Artifacts
+mkdir -p /Artifacts/Debug
 Say "[Before] /usr snapshot"
 time cp -a /usr "/Artifacts/[Before] usr"
 
@@ -23,13 +23,16 @@ printf "en_US.UTF-8 UTF-8\nde_DE.UTF8 UTF-8\n" | tee /etc/locale.gen > /dev/null
 Say "Configure postgres apt repo [$(hostname)]"
 echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list
 apt-get update -qq
-apt-cache search postgres | grep -E '^postgres' | sort | tee /Artifacts/apt-postgres-packages.txt
+apt-cache search postgres | grep -E '^postgres' | sort | tee /Artifacts/Debug/apt-postgres-packages.txt
 apt-cache policy postgresql-14
 Say "Installing postgresql-14"
 err=0
 time apt-get install -y -qq postgresql-14 postgresql-server-dev-14 postgresql-pltcl-14 postgresql-14-cron postgresql-14-orafce postgresql-14-pg-stat-kcache |& tee /Artifacts/postgres-14-install-log.txt || err=1
 
-ps aux |& tee "/Artifacts/Process after install of postres.txt"
+ps aux |& tee "/Artifacts/Debug/Process after install of postres.txt"
+
+mkdir -p /Artifacts/PostgreSQL-14
+cp -a /usr/lib/postgresql /Artifacts/PostgreSQL-14
 
 Say "[After] /usr snapshot"
 time cp -a /usr "/Artifacts/[After] usr"
