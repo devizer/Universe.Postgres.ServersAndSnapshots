@@ -29,7 +29,7 @@ apt-cache policy postgresql-14
 Say "Checking postgres versions"
 for v in 9.6 10 11 12 13 14 15 16; do
   f="/Artifacts/Debug/Postgres Versions.txt"
-  echo "Try Version [$v]" tee -a "$f"
+  echo "Try Version [$v]" | tee -a "$f"
   apt-cache policy "postgresql-$v" 2>&1 | tee -a "$f"
   echo "" | tee -a "$f"
 done

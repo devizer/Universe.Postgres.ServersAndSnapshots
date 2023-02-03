@@ -33,7 +33,7 @@ function Build-Image()
         if [[ "$d" == *"PostgreSQL"* ]] && [[ "$suffix" == "ok" ]]; then
           tar cf - . | xz -9 -e > "$SYSTEM_ARTIFACTSDIRECTORY/$KEY-$d.tar.xz"
         else
-          7z a -mmt=$(nproc) -mx=1 -ms=on -mqs=on "$SYSTEM_ARTIFACTSDIRECTORY/$KEY-$suffix $d.7z" .
+          7z a -mmt=$(nproc) -mx=1 -ms=on -mqs=on "$SYSTEM_ARTIFACTSDIRECTORY/$KEY-$suffix $d.7z" . | { grep "Archive\|Everything" || true; }
         fi
         popd
       fi; done
@@ -42,8 +42,8 @@ function Build-Image()
     rm -rf /tmp/$KEY-plain
     docker rm -f "container-$KEY"
 }
-IMAGE="i386/debian:10"    KEY=debian-10-i386     Build-Image
 IMAGE="arm32v7/debian:10" KEY=debian-10-arm32v7  Build-Image
+IMAGE="i386/debian:10"    KEY=debian-10-i386     Build-Image
 
 IMAGE="arm64v8/debian:11" KEY=debian-11-aarch64  Build-Image
 IMAGE="ubuntu:20.04"      KEY=ubuntu-2004-x86_64 Build-Image
