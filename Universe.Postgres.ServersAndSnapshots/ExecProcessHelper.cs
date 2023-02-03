@@ -176,6 +176,8 @@ namespace Universe
                     ? Math.Max(1, millisecondsTimeout - (int)startAt.ElapsedMilliseconds)
                     : 1;
 
+                if (millisecondsTimeout < 0) remainingMilliseconds = -1;
+
                 bool isProcessFinished = process.WaitForExit(remainingMilliseconds);
 
                 if (args.EndsWith("start", StringComparison.CurrentCultureIgnoreCase))
