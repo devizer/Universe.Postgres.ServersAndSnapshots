@@ -48,10 +48,10 @@ function Build-Image()
     docker rm -f "container-$KEY"
 }
 # arm32v7 IS NOT SUPPORTED
+IMAGE="i386/debian:10"    KEY=debian-10-i386     Build-Image
 IMAGE="arm64v8/debian:11" KEY=debian-11-aarch64  Build-Image
 IMAGE="ubuntu:20.04"      KEY=ubuntu-2004-x86_64 Build-Image
 exit 0;
-IMAGE="i386/debian:10"    KEY=debian-10-i386     Build-Image
 IMAGE="arm32v7/debian:11" KEY=debian-11-arm32v7  Build-Image
 
 # IMAGE="debian:testing"    KEY=debian-12-x86_64   Build-Image
