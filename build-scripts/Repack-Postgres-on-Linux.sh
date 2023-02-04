@@ -5,6 +5,10 @@ export LC_ALL=en_US.utf8
 
 script=https://raw.githubusercontent.com/devizer/test-and-build/master/install-build-tools-bundle.sh; (wget -q -nv --no-check-certificate -O - $script 2>/dev/null || curl -ksSL $script) | TARGET_DIR=/usr/local/bin bash > /dev/null
 Say --Reset-Stopwatch
+
+cpu="$(cat /proc/cpuinfo | grep -E '^(model name|Hardware)' | awk -F':' 'NR==1 {print $2}')"; cpu="$(echo -e "${cpu:-}" | sed -e 's/^[[:space:]]*//')"
+Say "CPU: ${cpu:-}, $(nproc) Cores"
+
 smart-apt-install rsync pv sshpass jq qemu-user-static -y -qq >/dev/null
 
 Say "Registering binary formats for qemu-user-static"
@@ -44,12 +48,12 @@ function Build-Image()
     docker rm -f "container-$KEY"
 }
 # arm32v7 IS NOT SUPPORTED
+IMAGE="arm64v8/debian:11" KEY=debian-11-aarch64  Build-Image
 IMAGE="ubuntu:20.04"      KEY=ubuntu-2004-x86_64 Build-Image
 exit 0;
 IMAGE="i386/debian:10"    KEY=debian-10-i386     Build-Image
 IMAGE="arm32v7/debian:11" KEY=debian-11-arm32v7  Build-Image
 
-IMAGE="arm64v8/debian:11" KEY=debian-11-aarch64  Build-Image
 # IMAGE="debian:testing"    KEY=debian-12-x86_64   Build-Image
 # IMAGE="debian:10"    KEY=debian-10-x86_64   Build-Image
 IMAGE="debian:11"    KEY=debian-11-x86_64   Build-Image

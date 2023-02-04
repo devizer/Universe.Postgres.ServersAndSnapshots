@@ -1,4 +1,5 @@
 set -e; set -u; set -o pipefail
+Say --Reset-Stopwatch
 cat /etc/*release
 export DEBIAN_FRONTEND=noninteractive
 echo '
