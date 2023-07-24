@@ -19,7 +19,10 @@ namespace Universe.Postgres.ServersAndSnapshots.Benchmark
         public void GlobalSetup()
         {
             _server = PostgresServerDiscovery.GetServers().OrderByDescending(x => x.Version).FirstOrDefault();
-            Console.WriteLine($"PostgreSQL Server: {_server}");
+            Console.WriteLine($"Postgres Server: {_server}");
+            if (_server == null)
+                throw new InvalidOperationException("Postgres Server not found");
+
             _instanceOptions = InitDbImplementation(true);
         }
 
