@@ -139,10 +139,21 @@ namespace Universe.Postgres.ServersAndSnapshots
             foreach (var word in words)
             {
                 var wordPatched = word;
+                string[] betaSuffixes = new[] { "devel", "beta" };
+                foreach (var betaSuffix in betaSuffixes)
+                {
+                    var p = wordPatched.IndexOf(betaSuffix, StringComparison.OrdinalIgnoreCase);
+                    if (p > 0)
+                    {
+                        wordPatched = wordPatched.Substring(0, 1) + ".99999";
+                    }
+                }
+                /*
                 // 16devel?
                 if (word.EndsWith("devel", StringComparison.OrdinalIgnoreCase))
                     // wordPatched = word.Length > 5 ? word.Substring(0, word.Length - 5) : word;
                     wordPatched = word.Replace("devel", ".99999");
+                    */
 
                 StringBuilder verCandidate = new StringBuilder();
                 foreach (var ch in wordPatched)
