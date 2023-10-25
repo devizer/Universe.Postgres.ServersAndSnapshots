@@ -82,28 +82,36 @@ jobs:
       
       'vDefault on Windows 2019':
         IMAGE: "windows-2019"
-      'v14 (tiny portable) on Windows 2019':
+
+      'v16.0 (tiny portable) on Windows 2022':
+        IMAGE: "windows-2022"
+        PG_PORTABLE_WINDOWS: 16.0-x64-tiny
+      
+      'v14.9 (tiny portable) on Windows 2019':
+        IMAGE: "windows-2019"
+        PG_PORTABLE_WINDOWS: 14.9-x64-tiny
+      'v14.6 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 14.6-x64-tiny
-      'v13 (tiny portable) on Windows 2019':
+      'v13.9 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 13.9-x64-tiny
-      'v12 (tiny portable) on Windows 2019':
+      'v12.13 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 12.13-x64-tiny
-      'v11 (tiny portable) on Windows 2019':
+      'v11.18 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 11.18-x64-tiny
-      'v10 (tiny portable) on Windows 2019':
+      'v10.23 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 10.23-x64-tiny
-      'v10 x86 (tiny portable) on Windows 2019':
+      'v10.23 x86 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 10.23-x86-tiny
-      'v9 (tiny portable) on Windows 2019':
+      'v9.6.24 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 9.6.24-x64-tiny
-      'v9 x86 (tiny portable) on Windows 2019':
+      'v9.6.24 x86 (tiny portable) on Windows 2019':
         IMAGE: "windows-2019"
         PG_PORTABLE_WINDOWS: 9.6.24-x86-tiny
       'v9 on Windows 2019':
