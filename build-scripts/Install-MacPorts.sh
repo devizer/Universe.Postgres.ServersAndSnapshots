@@ -7,6 +7,7 @@ function get_darwin_version_major() {
 echo "get_darwin_version_major is [$(get_darwin_version_major)]"
 v="$(get_darwin_version_major)"
 case $v in
+  23) macports_pkg="https://github.com/macports/macports-base/releases/download/v2.8.1/MacPorts-2.8.1-14-Sonoma.pkg";;
   22) macports_pkg="https://github.com/macports/macports-base/releases/download/v2.8.1/MacPorts-2.8.1-13-Ventura.pkg";;
   21) macports_pkg="https://github.com/macports/macports-base/releases/download/v2.8.1/MacPorts-2.8.1-12-Monterey.pkg";;
   20) macports_pkg="https://github.com/macports/macports-base/releases/download/v2.8.1/MacPorts-2.8.1-11-BigSur.pkg";;
