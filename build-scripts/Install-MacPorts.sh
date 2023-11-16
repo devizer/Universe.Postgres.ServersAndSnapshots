@@ -23,16 +23,24 @@ case $v in
   10) macports_pkg="https://github.com/macports/macports-base/releases/download/v2.8.1/MacPorts-2.8.1-10.6-SnowLeopard.pkg";;
   *)  macports_pkg="";;
 esac
-echo "macports_pkg=[$macports_pkg]"
+echo "Downloading macports.pkg: [$macports_pkg]"
 
-curl -kSL -o /tmp/MacPorts.pkg "$macports_pkg" || curl -kSL -o /tmp/MacPorts.pkg "$macports_pkg"
+curl -kfSL -o /tmp/MacPorts.pkg "$macports_pkg" || curl -kfSL -o /tmp/MacPorts.pkg "$macports_pkg"
 time sudo installer -pkg /tmp/MacPorts.pkg -target /
 rm -f /tmp/MacPorts.pkg || true
+
 export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
 
 echo '
 export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
 ' >> ~/.profile
+
+if [[ -s ~/.bashrc ]]; then
+echo '
+export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
+' >> ~/.bashrc
+fi
+
 if [[ -n "$(command -v zsh)" ]]; then
 echo '
 export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
