@@ -25,9 +25,10 @@ case $v in
 esac
 echo "Downloading macports.pkg: [$macports_pkg]"
 
-curl -kfSL -o /tmp/MacPorts.pkg "$macports_pkg" || curl -kfSL -o /tmp/MacPorts.pkg "$macports_pkg"
-time sudo installer -pkg /tmp/MacPorts.pkg -target /
-rm -f /tmp/MacPorts.pkg || true
+tmp="${TMPDIR:-/tmp}"
+curl -kfSL -o "$tmp/MacPorts.pkg" "$macports_pkg" || curl -kfSL -o /tmp/MacPorts.pkg "$macports_pkg"
+time sudo -E installer -pkg "$tmp/MacPorts.pkg" -target /
+rm -f "$tmp/MacPorts.pkg" || true
 
 export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
 
