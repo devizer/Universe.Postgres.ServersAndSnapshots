@@ -60,13 +60,13 @@ jobs:
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 16
       
-      'vAll on Mac OS 11':
-        IMAGE: 'macos-11'
-        PG_VERSION_LIST: "postgresql@11 postgresql@12 postgresql@13 postgresql@14 postgresql@15"
+      'vAll on Mac OS 13':
+        IMAGE: 'macos-13'
+        PG_VERSION_LIST: "postgresql@12 postgresql@13 postgresql@14 postgresql@15 postgresql@16"
         MACPORT_PACKAGES: 'postgresql14-server postgresql96-server postgresql10-server postgresql15-server'
       'vAll on Mac OS 12':
         IMAGE: 'macos-12'
-        PG_VERSION_LIST: "postgresql@11 postgresql@12 postgresql@13 postgresql@14 postgresql@15"
+        PG_VERSION_LIST: "postgresql@12 postgresql@13 postgresql@14 postgresql@15 postgresql@16"
         MACPORT_PACKAGES: 'postgresql14-server postgresql96-server postgresql10-server postgresql15-server'
 
       'vDefault on Windows 2022':
