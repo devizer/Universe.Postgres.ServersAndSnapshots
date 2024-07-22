@@ -35,7 +35,7 @@ jobs:
        cd build-scripts/Download-All-Windows-Portable
        powershell -f "[Test] Install All Postgres Versions.ps1"
     condition: succeededOrFailed()
-    displayName: 'Download Tiny'
+    displayName: 'Download $(PGTYPE)'
 
   - powershell: |
        Get-Service | where { $_.name -like "PGSQL`$*" } | ft -AutoSize
