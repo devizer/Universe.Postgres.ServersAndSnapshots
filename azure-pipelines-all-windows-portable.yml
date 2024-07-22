@@ -1,0 +1,48 @@
+variables:
+  NUGET_VERSION: 0.1
+  PS1_TROUBLE_SHOOT: On
+
+trigger:
+  branches:
+    include:
+    - main
+
+jobs:
+
+- job: Download
+  pool:
+    vmImage: '$(IMAGE)'
+  timeoutInMinutes: 20
+  strategy:
+    maxParallel: 3
+    matrix:
+      'Windows 2019':
+        IMAGE: 'windows-2019'
+      'Windows 2022':
+        IMAGE: 'windows-2022'
+
+  steps:
+
+  - bash: |
+       cd build-scripts/Download-All-Windows-Portable
+       powershell -f "[Test] Install All Postgres Versions.ps1"
+    condition: succeededOrFailed()
+    displayName: 'Download Tiny'
+
+
+  - bash: |
+      set -eu; set -o pipefail
+      d=$PWD
+      pushd "$(System.ARTIFACTSDIRECTORY)"
+      7z a -mx=1 -ms=on -mqs=on "Source-$(Agent.JobName).7z" "$d"
+      popd
+    condition: succeededOrFailed()
+    displayName: 'Prepare Artifacts'
+
+  - task: PublishBuildArtifacts@1
+    condition: succeededOrFailed()
+    displayName: 'Publish'
+    inputs:
+      pathtoPublish: '$(System.ARTIFACTSDIRECTORY)'
+      artifactName: '$(Agent.JobName)'
+
