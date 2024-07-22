@@ -29,6 +29,9 @@ jobs:
     condition: succeededOrFailed()
     displayName: 'Download Tiny'
 
+  - powershell: |
+       Get-Service | where { $_.name -like "PGSQL`$*" } | ft -AutoSize
+    displayName: 'Show Servers'
 
   - bash: |
       set -eu; set -o pipefail
