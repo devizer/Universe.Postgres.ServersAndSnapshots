@@ -39,7 +39,7 @@ jobs:
 
   - powershell: |
        Get-Service | where { $_.name -like "PGSQL`$*" } | ft -AutoSize
-    displayName: 'Show Servers'
+    displayName: 'Show PGSQL Servers'
 
   - bash: |
       set -eu; set -o pipefail
