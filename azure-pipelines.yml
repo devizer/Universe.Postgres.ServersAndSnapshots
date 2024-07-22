@@ -79,6 +79,12 @@ jobs:
       'v15 on Windows 2022':
         IMAGE: "windows-2022"
         PG_WINDOWS: postgresql15
+      'v16.3 (tiny portable) on Windows 2019':
+        IMAGE: "windows-2019"
+        PG_PORTABLE_WINDOWS: 16.3-x64-tiny
+      'v16 on Windows 2022':
+        IMAGE: "windows-2022"
+        PG_WINDOWS: postgresql16
       
       'vDefault on Windows 2019':
         IMAGE: "windows-2019"
