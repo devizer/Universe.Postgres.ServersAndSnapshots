@@ -14,17 +14,17 @@ jobs:
     vmImage: '$(IMAGE)'
   timeoutInMinutes: 20
   strategy:
-    maxParallel: 3
+    maxParallel: 4
     matrix:
       'Tiny on 2019':
         IMAGE: 'windows-2019'
         PGTYPE: tiny
-      'Tiny on 2022':
-        IMAGE: 'windows-2022'
-        PGTYPE: tiny
       'Full on 2019':
         IMAGE: 'windows-2019'
         PGTYPE: full
+      'Tiny on 2022':
+        IMAGE: 'windows-2022'
+        PGTYPE: tiny
       'Full on 2022':
         IMAGE: 'windows-2022'
         PGTYPE: full
