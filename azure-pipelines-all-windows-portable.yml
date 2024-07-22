@@ -9,17 +9,25 @@ trigger:
 
 jobs:
 
-- job: Download
+- job: Install
   pool:
     vmImage: '$(IMAGE)'
   timeoutInMinutes: 20
   strategy:
     maxParallel: 3
     matrix:
-      'Windows 2019':
+      'Tiny on 2019':
         IMAGE: 'windows-2019'
-      'Windows 2022':
+        PGTYPE: tiny
+      'Tiny on 2022':
         IMAGE: 'windows-2022'
+        PGTYPE: tiny
+      'Full on 2019':
+        IMAGE: 'windows-2019'
+        PGTYPE: full
+      'Full on 2022':
+        IMAGE: 'windows-2022'
+        PGTYPE: full
 
   steps:
 
