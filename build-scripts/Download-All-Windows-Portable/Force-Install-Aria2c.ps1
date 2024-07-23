@@ -949,23 +949,4 @@ function Troubleshoot-Info-Prev([string] $message) {
 }
 
 # Black DarkBlue DarkGreen DarkCyan DarkRed DarkMagenta DarkYellow Gray DarkGray Blue Green Cyan Red Magenta Yellow White
-
-$versionsRaw = & powershell -f dist\Postgres-Version-Manager.ps1 --available-versions | Out-String-And-TrimEnd
-
-echo "Versions: '$versionsRaw'"
-$temp=$ENV:TEMP
-echo "TEMP: '$temp'"
-$versions=$versionsRaw.Split(' ')
-$port=60000
-foreach($version in $versions) {
-  $port=$port + 1
-  $idService="PGSQL`$$($version.Replace(".","_").Replace("-","_"))"
-  Say "TESTING VERSION '$version' as [$idService]"
-  & powershell -f dist\Postgres-Version-Manager.ps1 -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType "$($ENV:PGTYPE)"
-  & sc.exe config "$idService" start= delayed-auto
-}
-
-Say "Testing Complete"
-
-# DELETE ALL
-# Get-Service | where { $_.name -like "PGSQL`$*" } | % { echo "Deleting $($_.name)"; & net stop $_.name; & sc.exe delete $_.name; }
+Bootstrap-Aria2-If-Required -Force $true

@@ -33,6 +33,7 @@ jobs:
 
   - bash: |
        cd build-scripts/Download-All-Windows-Portable
+       powershell -f Force-Install-Aria2c.ps1; aria2c --version;
        powershell -f "[Test] Install All Postgres Versions.ps1"
     condition: succeededOrFailed()
     displayName: 'Download $(PGTYPE)'
