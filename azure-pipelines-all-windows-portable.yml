@@ -31,9 +31,19 @@ jobs:
 
   steps:
 
+  - powershell: |
+      Install-Module Platform-Info -Force
+
+      Write-Host "CPU: $(Get-Cpu-Name), $([System.Environment]::ProcessorCount) Cores"
+      Write-Host "Platform: $(Get-Os-Platform)"
+      Write-Host "Memory $((Get-Memory-Info).Description)"
+
+      cd Postgres-Version-Manager
+      powershell -f Force-Install-Aria2c.ps1; aria2c --version;
+
+    displayName: 'Bootstrap'
+
   - bash: |
-       cd Postgres-Version-Manager
-       powershell -f Force-Install-Aria2c.ps1; aria2c --version;
        powershell -f "[Test] Install All Postgres Versions.ps1"
     condition: succeededOrFailed()
     displayName: 'Download $(PGTYPE)'
