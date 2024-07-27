@@ -35,7 +35,7 @@ $KNOWN_FULL_DIRECT_LINKS=@{
   "16.3-x64"="https://sbp.enterprisedb.com/getfile.jsp?fileid=1259104";
   "15.7-x64"="https://sbp.enterprisedb.com/getfile.jsp?fileid=1259102"
 }
-$KNOWN_FULL_DIRECT_LINKS=@{}
+# $KNOWN_FULL_DIRECT_LINKS=@{}
 
 # Include Detected: [ src\Install-VC-Redist-for-Postgres-On-Windows.ps1 ]
 # File: [C:\Cloud\vg\PUTTY\Repo-PS1\Postgres-Version-Manager.PS1Project\src\Install-VC-Redist-for-Postgres-On-Windows.ps1]
@@ -1110,7 +1110,20 @@ if ((Is-File-Not-Empty "$stopCmd") -and (Is-File-Not-Empty (Combine-Path "$DataF
 Say "Extracting $fileOnly ..."
 $isExtractOk = ExtractArchiveByDefault7zFull "$fullArchive" "$BinFolder" | Select -Last 1
 if (-not $isExtractOk) { Write-Host "Error extracting $fullArchive" -ForeGroundColor Red; }
-# TODO: if exists .\pgsql\bin, move .\pgsql\* to ..
+# DONE: if exists .\pgsql\bin, move .\pgsql\* to ..
+$isOriginal = Test-Path "$(Combine-Path "$BinFolder" "pgsql" "bin")" -PathType Container
+# Write-Host "isOriginal: $isOriginal"
+if ($isOriginal) {
+  $originalPgsql = Combine-Path "$BinFolder" "pgsql"
+  # Write-Host "originalPgsql: $originalPgsql"
+  $subItems = Get-ChildItem -Path $originalPgsql -Force | % { $_.FullName }
+  # Write-Host "subItems: $subItems"
+  $subItems | % { 
+    $dest = Combine-Path "$BinFolder" "$([System.IO.Path]::GetFileName($_))"
+    # Write-Host "MOVE [$_] --> [$dest]"
+    Move-Item -Path "$_" -Destination "$dest" -Force
+  }
+}
 
 Install-VC-Redist-for-Postgres-On-Windows $Version $VcRedistMode
 
