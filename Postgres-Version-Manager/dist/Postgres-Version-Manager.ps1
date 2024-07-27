@@ -32,8 +32,17 @@ if ("$args" -eq "--available-versions" ) {
 }
 
 $KNOWN_FULL_DIRECT_LINKS=@{
-  "16.3-x64"="https://sbp.enterprisedb.com/getfile.jsp?fileid=1259104";
-  "15.7-x64"="https://sbp.enterprisedb.com/getfile.jsp?fileid=1259102"
+  "16.3-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259104";
+  "16.1-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258791";
+  "15.7-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259102";
+  "14.12-x64"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259100";
+  "13.15-x64"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259098";
+  "12.19-x64"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259096";
+  "11.21-x64"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258670";
+  "10-23.x64"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258258";
+  "10-23.x86"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258256";
+  "9.6.24-x64" = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1257907";
+  "9.6.24-x86" = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1257902";
 }
 # $KNOWN_FULL_DIRECT_LINKS=@{}
 
@@ -307,7 +316,7 @@ function Download-File-Managed([string] $url, [string]$outfile) {
   $okAria=$false; try { & aria2c.exe -h *| out-null; $okAria=$? } catch {}
   if ($okAria) {
     Troubleshoot-Info "Starting download `"" -Highlight "$url" "`" using aria2c as `"" -Highlight "$outfile" "`""
-    & aria2c.exe @("--allow-overwrite=true", "--check-certificate=false", "-s", "12", "-d", "$($dirName)", "-o", "$([System.IO.Path]::GetFileName($outfile))", "$url");
+    & aria2c.exe @("--allow-overwrite=true", "--check-certificate=false", "-s", "12", "-x", "12", "-k", "2M", "-j", "12", "-d", "$($dirName)", "-o", "$([System.IO.Path]::GetFileName($outfile))", "$url");
     if ($?) { <# Write-Host "aria2 rocks ($([System.IO.Path]::GetFileName($outfile)))"; #> return $true; }
   }
   elseif (([System.Environment]::OSVersion.Version.Major) -eq 5) {
@@ -1121,6 +1130,7 @@ if ($isOriginal) {
   $subItems | % { 
     $dest = Combine-Path "$BinFolder" "$([System.IO.Path]::GetFileName($_))"
     # Write-Host "MOVE [$_] --> [$dest]"
+    Remove-Item -Recurse -Force "$dest" -ErrorAction SilentlyContinue | out-null
     Move-Item -Path "$_" -Destination "$dest" -Force
   }
 }
