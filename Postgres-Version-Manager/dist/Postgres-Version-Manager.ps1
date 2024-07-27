@@ -1,4 +1,4 @@
-#!/usr/bin/env pwsh
+# !/usr/bin/env pwsh
 param(
   [string] $Command = "Install", # Install
   [string] $Mode = "Process", # Process|Service
@@ -35,6 +35,7 @@ $KNOWN_FULL_DIRECT_LINKS=@{
   "16.3-x64"="https://sbp.enterprisedb.com/getfile.jsp?fileid=1259104";
   "15.7-x64"="https://sbp.enterprisedb.com/getfile.jsp?fileid=1259102"
 }
+$KNOWN_FULL_DIRECT_LINKS=@{}
 
 # Include Detected: [ src\Install-VC-Redist-for-Postgres-On-Windows.ps1 ]
 # File: [C:\Cloud\vg\PUTTY\Repo-PS1\Postgres-Version-Manager.PS1Project\src\Install-VC-Redist-for-Postgres-On-Windows.ps1]
@@ -1109,6 +1110,7 @@ if ((Is-File-Not-Empty "$stopCmd") -and (Is-File-Not-Empty (Combine-Path "$DataF
 Say "Extracting $fileOnly ..."
 $isExtractOk = ExtractArchiveByDefault7zFull "$fullArchive" "$BinFolder" | Select -Last 1
 if (-not $isExtractOk) { Write-Host "Error extracting $fullArchive" -ForeGroundColor Red; }
+# TODO: if exists .\pgsql\bin, move .\pgsql\* to ..
 
 Install-VC-Redist-for-Postgres-On-Windows $Version $VcRedistMode
 
