@@ -1,4 +1,4 @@
-# !/usr/bin/env pwsh
+#!/usr/bin/env pwsh
 param(
   [string] $Command = "Install", # Install
   [string] $Mode = "Process", # Process|Service
