@@ -44,7 +44,13 @@ jobs:
        cd Postgres-Version-Manager
        powershell -f "[Test] Install All Postgres Versions.ps1"
     condition: succeededOrFailed()
-    displayName: 'Download $(PGTYPE)'
+    displayName: 'Install $(PGTYPE)'
+
+  - bash: |
+       cd Postgres-Version-Manager
+       powershell -f "[Test] Install All Postgres Versions.ps1"
+    condition: succeededOrFailed()
+    displayName: 'RE-Install $(PGTYPE)'
 
   - powershell: |
        Get-Service | where { $_.name -like "PGSQL`$*" } | ft -AutoSize
