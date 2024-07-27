@@ -31,6 +31,11 @@ if ("$args" -eq "--available-versions" ) {
   exit 0
 }
 
+$KNOWN_FULL_DIRECT_LINKS=@{
+  "16.3-x64"="https://sbp.enterprisedb.com/getfile.jsp?fileid=1259104";
+  "15.7-x64"="https://sbp.enterprisedb.com/getfile.jsp?fileid=1259102"
+}
+
 # Include Detected: [ src\Install-VC-Redist-for-Postgres-On-Windows.ps1 ]
 # File: [C:\Cloud\vg\PUTTY\Repo-PS1\Postgres-Version-Manager.PS1Project\src\Install-VC-Redist-for-Postgres-On-Windows.ps1]
 function Install-VC-Redist-for-Postgres-On-Windows([string] $postgresVersion, [string] $mode) { 
@@ -300,6 +305,7 @@ function Download-File-Managed([string] $url, [string]$outfile) {
   $_ = [System.IO.Directory]::CreateDirectory($dirName)
   $okAria=$false; try { & aria2c.exe -h *| out-null; $okAria=$? } catch {}
   if ($okAria) {
+    Troubleshoot-Info "Starting download `"" -Highlight "$url" "`" using aria2c as `"" -Highlight "$outfile" "`""
     & aria2c.exe @("--allow-overwrite=true", "--check-certificate=false", "-s", "12", "-x", "12", "-k", "2M", "-j", "12", "-d", "$($dirName)", "-o", "$([System.IO.Path]::GetFileName($outfile))", "$url");
     if ($?) { <# Write-Host "aria2 rocks ($([System.IO.Path]::GetFileName($outfile)))"; #> return $true; }
   }
@@ -311,6 +317,7 @@ function Download-File-Managed([string] $url, [string]$outfile) {
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback={$true};
   }
   for ($i=1; $i -le 3; $i++) {
+    Troubleshoot-Info "Starting download attempt #$i `"" -Highlight "$url" "`" using built-in http client as `"" -Highlight "$outfile" "`""
     $d=new-object System.Net.WebClient;
     # $d.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36");
     try {
@@ -1067,6 +1074,10 @@ if (-not $BinFolder)  { $BinFolder  = Combine-Path $DEFAULT_BINARIES_FOLDER "$Ve
 if (-not $DataFolder) { $DataFolder = Combine-Path $DEFAULT_DATA_FOLDER "$Version"; }
 if (-not $LogFolder)  { $LogFolder  = Combine-Path $DEFAULT_LOG_FOLDER "$Version"; }
 $fileOnly="postgres-$Version-$DownloadType-windows.7z"
+if ($DownloadType -eq "full") {
+  $urlDirect=$KNOWN_FULL_DIRECT_LINKS[$Version];
+  if ($urlDirect) { Write-Host "Direct download URL over postgres CDN: $urlDirect"; }
+}
 $url1="https://sourceforge.net/projects/postgres-binaries/files/$fileOnly/download"
 $url2="https://master.dl.sourceforge.net/project/postgres-binaries/$($fileOnly)?viasf=1"
 
@@ -1077,7 +1088,8 @@ Write-Host "Downloading $fileOnly as '$fullArchive'"
 
 Say Downloading PostgreSQL Server version $Version
 
-$isDownloadOk = Download-File-FailFree-and-Cached $fullArchive @($url1, $url2)
+$urlList=@($urlDirect, $url1, $url2) | where { $_ }
+$isDownloadOk = Download-File-FailFree-and-Cached $fullArchive $urlList
 if (-not $isDownloadOk) {
   Write-Host "Error downloading $fileOnly" -ForegroundColor
 }
@@ -1095,7 +1107,7 @@ if ((Is-File-Not-Empty "$stopCmd") -and (Is-File-Not-Empty (Combine-Path "$DataF
 }
 
 Say "Extracting $fileOnly ..."
-$isExtractOk = ExtractArchiveBy7zMini "$fullArchive" "$BinFolder" | Select -Last 1
+$isExtractOk = ExtractArchiveByDefault7zFull "$fullArchive" "$BinFolder" | Select -Last 1
 if (-not $isExtractOk) { Write-Host "Error extracting $fullArchive" -ForeGroundColor Red; }
 
 Install-VC-Redist-for-Postgres-On-Windows $Version $VcRedistMode
