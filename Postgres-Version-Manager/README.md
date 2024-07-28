@@ -19,8 +19,8 @@ The intended use of this project is for Continuous Integration (CI) scenarios, w
  - 13.15, 13.12, 13.9,
  - 12.19, 12.16, 12.13,
  - 11.21, 11.18,
- - 10.23, 10.23 x86,
- - 9.6.24, 9.6.24 x86
+ - 10.23 x64, 10.23 x86,
+ - 9.6.24 x64, 9.6.24 x86
 
 ### Full Options List:
 ```powershell
