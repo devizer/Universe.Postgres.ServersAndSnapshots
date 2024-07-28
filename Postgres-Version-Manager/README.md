@@ -8,7 +8,7 @@ The intended use of this project is for Continuous Integration (CI) scenarios, w
 - Does not need additional dependencies. Supports Powershell 2.0+ or any Powershell Core (pwsh)
 - Optionally installs corresponding MS VC Rintime depending on version if not preinstalled.
 - Two distributions: full and tiny. Tiny is 20x smaller download size
-- Two Configuration options: As process or as Service. The first does not need additional priviedges
+- Two Configuration options: as user process, or as windows ervice. The first does not need additional priviedges
 - Client side download failover using to CDNs: official and mirror on sourceforge.
 - Reuses the force of aria2c multithreaded download speed. For very old windows without TLS 1.2 support aria2c is required.
 
