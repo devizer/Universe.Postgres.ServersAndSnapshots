@@ -225,6 +225,7 @@ function Download-File-Managed([string] $url, [string]$outfile) {
   $_ = [System.IO.Directory]::CreateDirectory($dirName)
   $okAria=$false; try { & aria2c.exe -h *| out-null; $okAria=$? } catch {}
   if ($okAria) {
+    Troubleshoot-Info "Starting download `"" -Highlight "$url" "`" using aria2c as `"" -Highlight "$outfile" "`""
     & aria2c.exe @("--allow-overwrite=true", "--check-certificate=false", "-s", "12", "-x", "12", "-k", "2M", "-j", "12", "-d", "$($dirName)", "-o", "$([System.IO.Path]::GetFileName($outfile))", "$url");
     if ($?) { <# Write-Host "aria2 rocks ($([System.IO.Path]::GetFileName($outfile)))"; #> return $true; }
   }
@@ -236,6 +237,7 @@ function Download-File-Managed([string] $url, [string]$outfile) {
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback={$true};
   }
   for ($i=1; $i -le 3; $i++) {
+    Troubleshoot-Info "Starting download attempt #$i `"" -Highlight "$url" "`" using built-in http client as `"" -Highlight "$outfile" "`""
     $d=new-object System.Net.WebClient;
     # $d.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36");
     try {
@@ -951,17 +953,17 @@ function Troubleshoot-Info-Prev([string] $message) {
 # Black DarkBlue DarkGreen DarkCyan DarkRed DarkMagenta DarkYellow Gray DarkGray Blue Green Cyan Red Magenta Yellow White
 
 $versionsRaw = & powershell -f dist\Postgres-Version-Manager.ps1 --available-versions | Out-String-And-TrimEnd
+$versions=$versionsRaw.Split(' ')
 
-echo "Versions: '$versionsRaw'"
+echo "$($versions.Count) Versions: '$versionsRaw'"
 $temp=$ENV:TEMP
 echo "TEMP: '$temp'"
-$versions=$versionsRaw.Split(' ')
-$port=60000
+$port=60700
 foreach($version in $versions) {
   $port=$port + 1
   $idService="PGSQL`$$($version.Replace(".","_").Replace("-","_"))"
   Say "TESTING VERSION '$version' as [$idService]"
-  & powershell -f dist\Postgres-Version-Manager.ps1 -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType "$($ENV:PGTYPE)"
+  & powershell -f dist\Postgres-Version-Manager.ps1 -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto
   & sc.exe config "$idService" start= delayed-auto
 }
 
