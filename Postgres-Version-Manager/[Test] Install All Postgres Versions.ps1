@@ -962,8 +962,9 @@ $port=60700
 foreach($version in $versions) {
   $port=$port + 1
   $idService="PGSQL`$$($version.Replace(".","_").Replace("-","_"))"
-  Say "TESTING VERSION '$version' as [$idService]"
-  & powershell -f dist\Postgres-Version-Manager.ps1 -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto
+  $downloadType = "$($ENV:PGTYPE)"; if (-not $downloadType) { $downloadType="tiny"; }
+  Say "TESTING VERSION '$version' as [$idService], DownloadType is '$downloadType'"
+  & powershell -f dist\Postgres-Version-Manager.ps1 -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
   & sc.exe config "$idService" start= delayed-auto
 }
 
