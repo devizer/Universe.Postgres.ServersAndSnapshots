@@ -24,7 +24,9 @@ $AVAILABLE_VERSIONS=@(
   "12.19-x64", "12.16-x64", "12.13-x64",
   "11.21-x64", "11.18-x64",
   "10.23-x64", "10.23-x86",
-  "9.6.24-x64", "9.6.24-x86"
+  "9.6.24-x64", "9.6.24-x86",
+  "9.3.25-x64", "9.3.25-x86",
+  "9.1.24-x64", "9.1.24-x86"
 );
 if ("$args" -eq "--available-versions" ) {
   Write-Host $AVAILABLE_VERSIONS
@@ -43,6 +45,9 @@ $KNOWN_FULL_DIRECT_LINKS=@{
   "10-23.x86"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258256";
   "9.6.24-x64" = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1257907";
   "9.6.24-x86" = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1257902";
+  "9.5.14-x64" = "https://get.enterprisedb.com/postgresql/postgresql-9.5.14-1-windows-x64-binaries.zip";
+  "9.5.14-x86" = "https://get.enterprisedb.com/postgresql/postgresql-9.5.14-1-windows-x86-binaries.zip";
+
 }
 # $KNOWN_FULL_DIRECT_LINKS=@{}
 
