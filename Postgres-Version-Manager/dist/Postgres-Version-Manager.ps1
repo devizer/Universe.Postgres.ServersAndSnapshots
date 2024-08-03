@@ -17,6 +17,8 @@ param(
 )
 # Progress: 1) Download, 2) Stop existing, 3) extract 7z, 4) Install VC++, 5) Clean up existing, 6) Create DATA, 7) Start, 8) Query
 
+$ErrorActionPreference="Stop"
+
 # Include Detected: [ src\Postgres-Metadata.ps1 ]
 # File: [C:\Cloud\vg\PUTTY\Repo-PS1\Postgres-Version-Manager.PS1Project\src\Postgres-Metadata.ps1]
 $AVAILABLE_VERSIONS=@(
