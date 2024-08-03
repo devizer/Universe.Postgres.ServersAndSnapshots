@@ -1,4 +1,4 @@
-#!/usr/bin/env pwsh
+# !/usr/bin/env pwsh
 param(
   [string] $Command = "Install", # Install
   [string] $Mode = "Process", # Process|Service
@@ -16,6 +16,9 @@ param(
   [string] $VcRedistMode = "Auto" # Audo|Skip|Force
 )
 # Progress: 1) Download, 2) Stop existing, 3) extract 7z, 4) Install VC++, 5) Clean up existing, 6) Create DATA, 7) Start, 8) Query
+
+# Include Detected: [ src\Postgres-Metadata.ps1 ]
+# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Postgres-Version-Manager.PS1Project\src\Postgres-Metadata.ps1]
 $AVAILABLE_VERSIONS=@(
   "16.3-x64", "16.0-x64",
   "15.7-x64", "15.4-x64", "15.1-x64",
@@ -28,10 +31,6 @@ $AVAILABLE_VERSIONS=@(
   "9.3.25-x64", "9.3.25-x86",
   "9.1.24-x64", "9.1.24-x86"
 );
-if ("$args" -eq "--available-versions" ) {
-  Write-Host $AVAILABLE_VERSIONS
-  exit 0
-}
 
 $KNOWN_FULL_DIRECT_LINKS=@{
   "16.3-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259104";
@@ -47,9 +46,35 @@ $KNOWN_FULL_DIRECT_LINKS=@{
   "9.6.24-x86" = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1257902";
   "9.5.14-x64" = "https://get.enterprisedb.com/postgresql/postgresql-9.5.14-1-windows-x64-binaries.zip";
   "9.5.14-x86" = "https://get.enterprisedb.com/postgresql/postgresql-9.5.14-1-windows-x86-binaries.zip";
-
 }
+
+
+function Get-Postgres-Download-Links([string] $downloadType, [string] $version) {
+
+  $ret=@();
+
+  if ($downloadType -eq "full") {
+    $urlDirect=$KNOWN_FULL_DIRECT_LINKS[$version];
+    if ($urlDirect) { 
+      $ret += @{Url=$urlDirect; Description="Direct download URL over Postgre CDN";}
+    }
+  }
+
+  $url1="https://sourceforge.net/projects/postgres-binaries/files/$fileOnly/download"
+  $url2="https://master.dl.sourceforge.net/project/postgres-binaries/$($fileOnly)?viasf=1"
+
+  $ret += @{Url=$url1; Description="Primary download URL over CDN";}
+  $ret += @{Url=$url2; Description="Secondary download URL";}
+
+  return $ret;
+}
+
 # $KNOWN_FULL_DIRECT_LINKS=@{}
+
+if ("$args" -eq "--available-versions" ) {
+  Write-Host $AVAILABLE_VERSIONS
+  exit 0
+}
 
 # Include Detected: [ src\Install-VC-Redist-for-Postgres-On-Windows.ps1 ]
 # File: [C:\Cloud\vg\PUTTY\Repo-PS1\Postgres-Version-Manager.PS1Project\src\Install-VC-Redist-for-Postgres-On-Windows.ps1]
@@ -1089,24 +1114,19 @@ if (-not $BinFolder)  { $BinFolder  = Combine-Path $DEFAULT_BINARIES_FOLDER "$Ve
 if (-not $DataFolder) { $DataFolder = Combine-Path $DEFAULT_DATA_FOLDER "$Version"; }
 if (-not $LogFolder)  { $LogFolder  = Combine-Path $DEFAULT_LOG_FOLDER "$Version"; }
 $fileOnly="postgres-$Version-$DownloadType-windows.7z"
-if ($DownloadType -eq "full") {
-  $urlDirect=$KNOWN_FULL_DIRECT_LINKS[$Version];
-  if ($urlDirect) { Write-Host "Direct download URL over postgres CDN: $urlDirect"; }
+$downloadLinks = Get-Postgres-Download-Links "$DownloadType" "$Version"
+$downloadLinks | % {
+  Write-Host "$($_.Description): '$($_.Url)'"
 }
-$url1="https://sourceforge.net/projects/postgres-binaries/files/$fileOnly/download"
-$url2="https://master.dl.sourceforge.net/project/postgres-binaries/$($fileOnly)?viasf=1"
 
-Write-Host "Primary download URL over CDN: $url1"
-Write-Host "Secondary download URL: $url2"
 $fullArchive = Combine-Path "$TEMP_FOLDER" "PostgreSQL-setup" $fileOnly
 Write-Host "Downloading $fileOnly as '$fullArchive'"
-
 Say Downloading PostgreSQL Server version $Version
 
-$urlList=@($urlDirect, $url1, $url2) | where { $_ }
+$urlList=$downloadLinks | % { $_.Url }
 $isDownloadOk = Download-File-FailFree-and-Cached $fullArchive $urlList
 if (-not $isDownloadOk) {
-  Write-Host "Error downloading $fileOnly" -ForegroundColor
+  Write-Host "Error downloading $fileOnly" -ForegroundColor Red
 }
 
 if ("$ServiceId" -ne "") {
