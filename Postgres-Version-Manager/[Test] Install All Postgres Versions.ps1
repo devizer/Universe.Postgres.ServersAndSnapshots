@@ -1,3 +1,5 @@
+$ErrorActionPreference="Stop"
+
 # Include Detected: [ ..\Includes\*.ps1 ]
 # File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\$Full7zLinksMetadata.ps1]
 $Full7zLinksMetadata_onWindows = @(
