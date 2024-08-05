@@ -1,0 +1,54 @@
+variables:
+  NUGET_VERSION: 0.1
+  PS1_TROUBLE_SHOOT: On
+
+trigger:
+  branches:
+    include:
+    - main
+
+jobs:
+
+- job: CheckUp
+  pool:
+    vmImage: '$(IMAGE)'
+  timeoutInMinutes: 100
+  strategy:
+    maxParallel: 4
+    matrix:
+      'on 2019':
+        IMAGE: 'windows-2019'
+
+  steps:
+
+  - powershell: |
+      $cpuName=(Get-WmiObject Win32_Processor).Name
+      Write-Host "CPU: $($cpuName), $([System.Environment]::ProcessorCount) Cores"
+
+      cd Postgres-Version-Manager
+      # powershell -f Force-Install-Aria2c.ps1; aria2c --version;
+
+    displayName: 'Bootstrap'
+
+  - bash: |
+       cd Postgres-Version-Manager
+       powershell -f "[Test] Get all the hashes.ps1"
+    condition: succeededOrFailed()
+    displayName: 'Install $(PGTYPE)'
+
+  - bash: |
+      set -eu; set -o pipefail
+      d=$PWD
+      pushd "$(System.ARTIFACTSDIRECTORY)"
+      7z a -mx=1 -ms=on -mqs=on "Source-$(Agent.JobName).7z" "$d"
+      popd
+    condition: succeededOrFailed()
+    displayName: 'Prepare Artifacts'
+
+  - task: PublishBuildArtifacts@1
+    condition: succeededOrFailed()
+    displayName: 'Publish'
+    inputs:
+      pathtoPublish: '$(System.ARTIFACTSDIRECTORY)'
+      artifactName: '$(Agent.JobName)'
+
