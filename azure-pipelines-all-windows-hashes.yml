@@ -10,9 +10,10 @@ trigger:
 jobs:
 
 - job: CheckUp
+  displayName: 'Check up'
   pool:
     vmImage: '$(IMAGE)'
-  timeoutInMinutes: 100
+  timeoutInMinutes: 150
   strategy:
     maxParallel: 4
     matrix:
@@ -34,7 +35,7 @@ jobs:
        cd Postgres-Version-Manager
        powershell -f "[Test] Get all the hashes.ps1"
     condition: succeededOrFailed()
-    displayName: 'Install $(PGTYPE)'
+    displayName: 'Both original and mirror CDNs'
 
   - bash: |
       set -eu; set -o pipefail
