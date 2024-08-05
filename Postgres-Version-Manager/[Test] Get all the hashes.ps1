@@ -1010,50 +1010,59 @@ function Get-Postgres-Download-Links([string] $downloadType, [string] $version) 
 
 $downloadDir = Combine-Path "$(Get-PS1-Repo-Downloads-Folder)" "PostgreSQL-setup"
 $files=@()
+$finalJson=@();
+
+$hashFile = Combine-Path $downloadDir "hash.txt"
+Remove-Item -Force "$hashFile" -EA SilentlyContinue | out-null
+$utf8=new-object System.Text.UTF8Encoding($false)
+
 
 $AVAILABLE_VERSIONS | % { $version=$_;
+    $jsonVersion=[PSCustomObject](@{Version=$version})
     @("tiny", "full") | % { $downloadType=$_;
     
        Say "$($downloadType.ToUpper()) $version"
-       $downloadLinks = Get-Postgres-Download-Links "$DownloadType" "$Version" 
+       $downloadLinks = Get-Postgres-Download-Links "$DownloadType" "$Version"
        $downloadLinks | % {
          Write-Host "    $($_.Description): '$($_.Url)' ($($_.File))"
        }
 
        $downloadLinks = $downloadLinks | where { -not $_.Url.EndsWith("viasf=1") }
 
-       $downloadLinks | % { $file=$_.File; $url=$_.url;
+       $links = @(); 
+
+       $downloadLinks | fl
+       $downloadLinks | % { 
+         $file=$_.File; 
+         $url=$_.url;
+         
          $fullArchive = Combine-Path $downloadDir $file
          $isDownloadOk = Download-File-FailFree-and-Cached $fullArchive @($url)
          $fileInfo = new-object System.IO.FileInfo($fullArchive)
          $files += $fileInfo
+         $link = [PSCustomObject] @{File=$file; Url=$url; Size=$fileInfo.Length; };
+         $links += $link;
+
+         @("MD5", "SHA1", "SHA256", "SHA384", "SHA512") | % { $alg=$_;
+            $hash=(Get-FileHash $fileInfo.FullName -Algorithm $alg).hash
+            Write-Host "      $($ALG): $HASH"
+            [IO.File]::AppendAllText($hashFile, "$($fileInfo.Name)|$($alg)|$hash`n", $utf8)
+            $link | Add-Member NoteProperty -Name "$alg" -Value "$HASH"
+         }
+
        }
-       
+       $jsonVersion | Add-Member NoteProperty -Name "$downloadType" -Value $links;
+
     }
+    $finalJson += $jsonVersion;
 }
 
-$hashFile = Combine-Path $downloadDir "hash.txt"
-pushd $downloadDir
-Remove-Item -Force "$hashFile" -EA SilentlyContinue | out-null
-# $files=@()
-# foreach($ext in @("7z", "xz", "gz", "zip")) {
-#   (Get-ChildItem -Path "." -Filter "*.$ext" | sort FullName) | % { $files += $_; }
-# }
-# $files = $files | sort FullName;
 
-foreach($file in $files) {
-  Write-Host $file.FullName -ForeGroundColor Yellow
-  foreach($alg in @("MD5", "SHA1", "SHA256", "SHA384", "SHA512")) {
-     $hash=(Get-FileHash $file.FullName -Algorithm $alg).hash
-     # $hash > "$($file.FullName).$($alg.ToLower())"
-     # [IO.File]::WriteAllText("$($file.FullName).$($alg.ToLower())", $hash)
-     Write-Host "      $($ALG): $HASH"
-     $utf8=new-object System.Text.UTF8Encoding($false)
-     [IO.File]::AppendAllText($hashFile, "$($file.Name)|$($alg)|$hash`n", $utf8)
-}}
-
-popd
+$fileJson = Combine-Path $downloadDir "postgres.json"
+$finalJsonString = $finalJson | ConvertTo-Json -Depth 64
+[IO.File]::WriteAllText($fileJson, "$finalJsonString", $utf8)
 
 if ($ENV:SYSTEM_ARTIFACTSDIRECTORY) {
   Copy-Item $hashFile "$ENV:SYSTEM_ARTIFACTSDIRECTORY" -Force
+  Copy-Item $fileJson "$ENV:SYSTEM_ARTIFACTSDIRECTORY" -Force
 }
