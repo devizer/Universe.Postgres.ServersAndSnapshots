@@ -1010,7 +1010,7 @@ function Get-Postgres-Download-Links([string] $downloadType, [string] $version) 
 
 $downloadDir = Combine-Path "$(Get-PS1-Repo-Downloads-Folder)" "PostgreSQL-setup"
 $files=@()
-$finalJson=@();
+$finalJson=[PSCustomObject]@{};
 
 $hashFile = Combine-Path $downloadDir "hash.txt"
 Remove-Item -Force "$hashFile" -EA SilentlyContinue | out-null
@@ -1018,7 +1018,8 @@ $utf8=new-object System.Text.UTF8Encoding($false)
 
 
 $AVAILABLE_VERSIONS | % { $version=$_;
-    $jsonVersion=[PSCustomObject](@{Version=$version})
+    $jsonVersion = [PSCustomObject](@{})
+    $finalJson | Add-Member NoteProperty -Name "$version" -Value $jsonVersion
     @("tiny", "full") | % { $downloadType=$_;
     
        Say "$($downloadType.ToUpper()) $version"
@@ -1031,7 +1032,6 @@ $AVAILABLE_VERSIONS | % { $version=$_;
 
        $links = @(); 
 
-       $downloadLinks | fl
        $downloadLinks | % { 
          $file=$_.File; 
          $url=$_.url;
@@ -1054,7 +1054,7 @@ $AVAILABLE_VERSIONS | % { $version=$_;
        $jsonVersion | Add-Member NoteProperty -Name "$downloadType" -Value $links;
 
     }
-    $finalJson += $jsonVersion;
+    # $finalJson += $jsonVersion;
 }
 
 
