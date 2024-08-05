@@ -1053,3 +1053,7 @@ foreach($file in $files) {
 }}
 
 popd
+
+if ($ENV:SYSTEM_ARTIFACTSDIRECTORY) {
+  Copy-Item $hashFile "$ENV:SYSTEM_ARTIFACTSDIRECTORY" -Force
+}
