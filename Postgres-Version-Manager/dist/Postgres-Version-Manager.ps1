@@ -1,22 +1,22 @@
-# !/usr/bin/env pwsh
+#!/usr/bin/env pwsh
 param(
-  [string] $Command = "Install", # Install
-  [string] $Mode = "Process", # Process|Service
-  [string] $Version = "16.3-x64",
-  [string] $Admin = "postgres",
-  [string] $Password = "Meaga`$str0ng",
-  [string] $Locale = "en-US",
-  [string] $OnlyLocalhost = "False",
-  [int]    $Port = 5432,
-  [string] $DownloadType = "tiny", # Tiny|Full
-  [string] $ServiceId = "", # Empty means do not install service
-  [string] $BinFolder = "",
-  [string] $DataFolder = "",
-  [string] $LogFolder = "",
-  [string] $VcRedistMode = "Auto" # Audo|Skip|Force
+  [string]   $Command = "Install", # Install
+  [string]   $Mode = "Process", # Process|Service
+  [string]   $Version = "16.3-x64",
+  [string[]] $OptionalDownloadUrl = @(), # Empty means Auto. 12.0-x64 is http://sbp.enterprisedb.com/getfile.jsp?fileid=12082
+  [string]   $Admin = "postgres",
+  [string]   $Password = "Meaga`$str0ng",
+  [string]   $Locale = "en-US",
+  [string]   $OnlyLocalhost = "False",
+  [int]      $Port = 5432,
+  [string]   $DownloadType = "tiny", # Tiny|Full
+  [string]   $ServiceId = "", # Empty means do not install service
+  [string]   $BinFolder = "",
+  [string]   $DataFolder = "",
+  [string]   $LogFolder = "",
+  [string]   $VcRedistMode = "Auto" # Audo|Skip|Force
 )
 # Progress: 1) Download, 2) Stop existing, 3) extract 7z, 4) Install VC++, 5) Clean up existing, 6) Create DATA, 7) Start, 8) Query
-
 $ErrorActionPreference="Stop"
 
 # Include Detected: [ src\Postgres-Metadata.ps1 ]
@@ -55,18 +55,20 @@ function Get-Postgres-Download-Links([string] $downloadType, [string] $version) 
 
   $ret=@();
 
+  $fileOnly="postgres-$Version-$DownloadType-windows"
+
   if ($downloadType -eq "full") {
     $urlDirect=$KNOWN_FULL_DIRECT_LINKS[$version];
     if ($urlDirect) { 
-      $ret += @{Url=$urlDirect; Description="Direct download URL over Postgre CDN";}
+      $ret += @{Url=$urlDirect; Description="Direct download URL over Postgre CDN"; File="$fileOnly.zip";}
     }
   }
 
-  $url1="https://sourceforge.net/projects/postgres-binaries/files/$fileOnly/download"
-  $url2="https://master.dl.sourceforge.net/project/postgres-binaries/$($fileOnly)?viasf=1"
+  $url1="https://sourceforge.net/projects/postgres-binaries/files/$fileOnly.7z/download"
+  $url2="https://master.dl.sourceforge.net/project/postgres-binaries/$($fileOnly).7z?viasf=1"
 
-  $ret += @{Url=$url1; Description="Primary download URL over CDN";}
-  $ret += @{Url=$url2; Description="Secondary download URL";}
+  $ret += @{Url=$url1; Description="Primary download URL over CDN"; File="$fileOnly.7z";}
+  $ret += @{Url=$url2; Description="Secondary download URL"; File="$fileOnly.7z";}
 
   return $ret;
 }
@@ -1093,6 +1095,8 @@ function Say-Parameter { param( [string] $name, [string] $value)
     Write-Host "'"
 }
 
+$hasCustomUrl = [bool] $OptionalDownloadUrl;
+
 Write-Host "PostgreSQL Server Version Manager"
 Say-Parameter "Mode" $Mode
 Say-Parameter "Version" $Version
@@ -1101,7 +1105,7 @@ Say-Parameter "Password" $Password
 Say-Parameter "Locale" $Locale
 Say-Parameter "Only Local" $OnlyLocalhost
 Say-Parameter "TCP Port" $Port
-Say-Parameter "Download" $DownloadType
+Say-Parameter "Download" (IIf $hasCustomUrl $OptionalDownloadUrl $DownloadType)
 Say-Parameter "Service Id" $ServiceId
 Say-Parameter "Bin Folder" $BinFolder
 Say-Parameter "Data" $DataFolder
@@ -1117,13 +1121,29 @@ if (-not $DataFolder) { $DataFolder = Combine-Path $DEFAULT_DATA_FOLDER "$Versio
 if (-not $LogFolder)  { $LogFolder  = Combine-Path $DEFAULT_LOG_FOLDER "$Version"; }
 $fileOnly="postgres-$Version-$DownloadType-windows.7z"
 $downloadLinks = Get-Postgres-Download-Links "$DownloadType" "$Version"
+
+# Direct Link?
+if ($hasCustomUrl) {
+  # 1. -DownloadType is ignored.
+  # 2. -VcRedistMode should be Skip
+  $downloadLinks=@();
+  $i=0; foreach($u in $OptionalDownloadUrl) { 
+    $i++;
+    $fileOnly="particular-postgres-$Version.zip";
+    $downloadLinks += @{Url=$u; Description="Custom download URL #$i"; File=$fileOnly;}
+  }
+}
+
 $downloadLinks | % {
   Write-Host "$($_.Description): '$($_.Url)'"
 }
 
+
 $fullArchive = Combine-Path "$TEMP_FOLDER" "PostgreSQL-setup" $fileOnly
 Write-Host "Downloading $fileOnly as '$fullArchive'"
 Say Downloading PostgreSQL Server version $Version
+
+# EXIT 0
 
 $urlList=$downloadLinks | % { $_.Url }
 $isDownloadOk = Download-File-FailFree-and-Cached $fullArchive $urlList
@@ -1207,6 +1227,7 @@ AppendAllText $postgresqlConf @"
 wal_level = minimal
 max_wal_senders = 0
 fsync = off
+full_page_writes = off
 synchronous_commit = off
 wal_writer_delay = 10000ms
 commit_delay = 100000
