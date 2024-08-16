@@ -1,5 +1,44 @@
 #!/usr/bin/env pwsh
-param(
+
+<#PSScriptInfo
+
+.VERSION 1.2
+
+.GUID a45599f4-358e-4409-a152-133bdee4531f
+
+.AUTHOR devizer
+
+.COMPANYNAME 
+
+.COPYRIGHT 2024 devizer. All rights reserved.
+
+.TAGS Postgres PostgreSQL Windows
+
+.LICENSEURI https://opensource.org/license/mit
+
+.PROJECTURI https://github.com/devizer/Universe.Postgres.ServersAndSnapshots/tree/main/Postgres-Version-Manager
+
+.ICONURI https://raw.githubusercontent.com/devizer/Universe.Postgres.ServersAndSnapshots/main/Postgres-Version-Manager/Icon.png
+
+.EXTERNALMODULEDEPENDENCIES 
+
+.REQUIREDSCRIPTS 
+
+.EXTERNALSCRIPTDEPENDENCIES 
+
+.RELEASENOTES
+
+
+#>
+
+<# 
+
+.DESCRIPTION 
+ Postgres Version Manager 
+
+#> 
+
+Param(
   [string]   $Command = "Install", # Install
   [string]   $Mode = "Process", # Process|Service
   [string]   $Version = "16.3-x64",
