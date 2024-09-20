@@ -31,7 +31,7 @@ jobs:
 
     displayName: 'Bootstrap'
 
-  - bash: |
+  - powershell: |
        cd Postgres-Version-Manager
        powershell -f "[Test] Get all the hashes.ps1"
     condition: succeededOrFailed()
