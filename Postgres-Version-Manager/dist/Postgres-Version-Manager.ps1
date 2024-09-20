@@ -1,4 +1,4 @@
-#!/usr/bin/env pwsh
+# !/usr/bin/env pwsh
 
 <#PSScriptInfo
 
@@ -56,10 +56,9 @@ Param(
   [string]   $VcRedistMode = "Auto" # Audo|Skip|Force
 )
 # Progress: 1) Download, 2) Stop existing, 3) extract 7z, 4) Install VC++, 5) Clean up existing, 6) Create DATA, 7) Start, 8) Query
-$ErrorActionPreference="Stop"
 
-# Include Detected: [ src\Postgres-Metadata.ps1 ]
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Postgres-Version-Manager.PS1Project\src\Postgres-Metadata.ps1]
+# Include Directive: [ src\Postgres-Metadata.ps1 ]
+# Include File: [\Postgres-Version-Manager.PS1Project\src\Postgres-Metadata.ps1]
 $AVAILABLE_VERSIONS=@(
   "16.3-x64", "16.0-x64",
   "15.7-x64", "15.4-x64", "15.1-x64",
@@ -119,8 +118,8 @@ if ("$args" -eq "--available-versions" ) {
   exit 0
 }
 
-# Include Detected: [ src\Install-VC-Redist-for-Postgres-On-Windows.ps1 ]
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Postgres-Version-Manager.PS1Project\src\Install-VC-Redist-for-Postgres-On-Windows.ps1]
+# Include Directive: [ src\Install-VC-Redist-for-Postgres-On-Windows.ps1 ]
+# Include File: [\Postgres-Version-Manager.PS1Project\src\Install-VC-Redist-for-Postgres-On-Windows.ps1]
 function Install-VC-Redist-for-Postgres-On-Windows([string] $postgresVersion, [string] $mode) { 
   $postgresMajor = [int] ($postgresVersion.Split('.') | Select -First 1);
   $vcVersion = "";
@@ -161,8 +160,85 @@ function Install-VC-Redist-for-Postgres-On-Windows([string] $postgresVersion, [s
 }
 
 
-# Include Detected: [ ..\Includes\*.ps1 ]
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\$Full7zLinksMetadata.ps1]
+# Include Directive: [ ..\Includes\*.ps1 ]
+# Include File: [\Includes\$ANSI_COLORS.ps1]
+$Esc=[char]27;
+$ANSI_COLORS = @{ 
+  Reset     = "$($Esc)[0m"
+  Bold      = "$($Esc)[1m"
+  Underline = "$($Esc)[4m"
+  Inverse   = "$($Esc)[7m"
+  
+  TextBlack       = "$($Esc)[30m"
+  TextDarkBlue    = "$($Esc)[34m"
+  TextDarkGreen   = "$($Esc)[32m"
+  TextDarkCyan    = "$($Esc)[36m"
+  TextDarkRed     = "$($Esc)[31m"
+  TextDarkMagenta = "$($Esc)[35m"
+  TextDarkYellow  = "$($Esc)[33m"
+  TextGray        = "$($Esc)[98m" #?
+  TextDarkGray    = "$($Esc)[90m" #?
+  TextBlue        = "$($Esc)[94m"
+  TextGreen       = "$($Esc)[92m"
+  TextCyan        = "$($Esc)[96m"
+  TextRed         = "$($Esc)[91m"
+  TextMagenta     = "$($Esc)[95m"
+  TextYellow      = "$($Esc)[93m"
+  TextWhite       = "$($Esc)[97m"
+
+  BackBlack       = "$($Esc)[40m"
+  BackDarkBlue    = "$($Esc)[44m"
+  BackDarkGreen   = "$($Esc)[42m"
+  BackDarkCyan    = "$($Esc)[46m"
+  BackDarkRed     = "$($Esc)[41m"
+  BackDarkMagenta = "$($Esc)[45m"
+  BackDarkYellow  = "$($Esc)[43m"
+  BackGray        = "$($Esc)[100m" #?
+  BackDarkGray    = "$($Esc)[108m" #?
+  BackBlue        = "$($Esc)[104m"
+  BackGreen       = "$($Esc)[102m"
+  BackCyan        = "$($Esc)[106m"
+  BackRed         = "$($Esc)[101m"
+  BackMagenta     = "$($Esc)[105m"
+  BackYellow      = "$($Esc)[103m"
+  BackWhite       = "$($Esc)[107m"
+}
+
+# Write-Line "Hello " -TextRed -Bold "World"
+Function Write-Line([string[]] $directArgs = @()) {
+  $isAnsiSupported = Is-Ansi-Supported;
+  $directArgs += @($args);
+  $arguments = @($directArgs);
+  $text="Gray";
+  $back="Black";
+  $ansi="";
+  foreach($arg in $arguments) {
+    $isControl = $false;
+    $isReset = $false;
+    if ($arg.StartsWith("-")) {
+      if ($arg.Length -gt 1) {
+        $key = $arg.SubString(1);
+        if ($ANSI_COLORS -and $ANSI_COLORS[$key]) {
+          $ansiValue = $ANSI_COLORS[$key];
+          $ansi += $ansiValue;
+          $isReset = ($key -eq "Reset");
+          if ($isReset) { $text="Gray"; $back="Black"; }
+          if ($key -like "Text*") { $text = $key.SubString(4) }
+          if ($key -like "Back*") { $back = $key.SubString(4) }
+          $isControl = $true;
+        }
+      }
+    }
+    if (-not $isControl) {
+      if ($isAnsiSupported) { Write-Host "$($ansi)$($arg)" -NoNewLine -ForegroundColor $text -BackgroundColor $back }
+      else { Write-Host "$($arg)" -NoNewLine -ForegroundColor $text -BackgroundColor $back }
+    }
+    # if ($isReset) { $ansi = ""; } TODO: After Text
+  }
+  Write-Host "";
+}
+
+# Include File: [\Includes\$Full7zLinksMetadata.ps1]
 $Full7zLinksMetadata_onWindows = @(
   @{ Ver = 2301; 
      X64Links = @(
@@ -251,7 +327,7 @@ $Full7zLinksMetadata_onWindows = @(
   https://www.7-zip.org/a/7zr.exe
 #>
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\$VcRuntimeLinksMetadata.ps1]
+# Include File: [\Includes\$VcRuntimeLinksMetadata.ps1]
 $VcRuntimeLinksMetadata = @(
   @{ Ver=14; 
      Args="/install /passive /norestart"; 
@@ -287,12 +363,20 @@ $VcRuntimeLinksMetadata = @(
   }
 );
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Append-All-Text.ps1]
+# Include File: [\Includes\Append-All-Text.ps1]
 function Append-All-Text( [string]$file, [string]$text ) {
-  $utf8=new-object System.Text.UTF8Encoding($false); [System.IO.File]::AppendAllText($file, $text, $utf8);
+  Create-Directory-for-File $file
+  $utf8=new-object System.Text.UTF8Encoding($false); 
+  [System.IO.File]::AppendAllText($file, $text, $utf8);
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Bootstrap-Aria2-If-Required.ps1]
+function Write-All-Text( [string]$file, [string]$text ) {
+  Create-Directory-for-File $file
+  $utf8=new-object System.Text.UTF8Encoding($false); 
+  [System.IO.File]::WriteAllText($file, $text, $utf8);
+}
+
+# Include File: [\Includes\Bootstrap-Aria2-If-Required.ps1]
 # on windows 7 api.gitgub.com, etc are not available
 function Bootstrap-Aria2-If-Required(
   [bool] $force = $false,
@@ -319,10 +403,29 @@ function Bootstrap-Aria2-If-Required(
   }
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Combine-Path.ps1]
+# Include File: [\Includes\Combine-Path.ps1]
 function Combine-Path($start) { foreach($a in $args) { $start=[System.IO.Path]::Combine($start, $a); }; $start }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Demo-Test-of-Is-Vc-Runtime-Installed.ps1]
+# Include File: [\Includes\Create-Directory.ps1]
+function Create-Directory($dirName) { 
+  if ($dirName) { 
+    $err = $null;
+    try { 
+      $_ = [System.IO.Directory]::CreateDirectory($dirName); return; 
+    } catch {
+      $err = "Create-Directory failed for `"$dirName`". $($_.Exception.GetType().ToString()) $($_.Exception.Message)"
+      Write-Host "Warning! $err";
+      throw $err;
+    }
+  }
+}
+
+function Create-Directory-for-File($fileFullName) { 
+  $dirName=[System.IO.Path]::GetDirectoryName($fileFullName)
+  Create-Directory "$dirName";
+}
+
+# Include File: [\Includes\Demo-Test-of-Is-Vc-Runtime-Installed.ps1]
 function Demo-Test-of-Is-Vc-Runtime-Installed() {
   foreach($arch in @("X86", "X64", "ARM64")) {
     Write-Host -NoNewline "$("{0,5}" -f $arch)|   "
@@ -335,7 +438,7 @@ function Demo-Test-of-Is-Vc-Runtime-Installed() {
   }
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Demo-Test-of-Platform-Info.ps1]
+# Include File: [\Includes\Demo-Test-of-Platform-Info.ps1]
 function Demo-Test-of-Platform-Info() {
   echo "Memory $((Get-Memory-Info).Description)"
   echo "OS Platform: '$(Get-Os-Platform)'"
@@ -346,7 +449,7 @@ function Demo-Test-of-Platform-Info() {
   Measure-Action "The CPU Name" {echo "CPU: '$(Get-Cpu-Name)'"}
 }; # test
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Download-And-Install-Specific-VC-Runtime.ps1]
+# Include File: [\Includes\Download-And-Install-Specific-VC-Runtime.ps1]
 function Download-And-Install-Specific-VC-Runtime([string] $arch, [int] $version, [bool] $wait = $true) {
   $fullPath = Download-Specific-VC-Runtime $arch $version
   $commandLine=$VcRuntimeLinksMetadata | where { "$($_.Ver)" -eq "$version" } | % { $_.Args }
@@ -361,7 +464,7 @@ function Download-And-Install-Specific-VC-Runtime([string] $arch, [int] $version
   return $isOk
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Download-File-FailFree-and-Cached.ps1]
+# Include File: [\Includes\Download-File-FailFree-and-Cached.ps1]
 function Download-File-FailFree-and-Cached([string] $fullName, [string[]] $urlList, [string] $algorithm="SHA512") {
   
   if ((Is-File-Not-Empty "$fullName") -and (Is-File-Not-Empty "$fullName.$algorithm")) { 
@@ -382,15 +485,27 @@ function Download-File-FailFree-and-Cached([string] $fullName, [string[]] $urlLi
   return $false;
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Download-File-Managed.ps1]
+# Include File: [\Includes\Download-File-Managed.ps1]
 function Download-File-Managed([string] $url, [string]$outfile) {
   $dirName=[System.IO.Path]::GetDirectoryName($outfile)
-  $_ = [System.IO.Directory]::CreateDirectory($dirName)
+  Create-Directory "$dirName";
   $okAria=$false; try { & aria2c.exe -h *| out-null; $okAria=$? } catch {}
   if ($okAria) {
     Troubleshoot-Info "Starting download `"" -Highlight "$url" "`" using aria2c as `"" -Highlight "$outfile" "`""
-    & aria2c.exe @("--allow-overwrite=true", "--check-certificate=false", "-s", "12", "-x", "12", "-k", "2M", "-j", "12", "-d", "$($dirName)", "-o", "$([System.IO.Path]::GetFileName($outfile))", "$url");
-    if ($?) { <# Write-Host "aria2 rocks ($([System.IO.Path]::GetFileName($outfile)))"; #> return $true; }
+    # "-k", "2M",
+    $startAt = [System.Diagnostics.Stopwatch]::StartNew()
+    & aria2c.exe @("--allow-overwrite=true", "--check-certificate=false", "-x", "16", "-j", "16", "-d", "$($dirName)", "-o", "$([System.IO.Path]::GetFileName($outfile))", "$url");
+    if ($?) { 
+      <# Write-Host "aria2 rocks ($([System.IO.Path]::GetFileName($outfile)))"; #> 
+      try { $length = (new-object System.IO.FileInfo($outfile)).Length; } catch {}; $milliSeconds = $startAt.ElapsedMilliseconds;
+      $size=""; if ($length -gt 0) { $size=" ($($length.ToString("n0")) bytes)"; }
+      $speed=""; if ($length -gt 0 -and $milliSeconds -gt 0) { $speed=" Speed is $(($length*1000/1024/$milliSeconds).ToString("n0")) Kb/s."; }
+      $duration=""; if ($milliSeconds -gt 0) {$duration=" It took $(($milliSeconds/1000.).ToString("n1")) seconds."; }
+      $downloadReport="Download of '$outfile'$($size) completed.$($duration)$($speed)";
+      Write-Host $downloadReport;
+      if ("$($ENV:SYSTEM_ARTIFACTSDIRECTORY)") { Append-All-Text (Combine-Path "$($ENV:SYSTEM_ARTIFACTSDIRECTORY)" "Download Speed Report.log") "$downloadReport$([Environment]::NewLine)"; }
+      return $true; 
+    }
   }
   elseif (([System.Environment]::OSVersion.Version.Major) -eq 5) {
     Write-Host "Warning! Windows XP and Server 2003 requires aria2c.exe in the PATH for downloading." -ForegroundColor Red; 
@@ -404,7 +519,15 @@ function Download-File-Managed([string] $url, [string]$outfile) {
     $d=new-object System.Net.WebClient;
     # $d.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36");
     try {
+      $startAt = [System.Diagnostics.Stopwatch]::StartNew()
       $d.DownloadFile("$url","$outfile"); 
+      try { $length = (new-object System.IO.FileInfo($outfile)).Length; } catch {}; $milliSeconds = $startAt.ElapsedMilliseconds;
+      $size=""; if ($length -gt 0) { $size=" ($($length.ToString("n0")) bytes)"; }
+      $speed=""; if ($length -gt 0 -and $milliSeconds -gt 0) { $speed=" Speed is $(($length*1000/1024/$milliSeconds).ToString("n0")) Kb/s."; }
+      $duration=""; if ($milliSeconds -gt 0) {$duration=" It took $(($milliSeconds/1000.).ToString("n1")) seconds."; }
+      $downloadReport="Download of '$outfile'$($size) completed.$($duration)$($speed)";
+      Write-Host $downloadReport;
+      if ("$($ENV:SYSTEM_ARTIFACTSDIRECTORY)") { Append-All-Text (Combine-Path "$($ENV:SYSTEM_ARTIFACTSDIRECTORY)" "Download Speed Report.log") "$downloadReport$([Environment]::NewLine)"; }
       return $true
     } 
     catch { 
@@ -413,6 +536,7 @@ function Download-File-Managed([string] $url, [string]$outfile) {
       # Write-Host $_.Exception -ForegroundColor DarkRed; 
       if ($i -lt 3) {
         Write-Host "The download of the '$url' url failed.$([System.Environment]::NewLine)Retrying, $($i+1) of 3. $($_.Exception.Message)" -ForegroundColor Red;
+        sleep 1;
       } else {
         Write-Host "Unable to download of the '$url' url.$([System.Environment]::NewLine)$($_.Exception.Message)" -ForegroundColor Red;
       }
@@ -430,7 +554,7 @@ function Download-File-FailFree([string] $outFile, [string[]] $urlList) {
 }
 
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Download-Specific-VC-Runtime.ps1]
+# Include File: [\Includes\Download-Specific-VC-Runtime.ps1]
 function Download-Specific-VC-Runtime([string] $arch, [int] $version) {
   $algorithm="SHA512"
   $downloadFolder = Combine-Path "$(Get-PS1-Repo-Downloads-Folder)" "VC-Runtime"
@@ -458,7 +582,95 @@ function Download-Specific-VC-Runtime([string] $arch, [int] $version) {
   return "";
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-7z-Exe-FullPath-for-Windows.ps1]
+# Include File: [\Includes\Execute-Process-Smarty.ps1]
+function Execute-Process-Smarty {
+  Param(
+    [string] $title, 
+    [string] $launcher,
+    [string[]] $arguments,
+    [string] $workingDirectory = $null,
+    [int] $waitTimeout = 3600,
+    [switch] $Hidden = [switch] $false
+  )
+  $arguments = @($arguments | ? { "$_".Trim() -ne "" })
+  Troubleshoot-Info "[$title] `"$launcher`" $arguments";
+  $startAt = [System.Diagnostics.Stopwatch]::StartNew()
+
+  $ret = @{};
+  $windowStyle = if ($Hidden) { "Hidden" } else { "Normal" };
+  try { 
+    if ($workingDirectory) { 
+      $app = Start-Process "$launcher" -ArgumentList $arguments -WorkingDirectory $workingDirectory -PassThru -WindowStyle $windowStyle;
+    } else {
+      $app = Start-Process "$launcher" -ArgumentList $arguments -PassThru -WindowStyle $windowStyle;
+    }
+  } catch {
+    $err = "$($_.Exception.GetType()): '$($_.Exception.Message)'";
+    $ret = @{Error = "$title failed. $err"; };
+  }
+  
+  $exitCode = $null;
+  $okExitCode = $false;
+  if (-not $ret.Error) {
+    if ($app -and $app.Id) {
+      $isExited = $app.WaitForExit(1000*$waitTimeout);
+      if (-not $isExited) { 
+        $ret = @{ Error = "$title timed out." };
+      }
+      if (-not $ret.Error) {
+        sleep 0.01 # background tasks
+        $exitCode = [int] $app.ExitCode;
+        $isLegacy = ([System.Environment]::OSVersion.Version.Major) -eq 5;
+        if ($isExited -and $isLegacy -and "$exitCode" -eq "") { $exitCode = 0; }
+        $okExitCode = $exitCode -eq 0;
+        # Write-Host "Exit Code = [$exitCode], okExitCode = [$okExitCode]"
+        $ret = @{ExitCode = $exitCode};
+        if (-not $okExitCode) {
+          $err = "$title failed."; if ($app.ExitCode) { $err += " Exit code $($app.ExitCode)."; }
+          $ret = @{ Error = $err };
+        }
+      }
+    } else {
+      if (-not "$($ret.Error)") { $ret["Error"] = "$title failed."; }
+    }
+  }
+
+  $isOk = ((-not $ret.Error) -and $okExitCode);
+  $status = IIF $isOk "Successfully completed" $ret.Error;
+  
+  if ($isOk) { 
+    Write-Host "$title $status. It took $($startAt.ElapsedMilliseconds.ToString("n0")) ms";
+  } else {
+    Write-Host "$title $status. It took $($startAt.ElapsedMilliseconds.ToString("n0")) ms" -ForegroundColor DarkRed;
+  }
+  
+  if (!$isOk -and ($app.Id)) {
+    # TODO: Windows Only
+    & taskkill.exe @("/t", "/f", "/pid", "$($app.Id)") | out-null;
+  }
+  return $ret;
+}
+
+# Include File: [\Includes\Extract-Archive-by-Default-Full-7z.ps1]
+function Extract-Archive-by-Default-Full-7z([string] $fromArchive, [string] $toDirectory, $extractCommand = "x") {
+  New-Item -Path "$($toDirectory)" -ItemType Directory -Force -EA SilentlyContinue | Out-Null
+  $full7zExe = "$(Get-Full7z-Exe-FullPath-for-Windows)"
+  try { $fileOnly = [System.IO.Path]::GetFileName($fromArchive); } catch { $fileOnly = $fromArchive; }
+  $execResult = Execute-Process-Smarty "'$fileOnly' Extractor" $full7zExe @($extractCommand, "-y", "-o`"$toDirectory`"", "$fromArchive") -Hidden;
+  $ret = $true;
+  if ($execResult -and $execResult.Error) { $ret = $fasle; }
+  return $ret;
+}
+
+# Include File: [\Includes\Format-Table-Smarty.ps1]
+function Format-Table-Smarty
+{ 
+   $arr = (@($Input) | % { [PSCustomObject]$_} | Format-Table -AutoSize | Out-String -Width 2048).Split(@([char]13, [char]10)) | ? { "$_".Length -gt 0 };
+   if (-not $arr) { return; }
+   [string]::Join([Environment]::NewLine, $arr);
+}
+
+# Include File: [\Includes\Get-7z-Exe-FullPath-for-Windows.ps1]
 function Get-Mini7z-Exe-FullPath-for-Windows() {
   $algorithm="SHA512"
 
@@ -481,7 +693,7 @@ function Get-Mini7z-Exe-FullPath-for-Windows() {
   return $null
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-Aria2c-Exe-FullPath-for-Windows.ps1]
+# Include File: [\Includes\Get-Aria2c-Exe-FullPath-for-Windows.ps1]
 # arch: x86|x64|arm64|Xp
 function Get-Aria2c-Exe-FullPath-for-Windows([string] $arch) {
   $linkXp="https://github.com/q3aql/aria2-static-builds/releases/download/v1.19.2/aria2-1.19.2-win-xp-build1.7z"
@@ -549,13 +761,12 @@ function Get-Aria2c-Exe-FullPath-for-Windows([string] $arch) {
   https://github.com/aria2/aria2/releases/download/release-1.36.0/aria2-1.36.0-win-64bit-build1.zip
 #>
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-CPU-Architecture-Suffix-for-Windows.ps1]
+# Include File: [\Includes\Get-CPU-Architecture-Suffix-for-Windows.ps1]
 
 # x86 (0), MIPS (1), Alpha (2), PowerPC (3), ARM (5), ia64 (6) Itanium-based systems, x64 (9), ARM64 (12)
 function Get-CPU-Architecture-Suffix-for-Windows-Implementation() {
     # on multiple sockets x64
-    if     (Has-Cmd "Get-CIMInstance") { $proc=Get-CIMInstance Win32_Processor; } 
-    elseif (Has-Cmd "Get-WmiObject")   { $proc=Get-WmiObject   Win32_Processor; } 
+    $proc = Select-WMI-Objects "Win32_Processor";
     $a = ($proc | Select -First 1).Architecture
     if ($a -eq 0)  { return "x86" };
     if ($a -eq 1)  { return "mips" };
@@ -566,8 +777,7 @@ function Get-CPU-Architecture-Suffix-for-Windows-Implementation() {
     if ($a -eq 9)  { 
       # Is 32-bit system on 64-bit CPU?
       # OSArchitecture: "ARM 64-bit Processor", "32-bit", "64-bit"
-      if     (Has-Cmd "Get-CIMInstance") { $os=Get-CIMInstance Win32_OperatingSystem; } 
-      elseif (Has-Cmd "Get-WmiObject")   { $os=Get-WmiObject   Win32_OperatingSystem; } 
+      $os = Select-WMI-Objects "Win32_OperatingSystem";
       $osArchitecture = ($os | Select -First 1).OSArchitecture
       if ($osArchitecture -like "*32-bit*") { return "x86"; }
       return "x64" 
@@ -581,13 +791,12 @@ function Get-CPU-Architecture-Suffix-for-Windows() {
   return $Global:CPUArchitectureSuffixforWindows
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-Cpu-Name.ps1]
+# Include File: [\Includes\Get-Cpu-Name.ps1]
 function Get-Cpu-Name-Implementation {
   $platform = Get-Os-Platform
   if ($platform -eq "Windows") {
-    if (Has-Cmd "Get-CIMInstance")     { $proc=Get-CIMInstance Win32_Processor; } 
-    elseif (Has-Cmd "Get-WmiObject")   { $proc=Get-WmiObject   Win32_Processor; } 
-    return "$($proc.Name)"
+    $proc = Select-WMI-Objects "Win32_Processor" | Select -First 1;
+    return "$($proc.Name)".Trim()
   }
 
   if ($platform -eq "MacOS") {
@@ -622,7 +831,16 @@ function Get-Cpu-Name {
   return $Global:_Cpu_Name;
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-Full7z-Exe-FullPath-for-Windows.ps1]
+# Include File: [\Includes\Get-Folder-Size.ps1]
+function Get-Folder-Size([string] $folder) {
+  if (Test-Path "$folder" -PathType Container) {
+     $subFolderItems = Get-ChildItem "$folder" -recurse -force | Where-Object {$_.PSIsContainer -eq $false} | Measure-Object -property Length -sum | Select-Object Sum
+     return $subFolderItems.sum;
+  }
+}
+
+
+# Include File: [\Includes\Get-Full7z-Exe-FullPath-for-Windows.ps1]
 # arch: x86|x64|arm64
 # version: 1604|2301
 function Get-Full7z-Exe-FullPath-for-Windows([string] $arch, [string] $version = "2301") {
@@ -707,6 +925,7 @@ function ExtractArchiveByDefault7zFull([string] $fromArchive, [string] $toDirect
   return $isExtractOk;
 }
 
+
 <# 
   https://www.7-zip.org/a/7z2301-arm64.exe
   https://www.7-zip.org/a/7z2301-x64.exe
@@ -728,7 +947,7 @@ function ExtractArchiveByDefault7zFull([string] $fromArchive, [string] $toDirect
   https://www.7-zip.org/a/7zr.exe
 #>
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-Github-Latest-Release.ps1]
+# Include File: [\Includes\Get-Github-Latest-Release.ps1]
 function Get-Github-Latest-Release([string] $owner, [string] $repo) {
   $queryLatest="https://api.github.com/repos/$owner/$repo/releases/latest" # "tag_name": "v3.227.2",
   $qyeryResultFullName = Combine-Path (Get-PS1-Repo-Downloads-Folder) "Queries" "Github Latest Release" "$(([System.Guid]::NewGuid()).ToString("N")).json"
@@ -747,7 +966,7 @@ function Get-Github-Latest-Release([string] $owner, [string] $repo) {
 }
 
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-Github-Releases.ps1]
+# Include File: [\Includes\Get-Github-Releases.ps1]
 function Get-Github-Releases([string] $owner, [string] $repo) {
   $url="https://api.github.com/repos/$owner/$repo/releases?per_page=128"
   # https://api.github.com/repos/microsoft/azure-pipelines-agent/releases?per_page=128 
@@ -793,13 +1012,13 @@ function Get-Github-Releases([string] $owner, [string] $repo) {
   return $ret | where { -not ($_.IsDraft) };
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-Installed-VC-Runtimes.ps1]
+# Include File: [\Includes\Get-Installed-VC-Runtimes.ps1]
 function Get-Installed-VC-Runtimes() {
   $softwareFilter = { $_.name -like "*Visual C++*" -and $_.vendor -like "*Microsoft*" -and ($_.name -like "*Runtime*" -or $_.name -like "*Redistributable*")}
   return Get-Speedy-Software-Product-List | where $softwareFilter
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-Memory-Info.ps1]
+# Include File: [\Includes\Get-Memory-Info.ps1]
 function Get-Memory-Info {
   [OutputType([object])] param()
 
@@ -844,7 +1063,7 @@ function Get-Memory-Info {
 
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-Nix-Uname-Value.ps1]
+# Include File: [\Includes\Get-Nix-Uname-Value.ps1]
 
 # Linux/Darwin/FreeBSD, Error on Windows
 function Get-Nix-Uname-Value {
@@ -852,7 +1071,7 @@ function Get-Nix-Uname-Value {
   return (& uname "$arg" | Out-String-And-TrimEnd)
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-Os-Platform.ps1]
+# Include File: [\Includes\Get-Os-Platform.ps1]
 # Returns Linux/Windows/Mac/FreeBSD
 function Get-Os-Platform {
   [OutputType([string])] param()
@@ -873,8 +1092,22 @@ function Get-Os-Platform {
   #>
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-PS1-Repo-Downloads-Folder.ps1]
+# Include File: [\Includes\Get-PS1-Repo-Downloads-Folder.ps1]
 function Get-PS1-Repo-Downloads-Folder() {
+  return (GetPersistentTempFolder "PS1_REPO_DOWNLOAD_FOLDER" "PS1 Repo Downloads");
+}
+
+function GetPersistentTempFolder([string] $envPrefix, [string] $pathSuffix) {
+  
+  foreach($pair in (gci env:$($envPrefix)* | sort-object name)) {
+      $explicitRet = "$($pair.Value)";
+      if ($explicitRet) {
+        New-Item -Path $explicitRet -ItemType Directory -Force -EA SilentlyContinue | Out-null
+        $isExplicit = Test-Path -Path $explicitRet -PathType Container -EA SilentlyContinue;
+        if ($isExplicit) { return "$explicitRet"; }
+      }
+  }
+
   If (Get-Os-Platform -eq "Windows") { $ret = "$($ENV:TEMP)" } else { $ret = "$($ENV:TMPDIR)" };
   $is1 = Test-Path -Path $ret -PathType Container -EA SilentlyContinue
   if (-not $is1) {
@@ -890,13 +1123,18 @@ function Get-PS1-Repo-Downloads-Folder() {
     if ("$ret" -eq "") { $ret="$($ENV:APPDATA)"; }; 
     if ("$ret" -eq "") { $ret="$($ENV:HOME)/.cache"; }; 
   }
-  return Combine-Path $ret "Temp" "PS1 Repo Downloads";
+  
+  $separator="$([System.IO.Path]::DirectorySeparatorChar)"
+  if (-not ($ret -like "*\Temp" -or $ret -like "*/.cache")) { $ret += "$($separator)Temp"; }
+  $ret += "$($separator)$pathSuffix";
+  return $ret;
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-Smarty-FileHash.ps1]
+
+# Include File: [\Includes\Get-Smarty-FileHash.ps1]
 # $algorithm: MD5|SHA1|SHA256|SHA384|SHA512
 function Get-Smarty-FileHash([string] $fileName, [string] $algorithm = "MD5") {
-  $fileExists = (Test-Path $fileName)
+  $fileExists = (Test-Path $fileName -PathType Leaf)
   if (-not $fileExists) { return $null; }
   $hashAlg = [System.Security.Cryptography.HashAlgorithm]::Create($algorithm)
   try {
@@ -914,14 +1152,36 @@ function Get-Smarty-FileHash([string] $fileName, [string] $algorithm = "MD5") {
 }
 
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-Smarty-First.ps1]
-function Get-Smarty-First-Obsolete($arg) {
-  if ($arg -eq $null) { return new-object PSObject; }
-  if ($arg -is [array]) { return $arg[0]; }
-  return $arg;
+# Include File: [\Includes\Get-Smarty-FolderHash.ps1]
+# Get-Smarty-FileHash([string] $fileName, [string] $algorithm = "MD5") {
+function Get-Smarty-FolderHash([string] $rootFolder, [string] $algorithm = "MD5", [bool] $includeDates = $false) {
+  $startAt = [System.Diagnostics.Stopwatch]::StartNew()
+  $folderExists = (Test-Path $rootFolder -PathType Container)
+  if (-not $folderExists) { return $null; }
+  $colItems = Get-ChildItem $rootFolder -recurse -force | Where-Object {$_.PSIsContainer -eq $false} | Sort-Object -Property FullName
+  $summary=New-Object System.Collections.ArrayList;
+  $filesCount = 0;
+  foreach ($i in $colItems)
+  {
+      $filesCount++;
+      $fileHash = Get-Smarty-FileHash $i.FullName $algorithm;
+      if ($includeDates) { 
+        foreach($date in $i.CreationTimeUtc, $i.LastWriteTimeUtc) {
+          $fileHash += $date.ToString("s")
+        }
+      }
+      $_=$summary.Add($fileHash)
+  }
+  $utf8 = new-object System.Text.UTF8Encoding($false)
+  $summaryBytes = $utf8.GetBytes("$summary")
+  $hashAlg = [System.Security.Cryptography.HashAlgorithm]::Create($algorithm)
+  $retBytes = $hashAlg.ComputeHash($summaryBytes);
+  $ret = "$($retBytes | % { $_.ToString("X2") })".Replace(" ","")
+  TroubleShoot-Info "Hash $algorithm for folder " -Highlight $rootFolder " (" -Highlight $filesCount " files) took " -Highlight "$($startAt.ElapsedMilliseconds.ToString("n0"))" " ms"
+  return $ret;
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Get-Speedy-Software-Product-List.ps1]
+# Include File: [\Includes\Get-Speedy-Software-Product-List.ps1]
 function Get-Speedy-Software-Product-List() {
   $ret=@();
   $origins=@(
@@ -936,10 +1196,12 @@ function Get-Speedy-Software-Product-List() {
     $keys = Get-ChildItem $origin.Path -EA SilentlyContinue
     if ($keys) {
       foreach($key in $keys) {
+        # Write-Host "$($key.Name): $key"
         $ret += New-Object PSObject -Property @{
-            Name    = "$($key.GetValue('DisplayName'))"
-            Vendor  = "$($key.GetValue('Publisher'))"
-            Version = "$($key.GetValue('DisplayVersion'))"
+            Name    = "$($key.GetValue('DisplayName'))".Trim()
+            Vendor  = "$($key.GetValue('Publisher'))".Trim()
+            Version = "$($key.GetValue('DisplayVersion'))".Trim()
+            IdentifyingNumber = [System.IO.Path]::GetFileName("$($key.Name)".Trim())
             Origin  = $origin.Origin
         }
       }
@@ -948,25 +1210,75 @@ function Get-Speedy-Software-Product-List() {
   return $ret | where { "$($_.Name)" -ne "" -and "$($_.Vendor)" -ne "" } | Sort-Object Vendor, Name, Version, Origin -Unique
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Has-Cmd.ps1]
+# Get-Speedy-Software-Product-List | ft
+# $localDbList = Get-Speedy-Software-Product-List | ? { $_.Name -match "LocalDB" -and $_.Vendor -match "Microsoft" }
+
+# Include File: [\Includes\Has-Cmd.ps1]
 function Has-Cmd {
   param([string] $arg)
   if ("$arg" -eq "") { return $false; }
   [bool] (Get-Command "$arg" -ErrorAction SilentlyContinue)
 }
 
-
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\IIf.ps1]
+function Select-WMI-Objects([string] $class) {
+  if (Has-Cmd "Get-CIMInstance")     { $ret = Get-CIMInstance $class; } 
+  elseif (Has-Cmd "Get-WmiObject")   { $ret = Get-WmiObject   $class; } 
+  if (-not $ret) { Write-Host "Warning ! Missing neither Get-CIMInstance nor Get-WmiObject" -ForegroundColor DarkRed; }
+  return $ret;
+}
+# Include File: [\Includes\IIf.ps1]
 function IIf([bool] $flag, $trueResult, $falseResult) {
   if ($flag) { return $trueResult; } else { return $falseResult; }
 }
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Is-File-Not-Empty.ps1]
+# Include File: [\Includes\Is-BuildServer.ps1]
+function Is-BuildServer() {
+  return "$(Try-BuildServerType)" -ne "";
+}
+
+function Try-BuildServerType() {
+  $simpleKeys = @(
+     "APPVEYOR",
+     "bamboo_planKey",
+     "BITBUCKET_COMMIT",
+     "BITRISE_IO",
+     "BUDDY_WORKSPACE_ID",
+     "BUILDKITE",
+     "CIRCLECI",
+     "CIRRUS_CI",
+     "CODEBUILD_BUILD_ARN"
+     "DRONE",
+     "DSARI",
+     "GITHUB_ACTIONS",
+     "GITLAB_CI",
+     "GO_PIPELINE_LABEL",
+     "HUDSON_URL",
+     "MAGNUM",
+     "SAILCI",
+     "SEMAPHORE",
+     "SHIPPABLE",
+     "TDDIUM",
+     "STRIDER",
+     "TDDIUM",
+     "TEAMCITY_VERSION",
+     "TF_BUILD",
+     "TRAVIS");
+  
+  foreach($varName in $simpleKeys) {
+    $val=[Environment]::GetEnvironmentVariable($varName);
+    if ("$val" -ne "" -and $val -ne "False") { return $varName; }
+  }
+
+  return $null;
+}
+# Write-Host "Try-BuildServerType: [$(Try-BuildServerType)], Is-BuildServer: $(Is-BuildServer)"
+
+# Include File: [\Includes\Is-File-Not-Empty.ps1]
 function Is-File-Not-Empty([string] $fileName) {
   try { $fi = new-object System.IO.FileInfo($fileName); return $fi.Length -gt 0; } catch {}; return $fasle; 
 }
 
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Is-Intel-Emulation-Available.ps1]
+# Include File: [\Includes\Is-Intel-Emulation-Available.ps1]
 # On non-arm returns $false
 function Is-Intel-Emulation-Available([int] $bitCount <# 32|64 #> = 64) {
   $systemRoot="$($ENV:SystemRoot)"
@@ -977,7 +1289,7 @@ function Is-Intel-Emulation-Available([int] $bitCount <# 32|64 #> = 64) {
 
 
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Is-Vc-Runtime-Installed.ps1]
+# Include File: [\Includes\Is-Vc-Runtime-Installed.ps1]
 function Is-Vc-Runtime-Installed([int] $major, [string] $arch) {
   $vcList = Get-Installed-VC-Runtimes
   # Does not support x86 v8 (2005) on x86 Windows
@@ -987,7 +1299,7 @@ function Is-Vc-Runtime-Installed([int] $major, [string] $arch) {
   return "$($found)" -ne ""; # v2+
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Measure-Action.ps1]
+# Include File: [\Includes\Measure-Action.ps1]
 function Measure-Action {
   Param(
     [string] $Title,
@@ -1010,7 +1322,7 @@ function Measure-Action {
   $ErrorActionPreference=$ea
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Out-String-And-TrimEnd.ps1]
+# Include File: [\Includes\Out-String-And-TrimEnd.ps1]
 Function Out-String-And-TrimEnd
 {
   Param ([int] $Skip=0, [int] $Take=2000000000)
@@ -1019,7 +1331,7 @@ Function Out-String-And-TrimEnd
   End { return [string]::join([System.Environment]::NewLine, $list.ToArray()).TrimEnd(@([char]13,[char]10)) }
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Remove-Windows-Service-If-Exists.ps1]
+# Include File: [\Includes\Remove-Windows-Service-If-Exists.ps1]
 function Remove-Windows-Service-If-Exists([string] $serviceName, [string] $humanName) {
   # Delete Existing?
   $serviceStatus = [string](Get-Service -Name $serviceName -EA SilentlyContinue).Status
@@ -1036,17 +1348,47 @@ function Remove-Windows-Service-If-Exists([string] $serviceName, [string] $human
 
 # Remove-Windows-Service-If-Exists "PG$9_26_X86" "Postgres SQL Windows Service"
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Say.ps1]
+# Include File: [\Includes\Say.ps1]
 function Say { # param( [string] $message )
     if ($Global:_Say_Stopwatch -eq $null) { $Global:_Say_Stopwatch = [System.Diagnostics.Stopwatch]::StartNew(); }
     $milliSeconds=$Global:_Say_Stopwatch.ElapsedMilliseconds
     if ($milliSeconds -ge 3600000) { $format="HH:mm:ss"; } else { $format="mm:ss"; }
     $elapsed="[$((new-object System.DateTime(0)).AddMilliseconds($milliSeconds).ToString($format))]"
-    Write-Host "$($elapsed) " -NoNewline -ForegroundColor Magenta
-    Write-Host "$args" -ForegroundColor Yellow
+    if (-not (Is-Ansi-Supported)) {
+      Write-Host "$($elapsed) " -NoNewline -ForegroundColor Magenta
+      Write-Host "$args" -ForegroundColor Yellow
+    } else {
+      $esc = [char] 27; 
+      Write-Host "$esc[95;1m$($elapsed) " -NoNewline -ForegroundColor Magenta
+      Write-Host "$esc[93;1m$esc[1m$($args)$($esc)[m" -ForegroundColor Yellow
+    }
 }
 $Global:_Say_Stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Start-Stopwatch.ps1]
+
+# https://ss64.com/nt/syntax-ansi.html
+function Is-Ansi-Supported() {
+  if ((Get-Os-Platform) -ne "Windows") { return $true; }
+  $buildServerType = Try-BuildServerType;
+  if ("$buildServerType" -eq "GITHUB_ACTIONS" -or "$buildServerType" -eq "TF_BUILD") { return $true; }
+  $rawReleaseId = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name ReleaseId -EA SilentlyContinue | % {$_.ReleaseId}
+  if ($rawReleaseId) { 
+    $releaseId = [int] $rawReleaseId;
+    return ($releaseId -ge 1809); # 1909 
+  }
+  return $false;
+}
+
+function Get-Windows-Release-Id() {
+  if ((Get-Os-Platform) -ne "Windows") { return $null; }
+  $rawReleaseId = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name ReleaseId -EA SilentlyContinue | % {$_.ReleaseId}
+  if ($rawReleaseId) { 
+    $releaseId = [int] $rawReleaseId;
+    return $releaseId;
+  }
+  return $null;
+}
+
+# Include File: [\Includes\Start-Stopwatch.ps1]
 function Start-Stopwatch() {
   $ret = [PSCustomObject] @{
     StartAt = [System.Diagnostics.Stopwatch]::StartNew();
@@ -1067,7 +1409,7 @@ function Start-Stopwatch() {
   $x = Start-Stopwatch; Sleep -Milliseconds 123; "[$($x.GetElapsed()) seconds]"
 #>
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\To-Boolean.ps1]
+# Include File: [\Includes\To-Boolean.ps1]
 function To-Boolean() { param([string] $name, [string] $value)
   if (($value -eq "True") -Or ($value -eq "On") -Or ($value -eq "1") -Or ("$value".ToLower().StartsWith("enable"))) { return $true; }
   if (("$value" -eq "") -Or ($value -eq "False") -Or ($value -eq "Off") -Or ($value -eq "0") -Or ("$value".ToLower().StartsWith("disable"))) { return $false; }
@@ -1075,30 +1417,46 @@ function To-Boolean() { param([string] $name, [string] $value)
   return $false;
 }
 
-# File: [C:\Cloud\vg\PUTTY\Repo-PS1\Includes\Troubleshoot-Info.ps1]
+# Include File: [\Includes\Troubleshoot-Info.ps1]
 function Troubleshoot-Info() {
   $enableTroubleShoot = To-Boolean "PS1_TROUBLE_SHOOT" "$($ENV:PS1_TROUBLE_SHOOT)"
   if (-not $enableTroubleShoot) { return; }
   $c = (Get-PSCallStack)[1]
   $cmd = $c.Command;
-  Write-Host -NoNewLine "[$cmd" -ForegroundColor DarkCyan
-  $line=$null; if ($c.Location) { $line = ":$($c.Location.Split(32) | Select -Last 1)"; }
-  if ($line) {
-    Write-Host -NoNewLine "$line" -ForegroundColor DarkCyan;
+  # Write-Host -NoNewLine "[$cmd" -ForegroundColor DarkCyan
+  $toWrite = @("-TextDarkCyan", "[$cmd");
+  $line=$null; 
+  if ($c.Location) { 
+    # $line = ":$($c.Location.Split(32) | Select -Last 1)"; 
+    $lineRaw = "$($c.Location.Split(32) | Select -Last 1)"; 
+    try { $line = [int]::Parse($lineRaw); $line=":$line" } catch { $line="" }
   }
-  Write-Host -NoNewLine "] " -ForegroundColor DarkCyan
+  if ($line) {
+    # Write-Host -NoNewLine "$line" -ForegroundColor DarkCyan;
+    $toWrite += "$line"
+  }
+  # Write-Host -NoNewLine "] " -ForegroundColor DarkCyan
+  $toWrite += "] "
   $color="";
   $args | % {
     if ($_ -eq "-Highlight") { 
       $color = "Cyan";
     } else { 
-      if ($color) { Write-Host -NoNewLine "$_" -ForegroundColor $color; } else { Write-Host -NoNewLine "$_"; }
+      # if ($color) { Write-Host -NoNewLine "$_" -ForegroundColor $color; } else { Write-Host -NoNewLine "$_"; }
+      if ($color) { 
+        # Write-Host -NoNewLine "$_" -ForegroundColor $color; 
+        $toWrite += $("-Text$color", "$_");
+      } else { 
+        # Write-Host -NoNewLine "$_"; 
+        $toWrite += $("-Reset", "$_");
+      }
       $color = ""
     }
   }
-  Write-Host ""
+  Write-Line -DirectArgs $toWrite;
 }
 
+<#
 function Troubleshoot-Info-Prev([string] $message) {
   $enableTroubleShoot = To-Boolean "PS1_TROUBLE_SHOOT" "$($ENV:PS1_TROUBLE_SHOOT)"
   if (-not $enableTroubleShoot) { return; }
@@ -1112,6 +1470,7 @@ function Troubleshoot-Info-Prev([string] $message) {
   Write-Host -NoNewLine "] " -ForegroundColor DarkGreen
   Write-Host "$message"
 }
+#>
 
 # Black DarkBlue DarkGreen DarkCyan DarkRed DarkMagenta DarkYellow Gray DarkGray Blue Green Cyan Red Magenta Yellow White
 
