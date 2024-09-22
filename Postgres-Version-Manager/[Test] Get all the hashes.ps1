@@ -16,7 +16,8 @@ $ANSI_COLORS = @{
   TextDarkRed     = "$($Esc)[31m"
   TextDarkMagenta = "$($Esc)[35m"
   TextDarkYellow  = "$($Esc)[33m"
-  TextGray        = "$($Esc)[98m" #?
+  # 98 is incorrent on pipeline
+  TextGray        = "$($Esc)[90m$($Esc)[98m" #?
   TextDarkGray    = "$($Esc)[90m" #?
   TextBlue        = "$($Esc)[94m"
   TextGreen       = "$($Esc)[92m"
@@ -71,6 +72,7 @@ Function Write-Line([string[]] $directArgs = @()) {
     }
     if (-not $isControl) {
       if ($isAnsiSupported) { Write-Host "$($ansi)$($arg)" -NoNewLine -ForegroundColor $text -BackgroundColor $back }
+      # if ($isAnsiSupported) { Write-Host "$($ansi)$($arg)" -NoNewLine }
       else { Write-Host "$($arg)" -NoNewLine -ForegroundColor $text -BackgroundColor $back }
     }
     # if ($isReset) { $ansi = ""; } TODO: After Text
@@ -1281,7 +1283,7 @@ function Troubleshoot-Info() {
   }
   # Write-Host -NoNewLine "] " -ForegroundColor DarkCyan
   $toWrite += @("] ", "-Reset");
-  $color="";
+  $color="Gray";
   $args | % {
     if ($_ -eq "-Highlight") { 
       $color = "Cyan";
@@ -1294,10 +1296,11 @@ function Troubleshoot-Info() {
         # Write-Host -NoNewLine "$_"; 
         $toWrite += $("-Reset", "$_");
       }
-      $color = ""
+      $color = "Gray"
     }
   }
   Write-Line -DirectArgs $toWrite;
+  $toWrite
 }
 
 <#
