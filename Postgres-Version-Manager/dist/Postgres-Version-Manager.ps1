@@ -161,85 +161,6 @@ function Install-VC-Redist-for-Postgres-On-Windows([string] $postgresVersion, [s
 
 
 # Include Directive: [ ..\Includes\*.ps1 ]
-# Include File: [\Includes\$ANSI_COLORS.ps1]
-$Esc=[char]27;
-$ANSI_COLORS = @{ 
-  Reset     = "$($Esc)[0m"
-  Bold      = "$($Esc)[1m"
-  Underline = "$($Esc)[4m"
-  Inverse   = "$($Esc)[7m"
-  
-  TextBlack       = "$($Esc)[30m"
-  TextDarkBlue    = "$($Esc)[34m"
-  TextDarkGreen   = "$($Esc)[32m"
-  TextDarkCyan    = "$($Esc)[36m"
-  TextDarkRed     = "$($Esc)[31m"
-  TextDarkMagenta = "$($Esc)[35m"
-  TextDarkYellow  = "$($Esc)[33m"
-  # 98 is incorrent on azure pipeline
-  TextGray        = "$($Esc)[90m$($Esc)[98m" #?
-  TextDarkGray    = "$($Esc)[90m" #?
-  TextBlue        = "$($Esc)[94m"
-  TextGreen       = "$($Esc)[92m"
-  TextCyan        = "$($Esc)[96m"
-  TextRed         = "$($Esc)[91m"
-  TextMagenta     = "$($Esc)[95m"
-  TextYellow      = "$($Esc)[93m"
-  TextWhite       = "$($Esc)[97m"
-
-  BackBlack       = "$($Esc)[40m"
-  BackDarkBlue    = "$($Esc)[44m"
-  BackDarkGreen   = "$($Esc)[42m"
-  BackDarkCyan    = "$($Esc)[46m"
-  BackDarkRed     = "$($Esc)[41m"
-  BackDarkMagenta = "$($Esc)[45m"
-  BackDarkYellow  = "$($Esc)[43m"
-  BackGray        = "$($Esc)[100m" #?
-  BackDarkGray    = "$($Esc)[108m" #?
-  BackBlue        = "$($Esc)[104m"
-  BackGreen       = "$($Esc)[102m"
-  BackCyan        = "$($Esc)[106m"
-  BackRed         = "$($Esc)[101m"
-  BackMagenta     = "$($Esc)[105m"
-  BackYellow      = "$($Esc)[103m"
-  BackWhite       = "$($Esc)[107m"
-}
-
-# Write-Line "Hello " -TextRed -Bold "World"
-Function Write-Line([string[]] $directArgs = @()) {
-  $isAnsiSupported = Is-Ansi-Supported;
-  $directArgs += @($args);
-  $arguments = @($directArgs);
-  $text="Gray";
-  $back="Black";
-  $ansi="";
-  foreach($arg in $arguments) {
-    $isControl = $false;
-    $isReset = $false;
-    if ($arg.StartsWith("-")) {
-      if ($arg.Length -gt 1) {
-        $key = $arg.SubString(1);
-        if ($ANSI_COLORS -and $ANSI_COLORS[$key]) {
-          $ansiValue = $ANSI_COLORS[$key];
-          $ansi += $ansiValue;
-          $isReset = ($key -eq "Reset");
-          if ($isReset) { $text="Gray"; $back="Black"; }
-          if ($key -like "Text*") { $text = $key.SubString(4) }
-          if ($key -like "Back*") { $back = $key.SubString(4) }
-          $isControl = $true;
-        }
-      }
-    }
-    if (-not $isControl) {
-      if ($isAnsiSupported) { Write-Host "$($ansi)$($arg)" -NoNewLine -ForegroundColor $text -BackgroundColor $back }
-      # if ($isAnsiSupported) { Write-Host "$($ansi)$($arg)" -NoNewLine }
-      else { Write-Host "$($arg)" -NoNewLine -ForegroundColor $text -BackgroundColor $back }
-    }
-    # if ($isReset) { $ansi = ""; } TODO: After Text
-  }
-  Write-Host "";
-}
-
 # Include File: [\Includes\$Full7zLinksMetadata.ps1]
 $Full7zLinksMetadata_onWindows = @(
   @{ Ver = 2301; 
@@ -1443,7 +1364,7 @@ function Troubleshoot-Info() {
   }
   # Write-Host -NoNewLine "] " -ForegroundColor DarkCyan
   $toWrite += @("] ", "-Reset");
-  $color="";
+  $color="Gray";
   $args | % {
     if ($_ -eq "-Highlight") { 
       $color = "Cyan";
@@ -1456,7 +1377,8 @@ function Troubleshoot-Info() {
         # Write-Host -NoNewLine "$_"; 
         $toWrite += $("-Reset", "$_");
       }
-      $color = ""
+      $color = "Gray"
+      $toWrite += "-Reset"
     }
   }
   Write-Line -DirectArgs $toWrite;
@@ -1480,6 +1402,90 @@ function Troubleshoot-Info-Prev([string] $message) {
 #>
 
 # Black DarkBlue DarkGreen DarkCyan DarkRed DarkMagenta DarkYellow Gray DarkGray Blue Green Cyan Red Magenta Yellow White
+# Include File: [\Includes\Write-Line.ps1]
+function Get-ANSI-Colors() {
+  $isAzurePipeline = (Try-BuildServerType) -eq "TF_BUILD";
+  $Esc=[char]27;
+  $ANSI_COLORS = @{ 
+    Reset     = "$($Esc)[0m"
+    Bold      = "$($Esc)[1m"
+    Underline = "$($Esc)[4m"
+    Inverse   = "$($Esc)[7m"
+    
+    TextBlack       = "$($Esc)[30m"
+    TextDarkBlue    = "$($Esc)[34m"
+    TextDarkGreen   = "$($Esc)[32m"
+    TextDarkCyan    = "$($Esc)[36m"
+    TextDarkRed     = "$($Esc)[31m"
+    TextDarkMagenta = "$($Esc)[35m"
+    TextDarkYellow  = "$($Esc)[33m"
+    # 98 is incorrent on azure pipeline
+    TextGray        = IIF $isAzurePipeline "$($Esc)[90m$($Esc)[98m" "$($Esc)[98m" #?
+    TextDarkGray    = "$($Esc)[90m" #?
+    TextBlue        = "$($Esc)[94m"
+    TextGreen       = "$($Esc)[92m"
+    TextCyan        = "$($Esc)[96m"
+    TextRed         = "$($Esc)[91m"
+    TextMagenta     = "$($Esc)[95m"
+    TextYellow      = "$($Esc)[93m"
+    TextWhite       = "$($Esc)[97m"
+
+    BackBlack       = "$($Esc)[40m"
+    BackDarkBlue    = "$($Esc)[44m"
+    BackDarkGreen   = "$($Esc)[42m"
+    BackDarkCyan    = "$($Esc)[46m"
+    BackDarkRed     = "$($Esc)[41m"
+    BackDarkMagenta = "$($Esc)[45m"
+    BackDarkYellow  = "$($Esc)[43m"
+    BackGray        = "$($Esc)[100m" #?
+    BackDarkGray    = "$($Esc)[108m" #?
+    BackBlue        = "$($Esc)[104m"
+    BackGreen       = "$($Esc)[102m"
+    BackCyan        = "$($Esc)[106m"
+    BackRed         = "$($Esc)[101m"
+    BackMagenta     = "$($Esc)[105m"
+    BackYellow      = "$($Esc)[103m"
+    BackWhite       = "$($Esc)[107m"
+  }
+  $ANSI_COLORS
+}
+
+# Write-Line "Hello " -TextRed -Bold "World"
+Function Write-Line([string[]] $directArgs = @()) {
+  $ansiColors = Get-ANSI-Colors;
+  $isAnsiSupported = Is-Ansi-Supported;
+  $directArgs += @($args);
+  $arguments = @($directArgs);
+  $text="Gray";
+  $back="Black";
+  $ansi="";
+  foreach($arg in $arguments) {
+    $isControl = $false;
+    $isReset = $false;
+    if ($arg.StartsWith("-")) {
+      if ($arg.Length -gt 1) {
+        $key = $arg.SubString(1);
+        if ($ansiColors -and $ansiColors[$key]) {
+          $ansiValue = $ansiColors[$key];
+          $ansi += $ansiValue;
+          $isReset = ($key -eq "Reset");
+          if ($isReset) { $text="Gray"; $back="Black"; }
+          if ($key -like "Text*") { $text = $key.SubString(4) }
+          if ($key -like "Back*") { $back = $key.SubString(4) }
+          $isControl = $true;
+        }
+      }
+    }
+    if (-not $isControl) {
+      if ($isAnsiSupported) { Write-Host "$($ansi)$($arg)" -NoNewLine -ForegroundColor $text -BackgroundColor $back }
+      # if ($isAnsiSupported) { Write-Host "$($ansi)$($arg)" -NoNewLine }
+      else { Write-Host "$($arg)" -NoNewLine -ForegroundColor $text -BackgroundColor $back }
+    }
+    # if ($isReset) { $ansi = ""; } TODO: After Text
+  }
+  Write-Host "";
+}
+
 
 # Test:
 # Install-VC-Redist-for-Postgres-On-Windows "10.23-x64"  "Auto"
