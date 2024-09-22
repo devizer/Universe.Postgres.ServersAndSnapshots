@@ -1300,8 +1300,8 @@ function Is-Vc-Runtime-Installed([int] $major, [string] $arch) {
 }
 
 # Include File: [\Includes\Lazy-Aggregator.ps1]
-Update-Lazy-Aggregator([string] $storageFileName, [string] $keyName, [HastTable] $properties) {
-  
+Update-Lazy-Aggregator([string] $storageFileName, [string] $keyName, [HashTable] $properties) {
+    # TODO:
 }
 # Include File: [\Includes\Measure-Action.ps1]
 function Measure-Action {
