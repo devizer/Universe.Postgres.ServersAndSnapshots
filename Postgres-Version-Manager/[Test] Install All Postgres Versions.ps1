@@ -16,7 +16,7 @@ $ANSI_COLORS = @{
   TextDarkRed     = "$($Esc)[31m"
   TextDarkMagenta = "$($Esc)[35m"
   TextDarkYellow  = "$($Esc)[33m"
-  # 98 is incorrent on pipeline
+  # 98 is incorrent on azure pipeline
   TextGray        = "$($Esc)[90m$($Esc)[98m" #?
   TextDarkGray    = "$($Esc)[90m" #?
   TextBlue        = "$($Esc)[94m"
@@ -1283,7 +1283,7 @@ function Troubleshoot-Info() {
   }
   # Write-Host -NoNewLine "] " -ForegroundColor DarkCyan
   $toWrite += @("] ", "-Reset");
-  $color="Gray";
+  $color="";
   $args | % {
     if ($_ -eq "-Highlight") { 
       $color = "Cyan";
@@ -1296,11 +1296,11 @@ function Troubleshoot-Info() {
         # Write-Host -NoNewLine "$_"; 
         $toWrite += $("-Reset", "$_");
       }
-      $color = "Gray"
+      $color = ""
     }
   }
   Write-Line -DirectArgs $toWrite;
-  $toWrite
+  # $toWrite
 }
 
 <#
