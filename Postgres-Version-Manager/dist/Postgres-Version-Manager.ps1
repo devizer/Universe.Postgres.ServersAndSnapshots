@@ -1689,9 +1689,7 @@ else {
 }
 
 # try psql
-$finalMessage = "Postgre SQL Server $Version Setup Finished."
-if ( (Try-BuildServerType) -eq "TF_BUILD" ) { echo "##[section]$finalMessage" }
-else { Say $finalMessage; }
+Say "Postgre SQL Server $Version Setup Finished."
 
 echo "Finally, query newly installed PostgreSQL"
 $ENV:PGPASSWORD="$Password"
