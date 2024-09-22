@@ -1139,6 +1139,10 @@ function Is-Vc-Runtime-Installed([int] $major, [string] $arch) {
   return "$($found)" -ne ""; # v2+
 }
 
+# Include File: [\Includes\Lazy-Aggregator.ps1]
+Update-Lazy-Aggregator([string] $storageFileName, [string] $keyName, [HastTable] $properties) {
+  
+}
 # Include File: [\Includes\Measure-Action.ps1]
 function Measure-Action {
   Param(
@@ -1276,7 +1280,7 @@ function Troubleshoot-Info() {
     $toWrite += "$line"
   }
   # Write-Host -NoNewLine "] " -ForegroundColor DarkCyan
-  $toWrite += "] "
+  $toWrite += @("] ", "-Reset");
   $color="";
   $args | % {
     if ($_ -eq "-Highlight") { 
