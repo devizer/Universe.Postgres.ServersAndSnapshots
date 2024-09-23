@@ -1614,6 +1614,7 @@ Function Write-Line([string[]] $directArgs = @()) {
     foreach($p in @("--locale=$Locale", "--lc-collate=$Locale", "-E", "UTF-8")) { $initArgs += $p; }
   }
   Write-Host "`"$initDb`" $initArgs"
+  # TODO: --no-sync since v10, --no-instructions since v14
   $__ = & "$initDb" @initArgs | out-host
   if (-not $?) { Write-Host "Error initializing postgre sql server" -ForeGroundColor Red; }
   Remove-Item $pwfile -Force -EA SilentlyContinue | Out-Null
@@ -1653,11 +1654,8 @@ Function Write-Line([string[]] $directArgs = @()) {
 
   if (-not "$LogFolder") { New-Item -Path "$LogFolder" -ItemType Directory -Force -EA SilentlyContinue; }
 
-  Remove-Item ($startCmd) -Force -EA SilentlyContinue | Out-Null
-  Append-All-Text $startCmd "`"$pgctl`" -D `"$DataFolder`" -w start"
-
-  Remove-Item ($stopCmd) -Force -EA SilentlyContinue | Out-Null
-  Append-All-Text $stopCmd "`"$pgctl`" -D `"$DataFolder`" -w stop`r`n"
+  Write-All-Text $startCmd "@`"$pgctl`" -D `"$DataFolder`" -w start`r`n"
+  Write-All-Text $stopCmd  "@`"$pgctl`" -D `"$DataFolder`" -w stop`r`n"
 
   $errors = 0;
   if ("$ServiceId" -ne "") {
