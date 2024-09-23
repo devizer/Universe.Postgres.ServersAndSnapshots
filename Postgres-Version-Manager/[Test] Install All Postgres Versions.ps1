@@ -1327,10 +1327,11 @@ Function Write-Line([string[]] $directArgs = @()) {
 }
 
 
-$versionsRaw = & powershell -f dist\Postgres-Version-Manager.ps1 --available-versions | Out-String-And-TrimEnd
-$versions=$versionsRaw.Split(' ')
+# $versionsRaw = & powershell -f dist\Postgres-Version-Manager.ps1 --available-versions | Out-String-And-TrimEnd
+# $versions=$versionsRaw.Split(' ')
+$versions = @(Get-Available-PostgreSQL-Versions)
 
-echo "$($versions.Count) Versions: '$versionsRaw'"
+echo "$($versions.Count) Versions: '$versions'"
 $temp=$ENV:TEMP
 echo "TEMP: '$temp'"
 $port=60700
@@ -1339,8 +1340,10 @@ foreach($version in $versions) {
   $idService="PGSQL`$$($version.Replace(".","_").Replace("-","_"))"
   $downloadType = "$($ENV:PGTYPE)"; if (-not $downloadType) { $downloadType="tiny"; }
   Say "TESTING VERSION '$version' as [$idService], DownloadType is '$downloadType'"
-  & powershell -f dist\Postgres-Version-Manager.ps1 -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
-  & sc.exe config "$idService" start= delayed-auto
+  # & powershell -f dist\Postgres-Version-Manager.ps1 -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
+  Setup-PostgreSQL-Server -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
+  # & sc.exe config "$idService" start= delayed-auto
+  & sc.exe config "$idService" start= manual
 }
 
 Say "Testing Complete"
