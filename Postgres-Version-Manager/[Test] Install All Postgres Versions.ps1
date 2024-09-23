@@ -1676,6 +1676,7 @@ foreach($version in $versions) {
   Setup-PostgreSQL-Server -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
   # & sc.exe config "$idService" start= delayed-auto
   & sc.exe config "$idService" start= demand
+  Get-Service "$idService" -EA SilentlyContinue | Stop-Service
 }
 
 Say "Testing Complete"
