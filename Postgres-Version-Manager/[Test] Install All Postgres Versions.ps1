@@ -1662,6 +1662,7 @@ Param(
 # $versionsRaw = & powershell -f dist\Postgres-Version-Manager.ps1 --available-versions | Out-String-And-TrimEnd
 # $versions=$versionsRaw.Split(' ')
 $versions = @(Get-Available-PostgreSQL-Versions)
+[Array]::Reverse($versions)
 
 echo "$($versions.Count) Versions: '$versions'"
 $temp=$ENV:TEMP
