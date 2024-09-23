@@ -1687,7 +1687,7 @@ $versions = @(Get-Available-PostgreSQL-Versions)
 
 echo "$($versions.Count) Versions: '$versions'"
 # $installTo=$ENV:TEMP
-$installTo = IIf (Test-Path "W:\Temp") "W:\Temp" (Combine-Path (Get-System-Drive) "PostgreSQL");
+$installTo = IIf (Test-Path "W:\Temp") "W:\Temp\PostgreSQL" (Combine-Path (Get-System-Drive) "PostgreSQL");
 echo "INSTALL TO: '$installTo'"
 $port=60700
 foreach($version in $versions) {
@@ -1695,7 +1695,7 @@ foreach($version in $versions) {
   $idService="PGSQL`$$($version.Replace(".","_").Replace("-","_"))"
   $downloadType = "$($ENV:PGTYPE)"; if (-not $downloadType) { $downloadType="tiny"; }
   Say "TESTING VERSION '$version' as [$idService], DownloadType is '$downloadType'"
-  $isOk = Setup-PostgreSQL-Server -Version $version -BinFolder "$installTo\Postgre SQL\$version-as-Service" -DataFolder "$installTo\Postgre SQL\Data-$version-as-Service" -LogFolder "$installTo\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
+  $isOk = Setup-PostgreSQL-Server -Version $version -BinFolder "$installTo\$version-as-Service" -DataFolder "$installTo\Data-$version-as-Service" -LogFolder "$installTo\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
   if ($isOk) {
     & sc.exe config "$idService" start= demand
   }
