@@ -680,10 +680,10 @@ function ExtractArchiveBy7zMini([string] $fromArchive, [string] $toDirectory) {
 
 function ExtractArchiveByDefault7zFull([string] $fromArchive, [string] $toDirectory, $extractCommand = "x") {
   New-Item -Path "$($toDirectory)" -ItemType Directory -Force -EA SilentlyContinue | Out-Null
-  pushd "$($toDirectory)"
+  # pushd "$($toDirectory)"
   $full7zExe = "$(Get-Full7z-Exe-FullPath-for-Windows)"
-  Troubleshoot-Info "full7zExe: $full7zExe fromArchive $fromArchive"
-  & "$full7zExe" @("$extractCommand", "-y", "$fromArchive")
+  Troubleshoot-Info "\"$fromArchive\" --> \"" -Highlight $toDirectory "\" by \"$full7zExe\""
+  & "$full7zExe" @("$extractCommand", "-y", "-o\"$($toDirectory)\"", "$fromArchive")
   $isExtractOk = $?;
   return $isExtractOk;
 }
