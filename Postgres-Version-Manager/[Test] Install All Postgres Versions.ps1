@@ -1326,6 +1326,338 @@ Function Write-Line([string[]] $directArgs = @()) {
   Write-Host "";
 }
 
+# Include Directive: [ src\Postgres-Metadata.ps1 ]
+# Include File: [\Postgres-Version-Manager.PS1Project\src\Postgres-Metadata.ps1]
+function Get-Available-PostgreSQL-Versions() {
+  @(
+    "16.3-x64", "16.0-x64",
+    "15.7-x64", "15.4-x64", "15.1-x64",
+    "14.12-x64", "14.9-x64", "14.6-x64",
+    "13.15-x64", "13.12-x64", "13.9-x64",
+    "12.19-x64", "12.16-x64", "12.13-x64",
+    "11.21-x64", "11.18-x64",
+    "10.23-x64", "10.23-x86",
+    "9.6.24-x64", "9.6.24-x86",
+    "9.3.25-x64", "9.3.25-x86",
+    "9.1.24-x64", "9.1.24-x86"
+  );
+}
+
+$KNOWN_POSTGRESQL_FULL_DIRECT_LINKS=@{
+  "16.3-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259104";
+  "16.1-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258791";
+  "15.7-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259102";
+  "14.12-x64"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259100";
+  "13.15-x64"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259098";
+  "12.19-x64"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259096";
+  "11.21-x64"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258670";
+  "10-23.x64"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258258";
+  "10-23.x86"  = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258256";
+  "9.6.24-x64" = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1257907";
+  "9.6.24-x86" = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1257902";
+  "9.5.14-x64" = "https://get.enterprisedb.com/postgresql/postgresql-9.5.14-1-windows-x64-binaries.zip";
+  "9.5.14-x86" = "https://get.enterprisedb.com/postgresql/postgresql-9.5.14-1-windows-x86-binaries.zip";
+}
+
+
+function Get-Postgres-Download-Links([string] $downloadType, [string] $version) {
+
+  $ret=@();
+
+  $fileOnly="postgres-$Version-$DownloadType-windows"
+
+  if ($downloadType -eq "full") {
+    $urlDirect=$KNOWN_POSTGRESQL_FULL_DIRECT_LINKS[$version];
+    if ($urlDirect) { 
+      $ret += @{Url=$urlDirect; Description="Direct download URL over Postgre CDN"; File="$fileOnly.zip";}
+    }
+  }
+
+  $url1="https://sourceforge.net/projects/postgres-binaries/files/$fileOnly.7z/download"
+  $url2="https://master.dl.sourceforge.net/project/postgres-binaries/$($fileOnly).7z?viasf=1"
+
+  $ret += @{Url=$url1; Description="Primary download URL over CDN"; File="$fileOnly.7z";}
+  $ret += @{Url=$url2; Description="Secondary download URL"; File="$fileOnly.7z";}
+
+  return $ret;
+}
+
+# Include Directive: [ src\Install-VC-Redist-for-Postgres-On-Windows.ps1 ]
+# Include File: [\Postgres-Version-Manager.PS1Project\src\Install-VC-Redist-for-Postgres-On-Windows.ps1]
+function Install-VC-Redist-for-Postgres-On-Windows([string] $postgresVersion, [string] $mode) { 
+  $postgresMajor = [int] ($postgresVersion.Split('.') | Select -First 1);
+  $vcVersion = "";
+  if ($postgresMajor -ge 9 -and $postgresMajor -le 10) { $vcVersion = 12; }
+  elseif ($postgresMajor -ge 11 -and $postgresMajor -le 16) { $vcVersion = 14; }
+  else {
+    Write-Host "Warning! Unknown VC++ Redist version for postgres $postgresVersion" -ForegroundColor Red
+  }
+  $postgresArch = $postgresVersion.Split('-') | Select -Last 1;
+  $vcArch = "$postgresArch";
+  $isInstalled = Is-Vc-Runtime-Installed $vcVersion $vcArch
+  Write-Host "Postgres $postgresVersion requires VC++ Runtime v$vcVersion-$vcArch. It is $(IIf $isInstalled "already installed" "NOT Installed (absent)")."
+  if ($mode -eq "Skip") {
+    Say "Skiping VC++ Redist $vcVersion-$vcArch installation for Postgres SQL $postgresVersion"
+    return $false;
+  } 
+  elseif ($mode -eq "Force") {
+    Say "Forced installation of VC++ Redist $vcVersion-$vcArch installation for Postgres SQL $postgresVersion"
+    $isOk = Download-And-Install-Specific-VC-Runtime $vcArch $vcVersion;
+    if (-not $isOk) { 
+      Write-Host "Warning! Error installing VC++ Redist $vcVersion-$vcArch installation for Postgres SQL $postgresVersion" -ForegroundColor Red
+    }
+    return $isOk;
+  }
+  else <# Auto #> { 
+    if ($isInstalled) { 
+      Say "Already installed VC++ Redist $vcVersion-$vcArch installation for Postgres SQL $postgresVersion"
+    }
+    else {
+      Say "Installing missing VC++ Redist $vcVersion-$vcArch installation for Postgres SQL $postgresVersion"
+      $isOk = Download-And-Install-Specific-VC-Runtime $vcArch $vcVersion;
+      if (-not $isOk) { 
+        Write-Host "Warning! Error installing VC++ Redist $vcVersion-$vcArch installation for Postgres SQL $postgresVersion" -ForegroundColor Red
+      }
+      return $isOk;
+    }
+  }
+}
+
+
+# Include Directive: [ src\Postgres-Version-Manager.ps1 ]
+# Include File: [\Postgres-Version-Manager.PS1Project\src\Postgres-Version-Manager.ps1]
+# !/usr/bin/env pwsh
+function Say-Parameter { param( [string] $name, [string] $value)
+    Write-Host "  - $(($name + ":").PadRight(11,[char]32)) '" -NoNewline
+    Write-Host "$value" -NoNewline -ForegroundColor Green
+    Write-Host "'"
+}
+
+
+function Setup-PostgreSQL-Server() {
+Param(
+  [string]   $Mode = "Process", # Process|Service
+  [string]   $Version = "16.3-x64",
+  [string[]] $OptionalDownloadUrl = @(), # Empty means Auto. 12.0-x64 is http://sbp.enterprisedb.com/getfile.jsp?fileid=12082
+  [string]   $Admin = "postgres",
+  [string]   $Password = "Meaga`$str0ng",
+  [string]   $Locale = "en-US",
+  [string]   $OnlyLocalhost = "False",
+  [int]      $Port = 5432,
+  [string]   $DownloadType = "tiny", # Tiny|Full
+  [string]   $ServiceId = "", # Empty means do not install service
+  [string]   $BinFolder = "",
+  [string]   $DataFolder = "",
+  [string]   $LogFolder = "",
+  [string]   $VcRedistMode = "Auto" # Audo|Skip|Force
+)
+  # Progress: 1) Download, 2) Stop existing, 3) extract 7z, 4) Install VC++, 5) Clean up existing, 6) Create DATA, 7) Start, 8) Query
+
+  # --> src\Postgres-Metadata.ps1 <--
+  # $KNOWN_FULL_DIRECT_LINKS=@{}
+
+  # --> src\Install-VC-Redist-for-Postgres-On-Windows.ps1 <--
+  # --> ..\Includes\*.ps1 <--
+
+  # Test:
+  # Install-VC-Redist-for-Postgres-On-Windows "10.23-x64"  "Auto"
+  # Install-VC-Redist-for-Postgres-On-Windows "9.6.24-x86" "Auto"
+  # exit 0;
+
+  $ROOT_FOLDER="$($ENV:LOCALAPPDATA)"
+  if ("$ROOT_FOLDER" -eq "") { $ROOT_FOLDER="$($ENV:APPDATA)"; }
+
+  $DEFAULT_BINARIES_FOLDER=Combine-Path $ROOT_FOLDER "PostgreSQL-Binaries"
+  $DEFAULT_DATA_FOLDER=Combine-Path $ROOT_FOLDER "PostgreSQL-Data"
+  $DEFAULT_LOG_FOLDER=Combine-Path $ROOT_FOLDER "PostgreSQL-Logs"
+  $TEMP_FOLDER="$($ENV:TEMP)"; if (-not $TEMP_FOLDER) { $TEMP_FOLDER=$ROOT_FOLDER; }
+
+  $hasCustomUrl = [bool] $OptionalDownloadUrl;
+
+  Write-Host "PostgreSQL Server Version Manager"
+  Say-Parameter "Version" $Version
+  Say-Parameter "Admin" $Admin
+  Say-Parameter "Password" $Password
+  Say-Parameter "Locale" $Locale
+  Say-Parameter "Only Local" $OnlyLocalhost
+  Say-Parameter "TCP Port" $Port
+  Say-Parameter "Download" (IIf $hasCustomUrl $OptionalDownloadUrl $DownloadType)
+  Say-Parameter "Service Id" $ServiceId
+  Say-Parameter "Bin Folder" $BinFolder
+  Say-Parameter "Data" $DataFolder
+  Say-Parameter "Log Folder" $LogFolder
+  Say-Parameter "VC++ Mode" $VcRedistMode
+
+  if (-not $BinFolder)  { $BinFolder  = Combine-Path $DEFAULT_BINARIES_FOLDER "$Version"; }
+  if (-not $DataFolder) { $DataFolder = Combine-Path $DEFAULT_DATA_FOLDER "$Version"; }
+  if (-not $LogFolder)  { $LogFolder  = Combine-Path $DEFAULT_LOG_FOLDER "$Version"; }
+  $fileOnly="postgres-$Version-$DownloadType-windows.7z"
+  $downloadLinks = Get-Postgres-Download-Links "$DownloadType" "$Version"
+
+  # Direct Link?
+  if ($hasCustomUrl) {
+    # 1. -DownloadType is ignored.
+    # 2. -VcRedistMode should be Skip
+    $downloadLinks=@();
+    $i=0; foreach($u in $OptionalDownloadUrl) { 
+      $i++;
+      $fileOnly="particular-postgres-$Version.zip";
+      $downloadLinks += @{Url=$u; Description="Custom download URL #$i"; File=$fileOnly;}
+    }
+  }
+
+  $downloadLinks | % {
+    Write-Host "$($_.Description): '$($_.Url)'"
+  }
+
+
+  $fullArchive = Combine-Path "$TEMP_FOLDER" "PostgreSQL-setup" $fileOnly
+  Write-Host "Downloading $fileOnly as '$fullArchive'"
+  Say Downloading PostgreSQL Server version $Version
+
+  # EXIT 0
+
+  $urlList=$downloadLinks | % { $_.Url }
+  $isDownloadOk = Download-File-FailFree-and-Cached $fullArchive $urlList
+  if (-not $isDownloadOk) {
+    Write-Host "Error downloading $fileOnly" -ForegroundColor Red
+  }
+
+  if ("$ServiceId" -ne "") {
+    Remove-Windows-Service-If-Exists "$ServiceId" "PostgreSQL Windows Service '$ServiceId'"
+  }
+
+  $startCmd = Combine-Path $DataFolder "START.CMD"
+  $stopCmd = Combine-Path $DataFolder "STOP.CMD"
+
+  if ((Is-File-Not-Empty "$stopCmd") -and (Is-File-Not-Empty (Combine-Path "$DataFolder" "postmaster.pid"))) {
+    Say "Stopping existing postgre using pg_ctl ... stop"
+    & "$stopCmd"; 
+  }
+
+  Say "Extracting $fileOnly ..."
+  $isExtractOk = ExtractArchiveByDefault7zFull "$fullArchive" "$BinFolder" | Select -Last 1
+  if (-not $isExtractOk) { Write-Host "Error extracting $fullArchive" -ForeGroundColor Red; }
+  # DONE: if exists .\pgsql\bin, move .\pgsql\* to ..
+  $isOriginal = Test-Path "$(Combine-Path "$BinFolder" "pgsql" "bin")" -PathType Container
+  # Write-Host "isOriginal: $isOriginal"
+  if ($isOriginal) {
+    $originalPgsql = Combine-Path "$BinFolder" "pgsql"
+    # Write-Host "originalPgsql: $originalPgsql"
+    $subItems = Get-ChildItem -Path $originalPgsql -Force | % { $_.FullName }
+    # Write-Host "subItems: $subItems"
+    $subItems | % { 
+      $dest = Combine-Path "$BinFolder" "$([System.IO.Path]::GetFileName($_))"
+      # Write-Host "MOVE [$_] --> [$dest]"
+      Remove-Item -Recurse -Force "$dest" -ErrorAction SilentlyContinue | out-null
+      Move-Item -Path "$_" -Destination "$dest" -Force
+    }
+  }
+
+  Install-VC-Redist-for-Postgres-On-Windows $Version $VcRedistMode
+
+  # TODO: if exists $DataFolder
+  if (Test-Path (Combine-Path $DataFolder "postgresql.conf") -PathType Leaf) {
+    Say "Cleaning up existing database at $DataFolder"
+    Remove-Item "$DataFolder\*\*\*.*" -Recurse -Force -EA SilentlyContinue
+    Remove-Item "$DataFolder\*\*.*" -Recurse -Force -EA SilentlyContinue
+    Remove-Item "$DataFolder\*.*" -Recurse -Force -EA SilentlyContinue
+    Remove-Item "$DataFolder" -Recurse -Force -EA SilentlyContinue
+    New-Item "$DataFolder" -ItemType Directory -EA SilentlyContinue | out-null
+  }
+
+  Say Creating Database at $DataFolder ...
+
+  $pwfile="$($ENV:LOCALAPPDATA)"; if ("$pwfile" -eq "") { $pwfile="$($ENV:APPDATA)"; }; $pwfile = Combine-Path $pwfile "Temp" $([System.Guid]::NewGuid()).ToString("N");
+  Write-Host "pwfile: $pwfile"
+  Append-All-Text $pwfile $Password
+  $bin =    Combine-Path $BinFolder "bin"
+  $initDb = Combine-Path $bin "initdb.exe"
+  $pgctl =  Combine-Path $bin "pg_ctl.exe"
+  $psql =   Combine-Path $bin "psql.exe"
+  $ENV:PGTZ="UTC"
+  $initArgs=@("-D", "$DataFolder", "--pwfile", "$pwfile", "-U", "$Admin");
+  if ($Locale) {
+    foreach($p in @("--locale=$Locale", "--lc-collate=$Locale", "-E", "UTF-8")) { $initArgs += $p; }
+  }
+  Write-Host "`"$initDb`" $initArgs"
+  & "$initDb" @initArgs
+  if (-not $?) { Write-Host "Error initializing postgre sql server" -ForeGroundColor Red; }
+  Remove-Item $pwfile -Force -EA SilentlyContinue | Out-Null
+  # Patch two .conf files
+  $pgHba =          Combine-Path "$DataFolder" "pg_hba.conf"
+  $postgresqlConf = Combine-Path "$DataFolder" "postgresql.conf"
+  Append-All-Text $postgresqlConf "`r`nport = $Port`r`n"
+  if (-not (To-Boolean "OnlyLocalhost" $OnlyLocalhost)) {
+    Append-All-Text $pgHba          "`r`nhost   all   all   0.0.0.0/0   md5`r`nhost   all   all   ::0/0       md5`r`n"
+    Append-All-Text $postgresqlConf "`r`nlisten_addresses = '*'`r`n"
+  }
+  # Max Performance
+  Append-All-Text $postgresqlConf @"
+
+  # max performance
+  wal_level = minimal
+  max_wal_senders = 0
+  fsync = off
+  full_page_writes = off
+  synchronous_commit = off
+  wal_writer_delay = 10000ms
+  commit_delay = 100000
+
+  logging_collector = on
+  log_destination = 'csvlog'
+  log_directory = '$($LogFolder.Replace("`\", "`\`\"))'
+  log_filename = 'postgresql-%Y-%m-%d-%H-%M-%S.log'
+  log_rotation_size = 0
+  log_rotation_age = 0
+  log_truncate_on_rotation = off		
+  log_statement = 'all'
+  log_duration = on
+
+  max_connections = 200
+
+"@
+
+  if (-not "$LogFolder") { New-Item -Path "$LogFolder" -ItemType Directory -Force -EA SilentlyContinue; }
+
+  Remove-Item ($startCmd) -Force -EA SilentlyContinue | Out-Null
+  Append-All-Text $startCmd "`"$pgctl`" -D `"$DataFolder`" -w start"
+
+  Remove-Item ($stopCmd) -Force -EA SilentlyContinue | Out-Null
+  Append-All-Text $stopCmd "`"$pgctl`" -D `"$DataFolder`" -w stop`r`n"
+
+  if ("$ServiceId" -ne "") {
+    # Remove-Windows-Service-If-Exists "$ServiceId" "PostgreSQL Windows Service '$ServiceId'"
+    Say "Creating PostgreSQL Windows Service '$ServiceId'"
+    $argsCreateService = @("register", "-N", "$ServiceId", "-D", "$DataFolder", "-w")
+    & "$pgctl" @argsCreateService
+    $isCreateServiceOk = $?
+    if (-not $isCreateServiceOk) {
+      Write-Host "Error creating postgresql server service" -ForeGroundColor Red;
+    }
+    $nl=[System.Environment]::NewLine;
+    Set-Service -Name "$ServiceId" -DisplayName "PostgreSQL v$Version listening on port $port" -Description "PostgreSQL v$Version listening on port $port$($nl)Binaries: $BinFolder$($nl)Data: $DataFolder$($nl)Log: $LogFolder"
+  }
+
+  if ($Mode -eq "Process") { 
+    Say "Starting PostgreSQL server $Version as user process ... "
+    & "$startCmd"; 
+    if (-not $?) { Write-Host "Error starting postgresql server as user process" -ForeGroundColor Red; }
+  }
+  else {
+    Say "Starting Postgres SQL server $Version as Windows Service '$ServiceId' ... "
+    & net start "$ServiceId"
+    if (-not $?) { Write-Host "Error starting postgresql server windows service" -ForeGroundColor Red; }
+  }
+
+  Say "Postgre SQL Server $Version Setup Finished."
+  echo "Finally, query newly installed PostgreSQL"
+  $ENV:PGPASSWORD="$Password"
+  echo "SELECT 'User is [' || current_user || ']. Database is [' || current_database() || ']. Timezone is [' || current_setting('TIMEZONE') || ']. Server is [' || setting || ']. Encoding is [' || pg_client_encoding() || ']' FROM pg_settings WHERE name = 'server_version'; SELECT 'MAX Connections is ' || setting FROM pg_settings WHERE name = 'max_connections';" | & "$psql" "-t" "-h" localhost "-p" $Port "-U" $Admin postgres
+  if (-not $?) { Write-Host "Error querying newly created postgresql server" -ForeGroundColor Red; }
+
+}
+
 
 # $versionsRaw = & powershell -f dist\Postgres-Version-Manager.ps1 --available-versions | Out-String-And-TrimEnd
 # $versions=$versionsRaw.Split(' ')
@@ -1343,7 +1675,7 @@ foreach($version in $versions) {
   # & powershell -f dist\Postgres-Version-Manager.ps1 -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
   Setup-PostgreSQL-Server -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
   # & sc.exe config "$idService" start= delayed-auto
-  & sc.exe config "$idService" start= manual
+  & sc.exe config "$idService" start= demand
 }
 
 Say "Testing Complete"
