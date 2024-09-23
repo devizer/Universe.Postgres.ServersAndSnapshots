@@ -793,11 +793,11 @@ function Get-Memory-Info {
     $free=[int] ($mem.FreePhysicalMemory / 1024);
     
     $wmiSwap = @(Select-WMI-Objects "Win32_PageFileUsage")
-    $swapCurrent = $wmiSwap   | Measure-Object -property CurrentUsage -sum | Select-Object Sum
-    $swapPeak = $wmiSwap      | Measure-Object -property PeakUsage -sum | Select-Object Sum
-    $swapAllocated = $wmiSwap | Measure-Object -property AllocatedBaseSize -sum | Select-Object Sum
+    $swapCurrent   = $wmiSwap | Measure-Object -property CurrentUsage -sum      | % { $_.Sum } | Select -First 1
+    $swapPeak      = $wmiSwap | Measure-Object -property PeakUsage -sum         | % { $_.Sum } | Select -First 1
+    $swapAllocated = $wmiSwap | Measure-Object -property AllocatedBaseSize -sum | % { $_.Sum } | Select -First 1
     if ($swapAllocated) {
-      $customDescription = ". Swap usage: $(FormatNullableNumeric $swapCurrent) of $(FormatNullableNumeric $swapAllocated) Mb, peak was $(FormatNullableNumeric $swapPeak)"
+      $customDescription = ". Swap Usage: $(FormatNullableNumeric $swapCurrent) of $(FormatNullableNumeric $swapAllocated) Mb, Peak was $(FormatNullableNumeric $swapPeak) Mb"
     }
   }
 
