@@ -1609,12 +1609,15 @@ Function Write-Line([string[]] $directArgs = @()) {
   $pgctl =  Combine-Path $bin "pg_ctl.exe"
   $psql =   Combine-Path $bin "psql.exe"
   $ENV:PGTZ="UTC"
-  $initArgs=@("-D", "$DataFolder", "--pwfile", "$pwfile", "-U", "$Admin");
+  $initArgs=@("-D", "$DataFolder", "--pwfile", "$pwfile", "-U", "$Admin", "-A", "md5");
+  try { $major = $Version.Split(".") | Select -First 1; $major = [int]$major } catch { $major = -1}
+  # DONE: --no-sync since v10, --no-instructions since v14
+  if ($major -ge 10) { $initArgs += "--no-sync" }
+  if ($major -ge 14) { $initArgs += "--no-instructions" }
   if ($Locale) {
-    foreach($p in @("--locale=$Locale", "--lc-collate=$Locale", "-E", "UTF-8")) { $initArgs += $p; }
+    $initArgs += @("--locale=$Locale", "--lc-collate=$Locale", "-E", "UTF-8")
   }
   Write-Host "`"$initDb`" $initArgs"
-  # TODO: --no-sync since v10, --no-instructions since v14
   $__ = & "$initDb" @initArgs | out-host
   if (-not $?) { Write-Host "Error initializing postgre sql server" -ForeGroundColor Red; }
   Remove-Item $pwfile -Force -EA SilentlyContinue | Out-Null
@@ -1688,7 +1691,7 @@ Function Write-Line([string[]] $directArgs = @()) {
   Say "Postgre SQL Server $Version Setup Finished$($infoErrors)."
   Write-Host "Finally, query newly installed PostgreSQL"
   $ENV:PGPASSWORD="$Password"
-  echo "SELECT 'User is [' || current_user || ']. Database is [' || current_database() || ']. Timezone is [' || current_setting('TIMEZONE') || ']. Server is [' || setting || ']. Encoding is [' || pg_client_encoding() || ']' FROM pg_settings WHERE name = 'server_version'; SELECT 'MAX Connections is ' || setting FROM pg_settings WHERE name = 'max_connections';" | & "$psql" "-t" "-h" localhost "-p" $Port "-U" $Admin postgres | Out-Host
+  $__ = echo "SELECT 'User is [' || current_user || ']. Database is [' || current_database() || ']. Timezone is [' || current_setting('TIMEZONE') || ']. Server is [' || setting || ']. Encoding is [' || pg_client_encoding() || ']' FROM pg_settings WHERE name = 'server_version'; SELECT 'MAX Connections is ' || setting FROM pg_settings WHERE name = 'max_connections';" | & "$psql" "-t" "-h" localhost "-p" $Port "-U" $Admin postgres | Out-Host
   if (-not $?) { $errors++; Write-Line -TextDarkRed "Error querying newly created postgresql server"; }
 
   return ($errors -eq 0);
