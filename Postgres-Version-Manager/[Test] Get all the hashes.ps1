@@ -1328,20 +1328,22 @@ Function Write-Line([string[]] $directArgs = @()) {
 
 # Include Directive: [ src\Postgres-Metadata.ps1 ]
 # Include File: [\Postgres-Version-Manager.PS1Project\src\Postgres-Metadata.ps1]
-$AVAILABLE_VERSIONS=@(
-  "16.3-x64", "16.0-x64",
-  "15.7-x64", "15.4-x64", "15.1-x64",
-  "14.12-x64", "14.9-x64", "14.6-x64",
-  "13.15-x64", "13.12-x64", "13.9-x64",
-  "12.19-x64", "12.16-x64", "12.13-x64",
-  "11.21-x64", "11.18-x64",
-  "10.23-x64", "10.23-x86",
-  "9.6.24-x64", "9.6.24-x86",
-  "9.3.25-x64", "9.3.25-x86",
-  "9.1.24-x64", "9.1.24-x86"
-);
+function Get-Available-PostgreSQL-Versions() {
+  @(
+    "16.3-x64", "16.0-x64",
+    "15.7-x64", "15.4-x64", "15.1-x64",
+    "14.12-x64", "14.9-x64", "14.6-x64",
+    "13.15-x64", "13.12-x64", "13.9-x64",
+    "12.19-x64", "12.16-x64", "12.13-x64",
+    "11.21-x64", "11.18-x64",
+    "10.23-x64", "10.23-x86",
+    "9.6.24-x64", "9.6.24-x86",
+    "9.3.25-x64", "9.3.25-x86",
+    "9.1.24-x64", "9.1.24-x86"
+  );
+}
 
-$KNOWN_FULL_DIRECT_LINKS=@{
+$KNOWN_POSTGRESQL_FULL_DIRECT_LINKS=@{
   "16.3-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259104";
   "16.1-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258791";
   "15.7-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259102";
@@ -1365,7 +1367,7 @@ function Get-Postgres-Download-Links([string] $downloadType, [string] $version) 
   $fileOnly="postgres-$Version-$DownloadType-windows"
 
   if ($downloadType -eq "full") {
-    $urlDirect=$KNOWN_FULL_DIRECT_LINKS[$version];
+    $urlDirect=$KNOWN_POSTGRESQL_FULL_DIRECT_LINKS[$version];
     if ($urlDirect) { 
       $ret += @{Url=$urlDirect; Description="Direct download URL over Postgre CDN"; File="$fileOnly.zip";}
     }
@@ -1390,7 +1392,7 @@ Remove-Item -Force "$hashFile" -EA SilentlyContinue | out-null
 $utf8=new-object System.Text.UTF8Encoding($false)
 
 
-$AVAILABLE_VERSIONS | % { $version=$_;
+Get-Available-PostgreSQL-Versions | % { $version=$_;
     $jsonVersion = [PSCustomObject](@{})
     $finalJson | Add-Member NoteProperty -Name "$version" -Value $jsonVersion
     @("tiny", "full") | % { $downloadType=$_;
