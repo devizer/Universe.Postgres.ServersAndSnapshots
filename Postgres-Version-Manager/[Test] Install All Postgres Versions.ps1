@@ -1695,10 +1695,10 @@ Param(
 
   $infoErrors = IIf ($errors -ne 0) " With Errors" "";
   Say "Postgre SQL Server $Version Setup Finished$($infoErrors)."
-  echo "Finally, query newly installed PostgreSQL"
+  Write-Host "Finally, query newly installed PostgreSQL"
   $ENV:PGPASSWORD="$Password"
-  echo "SELECT 'User is [' || current_user || ']. Database is [' || current_database() || ']. Timezone is [' || current_setting('TIMEZONE') || ']. Server is [' || setting || ']. Encoding is [' || pg_client_encoding() || ']' FROM pg_settings WHERE name = 'server_version'; SELECT 'MAX Connections is ' || setting FROM pg_settings WHERE name = 'max_connections';" | & "$psql" "-t" "-h" localhost "-p" $Port "-U" $Admin postgres
-  if (-not $?) { $errors++; Write-Host "Error querying newly created postgresql server" -ForeGroundColor Red; }
+  echo "SELECT 'User is [' || current_user || ']. Database is [' || current_database() || ']. Timezone is [' || current_setting('TIMEZONE') || ']. Server is [' || setting || ']. Encoding is [' || pg_client_encoding() || ']' FROM pg_settings WHERE name = 'server_version'; SELECT 'MAX Connections is ' || setting FROM pg_settings WHERE name = 'max_connections';" | & "$psql" "-t" "-h" localhost "-p" $Port "-U" $Admin postgres | Out-Host
+  if (-not $?) { $errors++; Write-Line -TextDarkRed "Error querying newly created postgresql server"; }
 
   return ($errors -eq 0);
 }
