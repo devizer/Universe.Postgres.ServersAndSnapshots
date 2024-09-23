@@ -682,7 +682,7 @@ function ExtractArchiveByDefault7zFull([string] $fromArchive, [string] $toDirect
   New-Item -Path "$($toDirectory)" -ItemType Directory -Force -EA SilentlyContinue | Out-Null
   # pushd "$($toDirectory)"
   $full7zExe = "$(Get-Full7z-Exe-FullPath-for-Windows)"
-  Troubleshoot-Info "`"$fromArchive`" --> `"" -Highlight $toDirectory "`" by `"$full7zExe`""
+  Troubleshoot-Info "`"$fromArchive`" → " -Highlight "`"$($toDirectory)`"" " by `"$full7zExe`""
   & "$full7zExe" @("$extractCommand", "-y", "-o`"$($toDirectory)`"", "$fromArchive")
   $isExtractOk = $?;
   return $isExtractOk;
