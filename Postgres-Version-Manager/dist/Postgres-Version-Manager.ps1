@@ -922,7 +922,7 @@ function Get-Memory-Info {
     $swapPeak      = $wmiSwap | Measure-Object -property PeakUsage -sum         | % { $_.Sum } | Select -First 1
     $swapAllocated = $wmiSwap | Measure-Object -property AllocatedBaseSize -sum | % { $_.Sum } | Select -First 1
     if ($swapAllocated) {
-      $customDescription = ". Swap Usage: $(FormatNullableNumeric $swapCurrent) (peak $(FormatNullableNumeric $swapPeak) of $(FormatNullableNumeric $swapAllocated) Mb"
+      $customDescription = ". Swap Usage: $(FormatNullableNumeric $swapCurrent) (peak $(FormatNullableNumeric $swapPeak)) of $(FormatNullableNumeric $swapAllocated) Mb"
     }
   }
 
