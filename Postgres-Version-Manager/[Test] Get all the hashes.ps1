@@ -787,11 +787,18 @@ function Get-Memory-Info {
 
   $platform = Get-Os-Platform
   if ($platform -eq "Windows") {
-    if (Has-Cmd "Get-CIMInstance")     { $os=Get-CIMInstance Win32_OperatingSystem; } 
-    elseif (Has-Cmd "Get-WmiObject")   { $os=Get-WmiObject   Win32_OperatingSystem; } 
+    $os = Select-WMI-Objects "Win32_OperatingSystem";
     $mem=($os | Where { $_.FreePhysicalMemory } | Select FreePhysicalMemory,TotalVisibleMemorySize -First 1);
     $total=[int] ($mem.TotalVisibleMemorySize / 1024);
     $free=[int] ($mem.FreePhysicalMemory / 1024);
+    
+    $wmiSwap = @(Select-WMI-Objects "Win32_PageFileUsage")
+    $swapCurrent = $wmiSwap   | Measure-Object -property CurrentUsage -sum | Select-Object Sum
+    $swapPeak = $wmiSwap      | Measure-Object -property PeakUsage -sum | Select-Object Sum
+    $swapAllocated = $wmiSwap | Measure-Object -property AllocatedBaseSize -sum | Select-Object Sum
+    if ($swapAllocated) {
+      $customDescription = ". Swap usage: $(FormatNullableNumeric $swapCurrent) of $(FormatNullableNumeric $swapAllocated) Mb, peak was $(FormatNullableNumeric $swapPeak)"
+    }
   }
 
   if ($platform -eq "MacOS") {
@@ -811,7 +818,7 @@ function Get-Memory-Info {
   }
 
   if ($total) {
-    $info="Total RAM: $($total.ToString("n0")) MB. Free: $($free.ToString("n0")) MB ($([Math]::Round($free * 100 / $total, 1))%)";
+    $info="Total RAM: $($total.ToString("n0")) MB. Free: $($free.ToString("n0")) MB ($([Math]::Round($free * 100 / $total, 1))%)$customDescription";
     return @{
         Total=$total;
         Free=$free;
@@ -824,6 +831,11 @@ function Get-Memory-Info {
      Object with 3 properties: [int] Total, [int] Free, [string] Description
   #>
 
+}
+
+function FormatNullableNumeric($n, $fractionalDigits = 0) {
+  try { $num = [int] $n } catch { $num = 0 }
+  return $num.ToString("n$fractionalDigits");
 }
 
 # Include File: [\Includes\Get-Nix-Uname-Value.ps1]
