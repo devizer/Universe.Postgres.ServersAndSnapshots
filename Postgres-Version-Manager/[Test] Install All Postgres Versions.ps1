@@ -1621,7 +1621,7 @@ Param(
     foreach($p in @("--locale=$Locale", "--lc-collate=$Locale", "-E", "UTF-8")) { $initArgs += $p; }
   }
   Write-Host "`"$initDb`" $initArgs"
-  & "$initDb" @initArgs
+  $__ = & "$initDb" @initArgs | out-host
   if (-not $?) { Write-Host "Error initializing postgre sql server" -ForeGroundColor Red; }
   Remove-Item $pwfile -Force -EA SilentlyContinue | Out-Null
   # Patch two .conf files
@@ -1671,7 +1671,7 @@ Param(
     # Remove-Windows-Service-If-Exists "$ServiceId" "PostgreSQL Windows Service '$ServiceId'"
     Say "Creating PostgreSQL Windows Service '$ServiceId'"
     $argsCreateService = @("register", "-N", "$ServiceId", "-D", "$DataFolder", "-w")
-    & "$pgctl" @argsCreateService
+    $__ = & "$pgctl" @argsCreateService | out-host
     $isCreateServiceOk = $?
     if (-not $isCreateServiceOk) {
       Write-Line -TextDarkRed "Error creating postgresql server service `"$ServiceId`"";
