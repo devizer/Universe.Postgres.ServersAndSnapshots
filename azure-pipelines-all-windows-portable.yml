@@ -55,7 +55,7 @@ jobs:
   - powershell: |
        Get-Service | where { $_.name -like "PGSQL`$*" } | ft -AutoSize
        gdr -PSProvider 'FileSystem'
-       get-wmiobject -class "Win32_PageFileUsage" -namespace "root\CIMV2" | ft Name, CurrentUsage, PeakUsage, AllocatedBaseSize -AutoSize | Trim-Empty-Lines
+       get-wmiobject -class "Win32_PageFileUsage" -namespace "root\CIMV2" | ft Name, CurrentUsage, PeakUsage, AllocatedBaseSize -AutoSize
     condition: succeededOrFailed()
     displayName: 'Show PGSQL Servers'
 
