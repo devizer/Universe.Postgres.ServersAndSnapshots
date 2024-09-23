@@ -1626,6 +1626,7 @@ Param(
   Remove-Item ($stopCmd) -Force -EA SilentlyContinue | Out-Null
   Append-All-Text $stopCmd "`"$pgctl`" -D `"$DataFolder`" -w stop`r`n"
 
+  $errors = 0;
   if ("$ServiceId" -ne "") {
     # Remove-Windows-Service-If-Exists "$ServiceId" "PostgreSQL Windows Service '$ServiceId'"
     Say "Creating PostgreSQL Windows Service '$ServiceId'"
@@ -1633,29 +1634,32 @@ Param(
     & "$pgctl" @argsCreateService
     $isCreateServiceOk = $?
     if (-not $isCreateServiceOk) {
-      Write-Host "Error creating postgresql server service" -ForeGroundColor Red;
+      Write-Line -TextDarkRed "Error creating postgresql server service `"$ServiceId`"";
+      $errors++;
+    } else {
+      $nl=[System.Environment]::NewLine;
+      Set-Service -Name "$ServiceId" -DisplayName "PostgreSQL v$Version listening on port $port" -Description "PostgreSQL v$Version listening on port $port$($nl)Binaries: $BinFolder$($nl)Data: $DataFolder$($nl)Log: $LogFolder"
     }
-    $nl=[System.Environment]::NewLine;
-    Set-Service -Name "$ServiceId" -DisplayName "PostgreSQL v$Version listening on port $port" -Description "PostgreSQL v$Version listening on port $port$($nl)Binaries: $BinFolder$($nl)Data: $DataFolder$($nl)Log: $LogFolder"
   }
 
   if ($Mode -eq "Process") { 
     Say "Starting PostgreSQL server $Version as user process ... "
     & "$startCmd"; 
-    if (-not $?) { Write-Host "Error starting postgresql server as user process" -ForeGroundColor Red; }
+    if (-not $?) { $errors++; Write-Line -TextDarkRed "Error starting postgresql server as user process"; }
   }
   else {
     Say "Starting Postgres SQL server $Version as Windows Service '$ServiceId' ... "
     & net start "$ServiceId"
-    if (-not $?) { Write-Host "Error starting postgresql server windows service" -ForeGroundColor Red; }
+    if (-not $?) { $errors++; Write-Line -TextDarkRed "Error starting postgresql server windows service `"$ServiceId`""; }
   }
 
-  Say "Postgre SQL Server $Version Setup Finished."
+  Say "Postgre SQL Server $Version Setup Finished $(IIf ($errors -ne 0) " With Errors" "")."
   echo "Finally, query newly installed PostgreSQL"
   $ENV:PGPASSWORD="$Password"
   echo "SELECT 'User is [' || current_user || ']. Database is [' || current_database() || ']. Timezone is [' || current_setting('TIMEZONE') || ']. Server is [' || setting || ']. Encoding is [' || pg_client_encoding() || ']' FROM pg_settings WHERE name = 'server_version'; SELECT 'MAX Connections is ' || setting FROM pg_settings WHERE name = 'max_connections';" | & "$psql" "-t" "-h" localhost "-p" $Port "-U" $Admin postgres
-  if (-not $?) { Write-Host "Error querying newly created postgresql server" -ForeGroundColor Red; }
+  if (-not $?) { $errors++; Write-Host "Error querying newly created postgresql server" -ForeGroundColor Red; }
 
+  return ($errors -eq 0);
 }
 
 
@@ -1674,9 +1678,10 @@ foreach($version in $versions) {
   $downloadType = "$($ENV:PGTYPE)"; if (-not $downloadType) { $downloadType="tiny"; }
   Say "TESTING VERSION '$version' as [$idService], DownloadType is '$downloadType'"
   # & powershell -f dist\Postgres-Version-Manager.ps1 -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
-  Setup-PostgreSQL-Server -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
-  # & sc.exe config "$idService" start= delayed-auto
-  & sc.exe config "$idService" start= demand
+  $isOk = Setup-PostgreSQL-Server -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
+  if ($isOk) {
+    & sc.exe config "$idService" start= demand
+  }
   # Get-Service "$idService" -EA SilentlyContinue | Stop-Service
   echo "Memory $((Get-Memory-Info).Description)"
 }
