@@ -1131,9 +1131,21 @@ function Select-WMI-Objects([string] $class) {
   return $ret;
 }
 # Include File: [\Includes\IIf.ps1]
-function IIf([bool] $flag, $trueResult, $falseResult) {
-  if ($flag) { return $trueResult; } else { return $falseResult; }
+# function IIf([bool] $flag, $trueResult, $falseResult) {
+#   if ($flag) { return $trueResult; } else { return $falseResult; }
+# }
+
+# https://stackoverflow.com/a/54702474
+Function IIf($If, $Then, $Else) {
+  If ($If) { 
+    If ($Then -is [scriptblock]) { ForEach-Object -InputObject $If -Process $Then } 
+    Else { $Then } 
+  } Else {
+    If ($Else -is [scriptblock]) { ForEach-Object -InputObject $If -Process $Else }
+    Else { $Else }
+  }
 }
+
 # Include File: [\Includes\Is-BuildServer.ps1]
 function Is-BuildServer() {
   return "$(Try-BuildServerType)" -ne "";
