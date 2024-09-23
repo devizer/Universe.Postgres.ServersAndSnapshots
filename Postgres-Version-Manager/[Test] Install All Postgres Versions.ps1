@@ -1701,6 +1701,7 @@ foreach($version in $versions) {
   }
   # Get-Service "$idService" -EA SilentlyContinue | Stop-Service
   echo "Memory $((Get-Memory-Info).Description)"
+  Write-Host"";Write-Host"";Write-Host""
 }
 
 Say "Testing Complete"
