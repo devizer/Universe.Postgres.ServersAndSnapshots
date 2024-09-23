@@ -988,6 +988,10 @@ function Get-Speedy-Software-Product-List() {
 # Get-Speedy-Software-Product-List | ft
 # $localDbList = Get-Speedy-Software-Product-List | ? { $_.Name -match "LocalDB" -and $_.Vendor -match "Microsoft" }
 
+# Include File: [\Includes\Get-System-Drive.ps1]
+function Get-System-Drive() { $ret = "$($Env:SystemDrive)"; $c = "$([System.IO.Path]::DirectorySeparatorChar)"; if (-not ($ret.EndsWith($c))) { $ret += $c; }; return $ret; }
+  
+
 # Include File: [\Includes\Has-Cmd.ps1]
 function Has-Cmd {
   param([string] $arg)

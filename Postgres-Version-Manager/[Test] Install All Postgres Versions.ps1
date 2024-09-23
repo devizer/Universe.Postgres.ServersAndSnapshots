@@ -988,6 +988,10 @@ function Get-Speedy-Software-Product-List() {
 # Get-Speedy-Software-Product-List | ft
 # $localDbList = Get-Speedy-Software-Product-List | ? { $_.Name -match "LocalDB" -and $_.Vendor -match "Microsoft" }
 
+# Include File: [\Includes\Get-System-Drive.ps1]
+function Get-System-Drive() { $ret = "$($Env:SystemDrive)"; $c = "$([System.IO.Path]::DirectorySeparatorChar)"; if (-not ($ret.EndsWith($c))) { $ret += $c; }; return $ret; }
+  
+
 # Include File: [\Includes\Has-Cmd.ps1]
 function Has-Cmd {
   param([string] $arg)
@@ -1682,16 +1686,16 @@ $versions = @(Get-Available-PostgreSQL-Versions)
 [Array]::Reverse($versions)
 
 echo "$($versions.Count) Versions: '$versions'"
-$temp=$ENV:TEMP
-echo "TEMP: '$temp'"
+# $installTo=$ENV:TEMP
+$installTo = IIf (Test-Path "W:\Temp") "W:\Temp" (Combine-Path (Get-System-Drive) "PostgreSQL");
+echo "INSTALL TO: '$installTo'"
 $port=60700
 foreach($version in $versions) {
   $port=$port + 1
   $idService="PGSQL`$$($version.Replace(".","_").Replace("-","_"))"
   $downloadType = "$($ENV:PGTYPE)"; if (-not $downloadType) { $downloadType="tiny"; }
   Say "TESTING VERSION '$version' as [$idService], DownloadType is '$downloadType'"
-  # & powershell -f dist\Postgres-Version-Manager.ps1 -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
-  $isOk = Setup-PostgreSQL-Server -Version $version -BinFolder "$temp\Postgre SQL\$version-as-Service" -DataFolder "$temp\Postgre SQL\Data-$version-as-Service" -LogFolder "$temp\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
+  $isOk = Setup-PostgreSQL-Server -Version $version -BinFolder "$installTo\Postgre SQL\$version-as-Service" -DataFolder "$installTo\Postgre SQL\Data-$version-as-Service" -LogFolder "$installTo\Postgre SQL\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
   if ($isOk) {
     & sc.exe config "$idService" start= demand
   }
