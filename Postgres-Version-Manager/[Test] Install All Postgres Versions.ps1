@@ -1166,6 +1166,14 @@ function Remove-Windows-Service-If-Exists([string] $serviceName, [string] $human
 
 # Remove-Windows-Service-If-Exists "PG$9_26_X86" "Postgres SQL Windows Service"
 
+# Include File: [\Includes\Reverse.ps1]
+function Reverse-Pipe() { $copy=@($input); for($i = $copy.Length - 1; $i -ge 0; $i--) { $copy[$i] } }
+
+# $null | Reverse-Pipe
+# $() | Reverse-Pipe
+# @(42) | Reverse-Pipe
+# @(1,2,3,4,"42") | Reverse-Pipe
+
 # Include File: [\Includes\Say.ps1]
 function Say { # param( [string] $message )
     if ($Global:_Say_Stopwatch -eq $null) { $Global:_Say_Stopwatch = [System.Diagnostics.Stopwatch]::StartNew(); }
@@ -1731,7 +1739,7 @@ foreach($version in $versions) {
   $idService="PGSQL`$$($version.Replace(".","_").Replace("-","_"))"
   $downloadType = "$($ENV:PGTYPE)"; if (-not $downloadType) { $downloadType="tiny"; }
   Say "TESTING VERSION '$version' as [$idService], DownloadType is '$downloadType'"
-  $isOk = Setup-PostgreSQL-Server -Version $version -BinFolder "$installTo\$version-as-Service" -DataFolder "$installTo\Data-$version-as-Service" -LogFolder "$installTo\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
+  $isOk = Setup-PostgreSQL-Server -Version $version -BinFolder "$installTo\$version-as-Service" -DataFolder "$installTo\Data-$version-as-Service" -LogFolder "$installTo\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Force -DownloadType $downloadType
   if ($isOk) {
     & sc.exe config "$idService" start= demand
   }
