@@ -827,15 +827,26 @@ function Get-Memory-Info {
     $total=[int] (& free -m | awk 'NR==2 {print $2}' | Out-String-And-TrimEnd)
     $used =[int] (& free -m | awk 'NR==2 {print $3 + $5}' | Out-String-And-TrimEnd)
     $free=$total-$used
+
+    $swapAllocated = [int] (& free -m | awk '$1 ~ /^[S|s]wap/ {print $2}' | Out-String-And-TrimEnd)
+    $swapCurrent   = [int] (& free -m | awk '$1 ~ /^[S|s]wap/ {print $3}' | Out-String-And-TrimEnd)
+    if ($swapAllocated) {
+      $customDescription = ". Swap Usage: $(FormatNullableNumeric $swapCurrent) of $(FormatNullableNumeric $swapAllocated) Mb"
+    }
   }
 
   if ($total) {
     $info="Total RAM: $($total.ToString("n0")) MB. Free: $($free.ToString("n0")) MB ($([Math]::Round($free * 100 / $total, 1))%)$customDescription";
-    return @{
+    $ret = @{
         Total=$total;
         Free=$free;
         Description=$info;
     }
+    if ($swapAllocated) {
+      $ret["SwapAllocated"] = $swapAllocated;
+      $ret["SwapCurrent"]   = $swapCurrent;
+    }
+    return $ret;
   }
 
   <#
@@ -1616,7 +1627,7 @@ Param(
   $pgctl =  Combine-Path $bin "pg_ctl.exe"
   $psql =   Combine-Path $bin "psql.exe"
   $ENV:PGTZ="UTC"
-  $initArgs=@("-D", "$DataFolder", "--pwfile", "$pwfile", "-U", "$Admin", "-A", "md5");
+  $initArgs=@("-D", "$DataFolder", "--pwfile", "$pwfile", "-U", "$Admin" <# , "-A", "md5" #>);
   try { $major = $Version.Split(".") | Select -First 1; $major = [int]$major } catch { $major = -1}
   # DONE: --no-sync since v10, --no-instructions since v14
   if ($major -ge 10) { $initArgs += "--no-sync" }
@@ -1685,7 +1696,7 @@ Param(
 
   if ($Mode -eq "Process") { 
     Say "Starting PostgreSQL server $Version as user process ... "
-    & "$startCmd"; 
+    $__ = & "$startCmd" | Out-Host; 
     if (-not $?) { $errors++; Write-Line -TextDarkRed "Error starting postgresql server as user process"; }
   }
   else {
