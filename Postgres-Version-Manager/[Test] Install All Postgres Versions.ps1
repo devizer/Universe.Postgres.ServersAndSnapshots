@@ -1403,7 +1403,7 @@ function Get-Available-PostgreSQL-Versions() {
 }
 
 $KNOWN_POSTGRESQL_FULL_DIRECT_LINKS=@{
-  "16.4-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259162";
+  # "16.4-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259162";
   "16.3-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259104";
   "16.1-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258791";
   "15.7-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259102";
