@@ -1389,7 +1389,7 @@ Function Write-Line([string[]] $directArgs = @()) {
 # Include File: [\Postgres-Version-Manager.PS1Project\src\Postgres-Metadata.ps1]
 function Get-Available-PostgreSQL-Versions() {
   @(
-    "16.3-x64", "16.0-x64",
+    "16.4-x64", "16.3-x64", "16.0-x64",
     "15.7-x64", "15.4-x64", "15.1-x64",
     "14.12-x64", "14.9-x64", "14.6-x64",
     "13.15-x64", "13.12-x64", "13.9-x64",
@@ -1403,6 +1403,7 @@ function Get-Available-PostgreSQL-Versions() {
 }
 
 $KNOWN_POSTGRESQL_FULL_DIRECT_LINKS=@{
+  "16.4-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259162";
   "16.3-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259104";
   "16.1-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258791";
   "15.7-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259102";
