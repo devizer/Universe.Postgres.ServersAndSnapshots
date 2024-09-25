@@ -1740,7 +1740,7 @@ foreach($version in $versions) {
   $idService="PGSQL`$$($version.Replace(".","_").Replace("-","_"))"
   $downloadType = "$($ENV:PGTYPE)"; if (-not $downloadType) { $downloadType="tiny"; }
   Say "TESTING VERSION '$version' as [$idService], DownloadType is '$downloadType'"
-  $isOk = Setup-PostgreSQL-Server -Version $version -BinFolder "$installTo\$version-as-Service" -DataFolder "$installTo\Data-$version-as-Service" -LogFolder "$installTo\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Force -DownloadType $downloadType
+  $isOk = Setup-PostgreSQL-Server -Version $version -BinFolder "$installTo\$version-as-Service" -DataFolder "$installTo\Data-$version-as-Service" -LogFolder "$installTo\Logs-$version-as-Service" -Port $port -ServiceId "$idService" -Mode Service -VcRedistMode Auto -DownloadType $downloadType
   if ($isOk) {
     & sc.exe config "$idService" start= demand
   }
