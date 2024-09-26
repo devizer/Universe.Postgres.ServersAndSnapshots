@@ -9,7 +9,7 @@ function Say-Parameter { param( [string] $name, [string] $value)
 function Setup-PostgreSQL-Server() {
 Param(
   [string]   $Mode = "Process", # Process|Service
-  [string]   $Version = "16.3-x64",
+  [string]   $Version = "16.4-x64",
   [string[]] $OptionalDownloadUrl = @(), # Empty means Auto. 12.0-x64 is http://sbp.enterprisedb.com/getfile.jsp?fileid=12082
   [string]   $Admin = "postgres",
   [string]   $Password = "Meaga`$str0ng",
@@ -43,7 +43,7 @@ function Get-Available-PostgreSQL-Versions() {
 }
 
 $KNOWN_POSTGRESQL_FULL_DIRECT_LINKS=@{
-  # "16.4-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259162";
+  "16.4-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259162";
   "16.3-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259104";
   "16.1-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1258791";
   "15.7-x64"   = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259102";
@@ -82,6 +82,15 @@ function Get-Postgres-Download-Links([string] $downloadType, [string] $version) 
   return $ret;
 }
 
+
+<# v16.02 Does Not support these archives
+   12.19-x64
+   13.15-x64
+   14.12-x64
+   15.7-x64
+   16.3-x64
+   16.4-x64
+#>
   # $KNOWN_FULL_DIRECT_LINKS=@{}
 
 # Include Directive: [ src\Install-VC-Redist-for-Postgres-On-Windows.ps1 ]
@@ -396,7 +405,7 @@ function Download-File-Managed([string] $url, [string]$outfile) {
       return $true; 
     }
   }
-  elseif (([System.Environment]::OSVersion.Version.Major) -eq 5) {
+  elseif (([System.Environment]::OSVersion.Version.Major) -eq 5 -and (Get-Os-Platform) -eq "Windows" ) {
     Write-Host "Warning! Windows XP and Server 2003 requires aria2c.exe in the PATH for downloading." -ForegroundColor Red; 
   }
   [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12;
@@ -1032,10 +1041,10 @@ function GetPersistentTempFolder([string] $envPrefix, [string] $pathSuffix) {
       }
   }
 
-  If (Get-Os-Platform -eq "Windows") { $ret = "$($ENV:TEMP)" } else { $ret = "$($ENV:TMPDIR)" };
+  If (Get-Os-Platform -eq "Windows") { $ret = "$($ENV:TEMP)" } else { $ret = "$($ENV:TMPDIR)"; if (-not $ret) { $ret = "/tmp" }};
   $is1 = Test-Path -Path $ret -PathType Container -EA SilentlyContinue
   if (-not $is1) {
-    New-Item -Path $ret -ItemType Directory -Force -EA SilentlyContinue | Out-null
+    try { New-Item -Path $ret -ItemType Directory -Force -EA SilentlyContinue | Out-null } catch { }
     $is2 = Test-Path -Path $ret -PathType Container -EA SilentlyContinue
     if (-not $is2) { 
       $ret=""
