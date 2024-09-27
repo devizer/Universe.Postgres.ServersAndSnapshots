@@ -44,7 +44,7 @@ jobs:
     displayName: 'Invoke Module'
 
   - powershell: |
-      get-module -listavailable | ft * -AutoSize
+      get-module -listavailable | ft * -AutoSize | out-string -width 4096
       remove-module PostgreSQL-Version-Management -force
     condition: succeededOrFailed()
     displayName: 'Remove Module'
