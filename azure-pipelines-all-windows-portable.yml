@@ -54,7 +54,7 @@ jobs:
     condition: succeededOrFailed()
     displayName: 'Is Module Missing'
 
-    - powershell: |
+  - powershell: |
       $cpuName=(Get-WmiObject Win32_Processor).Name
       Write-Host "CPU: $($cpuName), $([System.Environment]::ProcessorCount) Cores"
 
