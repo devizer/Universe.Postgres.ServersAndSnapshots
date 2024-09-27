@@ -37,12 +37,24 @@ jobs:
     displayName: 'Install Module'
 
   - powershell: |
-      Setup-PostgreSQL-Server -Version "16.4-x64" -Mode Service -ServiceId "PG_TMP" -Port 1111 `
+      Setup-PostgreSQL-Server -Version "16.4-x64" -Mode Service -ServiceId "PGSQL`$TMP" -Port 1111 `
                               -BinFolder c:\pg\b -DataFolder c:\pg\d -LogFolder c:\pg\l
+      & net stop PGSQL`$TMP
     condition: succeededOrFailed()
     displayName: 'Invoke Module'
 
   - powershell: |
+      remove-module PostgreSQL-Version-Management -force
+    condition: succeededOrFailed()
+    displayName: 'Remove Module'
+
+  - powershell: |
+      Get-Command Setup-PostgreSQL-Server
+      $_ = "ok";
+    condition: succeededOrFailed()
+    displayName: 'Is Module Missing'
+
+    - powershell: |
       $cpuName=(Get-WmiObject Win32_Processor).Name
       Write-Host "CPU: $($cpuName), $([System.Environment]::ProcessorCount) Cores"
 
