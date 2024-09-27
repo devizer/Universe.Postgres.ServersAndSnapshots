@@ -58,7 +58,7 @@ jobs:
     displayName: 'Install Module'
 
   - powershell: |
-      Setup-PostgreSQL-Server -Version "16.4-x64" -Mode Service
+      Setup-PostgreSQL-Server -Version "16.4-x64" -Mode Service -ServiceId "PG_TMP"
     condition: succeededOrFailed()
     displayName: 'Invoke Module'
 
