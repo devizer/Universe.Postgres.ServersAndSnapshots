@@ -53,6 +53,16 @@ jobs:
     displayName: 'RE-Install $(PGTYPE)'
 
   - powershell: |
+      iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/devizer/Universe.Postgres.ServersAndSnapshots/refs/heads/main/PostgreSQL-Version-Management/Install-PostgreSQL-Version-Management.ps1'))
+    condition: succeededOrFailed()
+    displayName: 'Install Module'
+
+  - powershell: |
+      Setup-PostgreSQL-Server -Version "16.4-x64" -Mode Service
+    condition: succeededOrFailed()
+    displayName: 'Invoke Module'
+
+  - powershell: |
        Get-Service | where { $_.name -like "PGSQL`$*" } | ft -AutoSize
        gdr -PSProvider 'FileSystem'
        get-wmiobject -class "Win32_PageFileUsage" -namespace "root\CIMV2" | ft Name, CurrentUsage, PeakUsage, AllocatedBaseSize -AutoSize
