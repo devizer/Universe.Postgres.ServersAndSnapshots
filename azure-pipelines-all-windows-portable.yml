@@ -37,7 +37,8 @@ jobs:
     displayName: 'Install Module'
 
   - powershell: |
-      Setup-PostgreSQL-Server -Version "16.4-x64" -Mode Service -ServiceId "PG_TMP" -Port 1111
+      Setup-PostgreSQL-Server -Version "16.4-x64" -Mode Service -ServiceId "PG_TMP" -Port 1111 `
+                              -BinFolder c:\pg\b -DataFolder c:\pg\d -LogFolder c:\pg\l
     condition: succeededOrFailed()
     displayName: 'Invoke Module'
 
