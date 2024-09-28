@@ -243,12 +243,12 @@ jobs:
         Say "Install MacPort"
         source build-scripts/Install-MacPorts.sh
         Say "Packages 'postgresql'"
-        sudo port search postgresql | grep -E "^postgresql" | sort
+        try-and-retry sudo port search postgresql | grep -E "^postgresql" | sort
         for p in ${MACPORT_PACKAGES:-}; do
           Say "Installing [$p]"
-          time sudo port install $p # -v
+          time try-and-retry sudo port install $p # -v
         done
-        time sudo find /opt -name pg_ctl
+        time sudo find /opt -name pg_ctl -or -name initdb
         true
     condition: ne(variables['MACPORT_PACKAGES'], '')
     displayName: 'Postgres on MacOS by MacPort'
