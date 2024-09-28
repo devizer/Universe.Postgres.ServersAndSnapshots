@@ -41,13 +41,13 @@ jobs:
                               -BinFolder c:\pg\b -DataFolder c:\pg\d -LogFolder c:\pg\l
       & net stop PGSQL`$TMP
     condition: succeededOrFailed()
-    displayName: 'Invoke Module (as Process)'
+    displayName: 'Invoke Module (as Service)'
 
   - powershell: |
       Setup-PostgreSQL-Server -Version "16.4-x64" -Mode Process -Port 1111 `
                               -BinFolder c:\pg-p\b -DataFolder c:\pg-p\d -LogFolder c:\pg-p\l
-    condition: succeededOrFailed()
-    displayName: 'Invoke Module (as Service)'
+    condition: ${{ false }}
+    displayName: 'Invoke Module (as Process)'
 
   - pwsh: |
       get-module -listavailable | ft Name, ModuleBase, Path -AutoSize | out-string -width 4096
