@@ -128,7 +128,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             string ext = TinyCrossInfo.IsWindows ? ".exe" : "";
             var pgCtlBin = Path.Combine(candidate, $"bin{Path.DirectorySeparatorChar}pg_ctl{ext}");
 
-            var result = ExecProcessHelper.HiddenExec(pgCtlBin, "--version");
+            var result = ExecProcessHelper.HiddenExec(pgCtlBin, "--version", millisecondsTimeout: 12000);
             Console.WriteLine($"[DEBUG]   \"{candidate}\": pg_ctl --version output: {result.OutputText}");
             Console.WriteLine($"[DEBUG]   \"{candidate}\": pg_ctl --version exit code: {result.ExitCode}");
             return TryEval<Version>(() =>
