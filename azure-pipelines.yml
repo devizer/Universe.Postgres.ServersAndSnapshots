@@ -44,7 +44,8 @@ jobs:
 
   - bash: |
        cd Universe.Postgres.ServersAndSnapshots.Benchmark
-       sudo dotnet run -c Release || dotnet run -c Release
+       # sudo prohibited by initdb
+       dotnet run -c Release
     condition: succeededOrFailed()
     displayName: 'Benchmark'
 
