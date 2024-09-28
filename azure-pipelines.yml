@@ -231,7 +231,7 @@ jobs:
         Say "Install MacPort"
         source build-scripts/Install-MacPorts.sh
         Say "Packages 'postgresql'"
-        port search postgresql | grep -E "^postgresql" | sort
+        sudo port search postgresql | grep -E "^postgresql" | sort
         for p in ${MACPORT_PACKAGES:-}; do
           Say "Installing [$p]"
           time sudo port install $p # -v
