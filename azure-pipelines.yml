@@ -40,7 +40,7 @@ jobs:
 
   - bash: |
        cd Universe.Postgres.ServersAndSnapshots.Benchmark
-       dotnet run -c Release
+       sudo dotnet run -c Release || dotnet run -c Release
     condition: succeededOrFailed()
     displayName: 'Benchmark'
 
