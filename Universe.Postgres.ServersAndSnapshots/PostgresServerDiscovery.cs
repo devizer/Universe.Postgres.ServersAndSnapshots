@@ -57,7 +57,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             }
             else
             {
-                // linux
+                // linux or macos
                 candidates.AddRange(TryPostgresSubfolders("/usr/lib/postgresql"));
                 candidates.AddRange(TryPostgresSubfolders("/usr/local/lib/postgresql"));
 
