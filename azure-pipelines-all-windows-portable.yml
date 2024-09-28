@@ -43,11 +43,25 @@ jobs:
     condition: succeededOrFailed()
     displayName: 'Invoke Module'
 
+  - pwsh: |
+      get-module -listavailable | ft Name, Path, ModuleBase -AutoSize | out-string -width 4096
+    condition: succeededOrFailed()
+    displayName: 'List Modules Core'
+
   - powershell: |
-      get-module -listavailable | ft * -AutoSize | out-string -width 4096
+      get-module -listavailable | ft Name, Path, ModuleBase -AutoSize | out-string -width 4096
+    condition: succeededOrFailed()
+    displayName: 'List Modules Desktop'
+
+  - powershell: |
       remove-module PostgreSQL-Version-Management -force
     condition: succeededOrFailed()
-    displayName: 'Remove Module'
+    displayName: 'Remove Module Desktop'
+
+  - pwsh: |
+      remove-module PostgreSQL-Version-Management -force
+    condition: succeededOrFailed()
+    displayName: 'Remove Module Core'
 
   - powershell: |
       Get-Command Setup-PostgreSQL-Server
