@@ -77,6 +77,7 @@ namespace Universe.Postgres.ServersAndSnapshots
 
             candidates.AddRange(TryEnvVars());
             candidates = candidates.Distinct().ToList();
+            Console.WriteLine($"[DEBUG] PostgreSQL Candidates: [{string.Join(", ", candidates)}]");
 
             foreach (var candidate in candidates)
             {
