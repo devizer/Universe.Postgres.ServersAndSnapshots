@@ -143,6 +143,7 @@ namespace Universe.Postgres.ServersAndSnapshots
                 }
 
                 var versionRaw = result.OutputText;
+                Console.WriteLine($"[DEBUG]   \"{candidate}\": versionRaw :{versionRaw}");
                 return TryParsePostgresVersion(versionRaw);
             });
         }
