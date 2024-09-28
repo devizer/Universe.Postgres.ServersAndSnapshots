@@ -79,11 +79,14 @@ namespace Universe.Postgres.ServersAndSnapshots
             candidates = candidates.Distinct().ToList();
             Console.WriteLine($"[DEBUG] PostgreSQL Candidates: [{string.Join(", ", candidates)}]");
 
-            foreach (var candidate in candidates)
+            foreach (string candidate in candidates)
             {
-                if (DoesContainPostgresBinaries(candidate))
+                var doesContainPostgresBinaries = DoesContainPostgresBinaries(candidate);
+                Console.WriteLine($"[DEBUG]   \"{candidate}\": contains binaries? {doesContainPostgresBinaries}");
+                if (doesContainPostgresBinaries)
                 {
-                    var version = GetPostgresVersion(candidate);
+                    Version version = GetPostgresVersion(candidate);
+                    Console.WriteLine($"[DEBUG]   \"{candidate}\": version? {version}");
                     if (version != null)
                         ret.Add(new ServerBinaries()
                         {
