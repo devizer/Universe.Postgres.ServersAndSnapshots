@@ -44,24 +44,26 @@ jobs:
     displayName: 'Invoke Module'
 
   - pwsh: |
-      get-module -listavailable | ft Name, Path, ModuleBase -AutoSize | out-string -width 4096
+      get-module -listavailable | ft Name, ModuleBase, Path -AutoSize | out-string -width 4096
     condition: succeededOrFailed()
     displayName: 'List Modules Core'
 
   - powershell: |
-      get-module -listavailable | ft Name, Path, ModuleBase -AutoSize | out-string -width 4096
+      get-module -listavailable | ft Name, ModuleBase, Path  -AutoSize | out-string -width 4096
     condition: succeededOrFailed()
     displayName: 'List Modules Desktop'
 
-  - powershell: |
-      remove-module PostgreSQL-Version-Management -force
-    condition: succeededOrFailed()
-    displayName: 'Remove Module Desktop'
-
   - pwsh: |
-      remove-module PostgreSQL-Version-Management -force
+      remove-module PostgreSQL-Version-Management -force -EA Continue
+      $toRemove = "PostgreSQL-Version-Management"; Get-Module -ListAvailable | ? { $_.Name -eq "$toRemove" } | % { $_.ModuleBase } | % { Write-Host "Remiving Module `"$_`""; Remove-Item -Recurse -Force $_ }
     condition: succeededOrFailed()
     displayName: 'Remove Module Core'
+
+  - powershell: |
+      remove-module PostgreSQL-Version-Management -force -EA Continue
+      $toRemove = "PostgreSQL-Version-Management"; Get-Module -ListAvailable | ? { $_.Name -eq "$toRemove" } | % { $_.ModuleBase } | % { Write-Host "Remiving Module `"$_`""; Remove-Item -Recurse -Force $_ }
+    condition: succeededOrFailed()
+    displayName: 'Remove Module Desktop'
 
   - powershell: |
       Get-Command Setup-PostgreSQL-Server
