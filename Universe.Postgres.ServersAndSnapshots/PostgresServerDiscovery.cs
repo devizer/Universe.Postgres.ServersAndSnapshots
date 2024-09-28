@@ -129,10 +129,19 @@ namespace Universe.Postgres.ServersAndSnapshots
             var pgCtlBin = Path.Combine(candidate, $"bin{Path.DirectorySeparatorChar}pg_ctl{ext}");
 
             var result = ExecProcessHelper.HiddenExec(pgCtlBin, "--version");
-            Console.WriteLine($"[DEBUG] \"{candidate}\"pg_ctl --version output: {result.OutputText}");
+            Console.WriteLine($"[DEBUG]   \"{candidate}\": pg_ctl --version output: {result.OutputText}");
+            Console.WriteLine($"[DEBUG]   \"{candidate}\": pg_ctl --version exit code: {result.ExitCode}");
             return TryEval<Version>(() =>
             {
-                result.DemandGenericSuccess("Query pg_ctl version");
+                try
+                {
+                    result.DemandGenericSuccess("Query pg_ctl version");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[DEBUG]   \"{candidate}\": pg_ctl --version error:{Environment.NewLine}{ex}");
+                }
+
                 var versionRaw = result.OutputText;
                 return TryParsePostgresVersion(versionRaw);
             });
