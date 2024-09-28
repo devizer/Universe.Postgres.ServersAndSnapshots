@@ -56,6 +56,13 @@ jobs:
       #   PG_VERSION_LIST: "postgresql@11 postgresql@12 postgresql@13 postgresql@14"
       #   MACPORT_PACKAGES: 'postgresql14-server postgresql96-server postgresql10-server postgresql15-server'
 
+      'v16.4 (tiny portable) on Windows 2019':
+        IMAGE: "windows-2019"
+        PG_PORTABLE_WINDOWS: 16.4-x64-tiny
+      'v16.4 (tiny portable) on Windows 2022':
+        IMAGE: "windows-2022"
+        PG_PORTABLE_WINDOWS: 16.4-x64-tiny
+
       'v16 (devel) on Ubuntu 20.04':
         IMAGE: "ubuntu-20.04"
         PG_LINUX: 16
