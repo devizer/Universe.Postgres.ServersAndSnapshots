@@ -129,6 +129,7 @@ namespace Universe.Postgres.ServersAndSnapshots
             var pgCtlBin = Path.Combine(candidate, $"bin{Path.DirectorySeparatorChar}pg_ctl{ext}");
 
             var result = ExecProcessHelper.HiddenExec(pgCtlBin, "--version");
+            Console.WriteLine($"[DEBUG] \"{candidate}\"pg_ctl --version output: {result.OutputText}");
             return TryEval<Version>(() =>
             {
                 result.DemandGenericSuccess("Query pg_ctl version");
