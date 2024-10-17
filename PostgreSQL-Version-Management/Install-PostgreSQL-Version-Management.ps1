@@ -4,7 +4,7 @@ Param(
 )
 
 $ModuleName = 'PostgreSQL-Version-Management';
-$ModuleVersion = '1.2.10';
+$ModuleVersion = '1.2.17';
 $ModuleFiles = @(
 	@{
 		FileName = 'PostgreSQL-Version-Management\PostgreSQL-Version-Management.psd1';
@@ -13,7 +13,7 @@ $ModuleFiles = @(
 			"",
 			"  # RootModule = 'SqlServer-Version-Management.psm1'",
 			"  ModuleToProcess = @('PostgreSQL-Version-Management.psm1')",
-			"  ModuleVersion = `"1.2.10`"",
+			"  ModuleVersion = `"1.2.17`"",
 			"",
 			"  GUID = '96b54ef3-dc2b-47b9-8bc9-95c43e2aa82f'",
 			"",
@@ -1432,6 +1432,17 @@ $ModuleFiles = @(
 			"}",
 			"",
 			"",
+			"# Include File: [\Includes\Get-Random-Free-Port.ps1]",
+			"function Get-Random-Free-Port() {",
+			"  `$tcpListener = New-Object System.Net.Sockets.TcpListener([System.Net.IPAddress]::Loopback <# ::Any? #>, 0)",
+			"  `$tcpListener.Start()",
+			"  `$port = ([System.Net.IPEndPoint] `$tcpListener.LocalEndpoint).Port;",
+			"  `$tcpListener.Stop()",
+			"  return `$port;",
+			"}",
+			"",
+			"# Get-Random-Free-Port",
+			"",
 			"# Include File: [\Includes\Get-Smarty-FileHash.ps1]",
 			"# `$algorithm: MD5|SHA1|SHA256|SHA384|SHA512",
 			"function Get-Smarty-FileHash([string] `$fileName, [string] `$algorithm = `"MD5`") {",
@@ -1669,7 +1680,7 @@ $ModuleFiles = @(
 			"",
 			"# Remove-Windows-Service-If-Exists `"PG`$9_26_X86`" `"Postgres SQL Windows Service`"",
 			"",
-			"# Include File: [\Includes\Reverse.ps1]",
+			"# Include File: [\Includes\Reverse-Pipe.ps1]",
 			"function Reverse-Pipe() { `$copy=@(`$input); for(`$i = `$copy.Length - 1; `$i -ge 0; `$i--) { `$copy[`$i] } }",
 			"",
 			"# `$null | Reverse-Pipe",
@@ -1745,6 +1756,43 @@ $ModuleFiles = @(
 			"  Write-Host `"Validation Error! Invalid `$name parameter '`$value'. Boolean parameter accept only True|False|On|Off|Enable|Disable|1|0`" -ForegroundColor Red",
 			"  return `$false;",
 			"}",
+			"",
+			"# Include File: [\Includes\To-Sortable-Version-String.ps1]",
+			"function To-Sortable-Version-String([string] `$arg) {",
+			"  `$ret = New-Object System.Text.StringBuilder;",
+			"  `$numberBuffer = New-Object System.Text.StringBuilder;",
+			"  for(`$i=0; `$i -lt `$arg.Length; `$i++) {",
+			"    `$c = `$arg.Substring(`$i, 1);",
+			"    if (`$c -ge `"0`" -and `$c -le `"9`") {",
+			"      `$__ = `$numberBuffer.Append(`$c)",
+			"    }",
+			"    else {",
+			"      if (`$numberBuffer.Length -gt 0) { `$__ = `$ret.Append(`$numberBuffer.ToString().PadLeft(42,`"0`")); `$numberBuffer.Length = 0; }",
+			"      `$__ = `$ret.Append(`$c)",
+			"    }",
+			"  }",
+			"  # same",
+			"  if (`$numberBuffer.Length -gt 0) { `$__ = `$ret.Append(`$numberBuffer.ToString().PadLeft(42,`"0`")) }",
+			"  return `$ret.ToString();",
+			"}",
+			"",
+			"function Test-Version-Sort() {",
+			"  @(`"PG-9.6.24`", `"PG-10.1`", `"PG-11.3`", `"PG-11.12`", `"PG-16.4`") | % { To-Sortable-Version-String `$_ }",
+			"",
+			"  `$objects = @(",
+			"    @{Version = `"PG-9.6.24`"; InstalledDate = [DateTime] `"2020-01-01`"}, ",
+			"    @{Version = `"PG-10.1`";   InstalledDate = [DateTime] `"2021-02-02`"}, ",
+			"    @{Version = `"PG-11.3`";   InstalledDate = [DateTime] `"2022-03-03`"}, ",
+			"    @{Version = `"PG-11.12`";  InstalledDate = [DateTime] `"2023-04-04`"}, ",
+			"    @{Version = `"PG-16.4`";   InstalledDate = [DateTime] `"2024-05-05`"}",
+			"  );",
+			"  `$objects |",
+			"    % { [pscustomobject] `$_ } |",
+			"    Sort-Object -Property @{ Expression = { To-Sortable-Version-String `$_.Version }; Descending = `$true }, @{ Expression = `"InstalleDate`"; Descending = `$false } |",
+			"    Format-Table * -AutoSize",
+			"}",
+			"",
+			"# Test-Version-Sort",
 			"",
 			"# Include File: [\Includes\Troubleshoot-Info.ps1]",
 			"function Troubleshoot-Info() {",
@@ -2011,12 +2059,16 @@ function Find-Writable-Module-Folder() {
   foreach($module in $modules) {
     $probeFullName = Combine-Path $module "probe.$([Guid]::NewGuid().ToString("N"))"
     try { 
+      # $eap = $ErrorActionPreference
+      # $ErrorActionPreference = "SilentlyContinue"
+      # Set-Content -Path $probeFullName -Value "success" -ErrorAction SilentlyContinue
+      # if (Test-Path $probeFullName -ErrorAction SilentlyContinue) { return $module; }
       try { $_ = [System.IO.Directory]::CreateDirectory($module); } catch {}
-      [System.IO.File]::WriteAllText($probeFullName, "success");
-      return $module; 
+      try { [System.IO.File]::WriteAllText($probeFullName, "success"); return $module; } catch {}
     }
     finally { 
       try { [System.IO.File]::Delete($probeFullName); } catch { }
+      # $ErrorActionPreference = $eap
     }
   }
 }
